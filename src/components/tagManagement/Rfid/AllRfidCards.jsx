@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Box, Button, Dialog, Grow } from '@mui/material'
+import { Box, Dialog } from '@mui/material'
 import StyledTable from '../../../ui/styledTable'
 import StyledButton from '../../../ui/styledButton'
 import LastSynced from '../../../layout/LastSynced'
@@ -35,10 +35,7 @@ const AllRfidCards = ({ data, updateData, setPageNo, totalCount }) => {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const { userCan } = useAuth()
   const rfData = tableHeaderReplace(data, ['rfidTag', 'username','serialNumber', 'createdAt', 'expiry', 'balance', 'status'], tableHeader)
-  // Function to open the modal
-  const handleOpen = () => {
-    setOpen(true);
-  };
+
 
   // Function to close the modal
   const handleClose = () => {

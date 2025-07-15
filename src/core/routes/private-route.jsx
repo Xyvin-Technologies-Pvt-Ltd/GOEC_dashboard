@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext'; // Adjust the import path as necessary
 
 const PrivateRoute = ({ element, requiredPermission }) => {
-  const { user, userCan,userHave } = useAuth();
+  const { user, userCan } = useAuth();
   if (!user) {
     // Redirect to login if the user is not logged in
     return <Navigate to="/login" replace />;

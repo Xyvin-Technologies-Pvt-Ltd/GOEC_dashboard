@@ -14,7 +14,7 @@ export default function AddOEM({ open, onClose, editStatus = false, editData = {
   const { handleSubmit, setValue, reset, formState: { errors }, control } = useForm();
   useEffect(() => {
     setValue("name", editStatus ? editData["Company Name"] : '')
-  }, [editData])
+  }, [editData, editStatus, setValue])
 
   const onSubmit = (data) => {
     if (editStatus) {

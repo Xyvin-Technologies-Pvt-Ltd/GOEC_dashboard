@@ -3,9 +3,7 @@ import StyledTable from "../../../ui/styledTable";
 import LastSynced from "../../../layout/LastSynced";
 import { Box, Dialog, Stack, Typography } from "@mui/material";
 import StyledSearchField from "../../../ui/styledSearchField";
-import { useNavigate } from 'react-router-dom'
 import { tableHeaderReplace } from "../../../utils/tableHeaderReplace";
-import { searchAndFilter } from "../../../utils/search";
 import { deleteVehicle } from "../../../services/vehicleAPI";
 import { toast } from "react-toastify";
 import AddVehicles from "./AddVehicles";

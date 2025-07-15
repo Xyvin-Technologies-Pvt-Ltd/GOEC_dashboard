@@ -1,9 +1,9 @@
-import { Box, CircularProgress, Container, Stack, Typography } from "@mui/material";
+import { Box, Container, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { ReactComponent as Logo } from "../assets/Logo.svg";
 import StyledDivider from "../ui/styledDivider";
 import StyledInput from "../ui/styledInput";
-import { MailOutline, Lock, Visibility, Circle } from "@mui/icons-material";
+import { MailOutline, Lock, Visibility } from "@mui/icons-material";
 import StyledButton from "../ui/styledButton";
 import { Controller, useForm } from "react-hook-form";
 import { ReactComponent as Close } from "../assets/icons/close-circle.svg";
@@ -15,38 +15,33 @@ import StyledLoader from "../ui/styledLoader";
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [forgotShow, setForgotShow] = useState(false);
-  const [isSubmit, setIsSubmit] = useState(false)
+  const [isSubmit, setIsSubmit] = useState(false);
   const navigate = useNavigate();
-
 
   const {
     control,
     handleSubmit,
-    reset,
-
     formState: { errors },
   } = useForm();
 
   const onSubmit = async (formData) => {
-    setIsSubmit(true)
+    setIsSubmit(true);
     try {
-      let data = await adminLogin(formData)
-      localStorage.setItem('token', data.token)
+      let data = await adminLogin(formData);
+      localStorage.setItem("token", data.token);
       toast.success("Login Success");
-      setIsSubmit(false)
+      setIsSubmit(false);
       navigate("/dashboard", { replace: true });
     } catch (error) {
       toast.error("Authentication Failed");
-      setIsSubmit(false)
+      setIsSubmit(false);
       // reset({},{keepDefaultValues:false});
     }
-    setTimeout(()=>{
-      
-    },2000)
+    setTimeout(() => {}, 2000);
   };
 
   const handleForgot = (formData) => {
-    navigate('/forgot-password')
+    navigate("/forgot-password");
   };
 
   return (
@@ -59,7 +54,11 @@ export default function Login() {
       }}
     >
       <Container maxWidth="sm">
-        <Stack sx={{ backgroundColor: "secondary.main", borderRadius: "10px" }} py={2} my={4}>
+        <Stack
+          sx={{ backgroundColor: "secondary.main", borderRadius: "10px" }}
+          py={2}
+          my={4}
+        >
           {!forgotShow && (
             <Box
               sx={{
@@ -80,7 +79,9 @@ export default function Login() {
           )}
           {!forgotShow ? (
             <Box p={2}>
-              <Typography sx={{ marginBottom: 1, fontSize: "24px", fontWeight: "600" }}>
+              <Typography
+                sx={{ marginBottom: 1, fontSize: "24px", fontWeight: "600" }}
+              >
                 Sign In
               </Typography>
               <Typography
@@ -105,10 +106,11 @@ export default function Login() {
                           {...field}
                           icon={<MailOutline />}
                           placeholder={"Enter your email"}
-
                         />
                         {errors.email && (
-                          <span style={errorMessageStyle}>{errors.email.message}</span>
+                          <span style={errorMessageStyle}>
+                            {errors.email.message}
+                          </span>
                         )}
                       </>
                     )}
@@ -123,7 +125,6 @@ export default function Login() {
                         <StyledInput
                           {...field}
                           icon={<Lock />}
-
                           iconright={
                             <Visibility
                               onClick={() => setShowPassword(!showPassword)}
@@ -134,16 +135,27 @@ export default function Login() {
                           placeholder={"Enter your password"}
                         />
                         {errors.email && (
-                          <span style={errorMessageStyle}>{errors.password.message}</span>
+                          <span style={errorMessageStyle}>
+                            {errors.password.message}
+                          </span>
                         )}
                       </>
                     )}
                     rules={{ required: "Password is required" }}
                   />
-                  {isSubmit ? <Box sx={{display:'flex',justifyContent:'center'}}><StyledLoader/></Box> :
-                    <StyledButton variant={"primary"} width="100%" type="submit">
-                    Sign in
-                  </StyledButton>}
+                  {isSubmit ? (
+                    <Box sx={{ display: "flex", justifyContent: "center" }}>
+                      <StyledLoader />
+                    </Box>
+                  ) : (
+                    <StyledButton
+                      variant={"primary"}
+                      width="100%"
+                      type="submit"
+                    >
+                      Sign in
+                    </StyledButton>
+                  )}
                   <Typography
                     sx={{
                       marginBottom: 4,
@@ -161,11 +173,20 @@ export default function Login() {
             </Box>
           ) : (
             <Box p={2}>
-              <Box display={"flex"} alignItems={"center"} justifyContent={"space-between"}>
-                <Typography sx={{ marginBottom: 1, fontSize: "24px", fontWeight: "600" }}>
+              <Box
+                display={"flex"}
+                alignItems={"center"}
+                justifyContent={"space-between"}
+              >
+                <Typography
+                  sx={{ marginBottom: 1, fontSize: "24px", fontWeight: "600" }}
+                >
                   Forgot Your Password?
                 </Typography>
-                <Close onClick={() => setForgotShow(!forgotShow)} style={{ cursor: "pointer" }} />
+                <Close
+                  onClick={() => setForgotShow(!forgotShow)}
+                  style={{ cursor: "pointer" }}
+                />
               </Box>
               <Typography
                 sx={{
@@ -190,7 +211,9 @@ export default function Login() {
                           placeholder={"Enter your email"}
                         />
                         {errors.remail && (
-                          <span style={errorMessageStyle}>{errors.remail.message}</span>
+                          <span style={errorMessageStyle}>
+                            {errors.remail.message}
+                          </span>
                         )}
                       </>
                     )}

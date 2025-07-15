@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Box, Drawer, Typography, useMediaQuery } from "@mui/material";
 
 import { NavItem } from "../ui/Navitem";
@@ -8,38 +8,47 @@ import { useAuth } from "../core/auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const Sidebar = ({ open, onClose, ...props }) => {
-  const lgUp = useMediaQuery((theme) => theme.breakpoints.up("lg"))
+  const lgUp = useMediaQuery((theme) => theme.breakpoints.up("lg"));
   const { userCan } = useAuth();
   const [activeIndex, setActiveIndex] = useState(-1);
   const [filteredItems, setFilteredItems] = useState([]);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   // Load sidebar items initially and on user permission changes
   useEffect(() => {
     const filterSidebarItems = () => {
-      const updatedItems = siderbarListItems().map(item => ({
-        ...item,
-        sub: item.sub?.filter(subItem => (
-          !subItem.requiredRoles || subItem.requiredRoles.some(role => userCan(role))
-        ))
-      })).filter(item => item.sub ? item.sub.length > 0 : true);
+      const updatedItems = siderbarListItems()
+        .map((item) => ({
+          ...item,
+          sub: item.sub?.filter(
+            (subItem) =>
+              !subItem.requiredRoles ||
+              subItem.requiredRoles.some((role) => userCan(role))
+          ),
+        }))
+        .filter((item) => (item.sub ? item.sub.length > 0 : true));
       setFilteredItems(updatedItems);
 
-      navigate(window.location.pathname == '' || window.location.pathname == '/dashboard' ?
-      (updatedItems[0].extendable ? `/${updatedItems[0].sub[0]?.href}` : `/${updatedItems[0].href}`) :
-      `${window.location.pathname}`)
+      navigate(
+        window.location.pathname === "" ||
+          window.location.pathname === "/dashboard"
+          ? updatedItems[0].extendable
+            ? `/${updatedItems[0].sub[0]?.href}`
+            : `/${updatedItems[0].href}`
+          : `${window.location.pathname}`
+      );
       // Check if the active index is still valid after filtering
       if (activeIndex >= updatedItems.length) {
         setActiveIndex(-1);
       }
     };
-    
+
     filterSidebarItems();
-  }, [activeIndex]);
+  }, [activeIndex, navigate, userCan]);
 
   const handleItemClick = (index) => {
     setActiveIndex(index);
-    if(index === activeIndex){
+    if (index === activeIndex) {
       onClose(); // Close the sidebar on item click
     }
   };
@@ -54,7 +63,7 @@ const Sidebar = ({ open, onClose, ...props }) => {
           backgroundColor: "secondary.main",
           color: "secondary.contrastText",
           width: 260,
-          border:'none'
+          border: "none",
         },
       }}
       sx={{ zIndex: (theme) => theme.zIndex.appBar + 100 }}

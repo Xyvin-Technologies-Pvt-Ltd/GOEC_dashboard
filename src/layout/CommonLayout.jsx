@@ -1,6 +1,5 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components';
-import StyledButton from '../ui/styledButton';
 import StyledDivider from '../ui/styledDivider'; 
 import { ReactComponent as CloseCircle } from '../assets/icons/close-circle.svg';
 

@@ -28,7 +28,7 @@ let compactable_ports = [
 export default function AddVehicles({ vehicleData = {}, onClose, formSubmited, editStatus = false, ...props }) {
   const [brands, setBrands] = useState();
   const [selectedFile, setSelectedFile] = useState();
-  const { control, handleSubmit, reset, formState: { errors }, clearErrors } = useForm(
+  const { control, handleSubmit, reset, formState: { errors } } = useForm(
     {
       defaultValues: {
         
@@ -123,7 +123,7 @@ export default function AddVehicles({ vehicleData = {}, onClose, formSubmited, e
 
   const getBrandId = () => {
     for (let index = 0; index < brands.length; index++) {
-      if (brands[index].label == vehicleData["Company Name"]) {
+      if (brands[index].label === vehicleData["Company Name"]) {
         return brands[index].value
       }
     }

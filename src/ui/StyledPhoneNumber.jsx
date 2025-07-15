@@ -61,10 +61,9 @@ const StyledPhoneNumber = ({ onChange,placeholder }) => {
       }),
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isFocused ? '#4a4a4a' : 'var(--inner, #39383D)',
+      backgroundColor: state.isSelected ? '#242424' : (state.isFocused ? '#4a4a4a' : 'var(--inner, #39383D)'),
       color: state.isFocused ? '#fff' : '#B5B8C5',
       cursor: 'pointer',
-      backgroundColor: state.isSelected ? '#242424' : 'initial',
     }),
     menu: (provided) => ({
       ...provided,

@@ -5,7 +5,6 @@ import { Navigate } from "react-router-dom";
 
 import ChargingStation from "../../pages/chargeStation";
 
-import UnderConstruction from "../../pages/UnderConstruction";
 import NotFoundPage from "../../pages/NotFound";
 import CTariff from "../../pages/cTariff";
 import ATariff from "../../pages/aTariff";
@@ -14,7 +13,6 @@ import ChargingPoints from "../../pages/chargePoints";
 import ChargePointDetail from "../../components/assetManagement/chargePoints/chargePointDetail";
 import RfidCards from "../../pages/RfidCards";
 import CTax from "../../pages/cTax";
-import VidCards from "../../pages/VidCards";
 import EvChargers from "../../pages/EvChargers";
 import Vehicles from "../../pages/EvVehicles";
 import Manufactures from "../../pages/Manufactures";
@@ -25,12 +23,10 @@ import AASettings from "../../pages/AASettings";
 import RMSettings from "../../pages/RMSettings";
 import ChargingTransactions from "../../pages/ChargingTransactions";
 import ChargerLogs from "../../pages/ChargerLogs";
-import BookingTransactions from "../../pages/BookingTransactions";
 import SearchCustomer from "../../pages/SearchCustomer";
 import CustomerList from "../../pages/CustomerList";
 import LiveStatus from "../../pages/LiveStatus";
 import Reports from "../../pages/Reports";
-import Notification from "../../pages/Notification";
 import UserDetails from "../../components/crm/userDetails";
 import AccountTransactions from "../../pages/AccountTransactions";
 import Help from "../../pages/Help";

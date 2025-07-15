@@ -1,14 +1,13 @@
 import { Box, Dialog, Grid, Stack, Typography } from "@mui/material";
 import React, { useEffect } from "react";
 import StyledDivider from "../../../../ui/styledDivider";
-import StyledSelectField from "../../../../ui/styledSelectField";
 import StyledInput from "../../../../ui/styledInput";
 import { ReactComponent as Close } from "../../../../assets/icons/close-icon-large.svg";
 import StyledButton from "../../../../ui/styledButton";
 
 import { Controller, useForm } from "react-hook-form";
 import { createBrand, editBrand } from "../../../../services/vehicleAPI";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Transition } from "../../../../utils/DialogAnimation";
 
@@ -16,7 +15,7 @@ export default function AddVehicle({ open, onClose, editStatus = false, editData
   const { handleSubmit, setValue, reset, formState: { errors }, control } = useForm();
   useEffect(() => {
     setValue("brandName", editStatus ? editData["Company Name"] : '')
-  }, [editData])
+  }, [editData, editStatus, setValue])
 
   const onSubmit = (data) => {
     if (editStatus) {

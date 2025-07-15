@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -29,7 +28,7 @@ export const AuthProvider = ({ children }) => {
     return <div>Loading...</div>; // Or any loading indicator
   }
 
-  
+
   const getLoginUser = () => {
     const token = localStorage.getItem('token');
     if (token) {

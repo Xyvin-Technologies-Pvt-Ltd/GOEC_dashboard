@@ -2,10 +2,8 @@ import React, { useState } from 'react'
 import StyledTable from "../../../ui/styledTable";
 import LastSynced from "../../../layout/LastSynced";
 import { Box } from "@mui/material";
-import { DummyVehicle } from '../../../assets/json/DummyVehicle';
 import StyledSearchField from '../../../ui/styledSearchField';
 import StyledButton from '../../../ui/styledButton';
-import { searchAndFilter } from '../../../utils/search';
 import { toast } from "react-toastify";
 import AddOEM from './addOEM/AddOEM';
 import { tableHeaderReplace } from '../../../utils/tableHeaderReplace';
