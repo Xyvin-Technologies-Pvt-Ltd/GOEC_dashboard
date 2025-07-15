@@ -1,0 +1,84 @@
+name: Deploy GOEC_dashboard to AWS Lightsail
+
+on:
+  push:
+    paths:
+      - "**/*"
+      - ".github/workflows/cicd.yml"
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Build & Deploy React App
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js (match your version, e.g. 18)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      # Step 3: Install dependencies and build React app
+      - name: Install Dependencies & Build
+        run: |
+          npm ci
+          npm run build
+
+      # Step 4: Verify SSH connectivity
+      - name: Verify SSH connection to Lightsail
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.LIGHTSAIL_HOST }}
+          username: ${{ secrets.LIGHTSAIL_USER }}
+          key: ${{ secrets.LIGHTSAIL_KEY }}
+          script: |
+            echo "✅ SSH connection OK"
+            whoami && pwd
+
+      # Step 5: Clean temp deploy folder on Lightsail
+      - name: Prepare remote temp dir
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.LIGHTSAIL_HOST }}
+          username: ${{ secrets.LIGHTSAIL_USER }}
+          key: ${{ secrets.LIGHTSAIL_KEY }}
+          script: |
+            rm -rf ~/deploy-temp
+            mkdir -p ~/deploy-temp
+
+      # Step 6: Rsync build output to Lightsail
+      - name: Upload build to Lightsail
+        uses: burnett01/rsync-deployments@5.2.1
+        with:
+          switches: -avzr --delete
+          path: build/
+          remote_path: ~/deploy-temp/
+          remote_host: ${{ secrets.LIGHTSAIL_HOST }}
+          remote_user: ${{ secrets.LIGHTSAIL_USER }}
+          remote_key: ${{ secrets.LIGHTSAIL_KEY }}
+
+      # Step 7: Move build to web root, restart Nginx
+      - name: Deploy & Restart Nginx
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.LIGHTSAIL_HOST }}
+          username: ${{ secrets.LIGHTSAIL_USER }}
+          key: ${{ secrets.LIGHTSAIL_KEY }}
+          script: |
+            sudo rm -rf /var/www/html/goec-dashboard
+            sudo mkdir -p /var/www/html/goec-dashboard
+            sudo cp -R ~/deploy-temp/* /var/www/html/goec-dashboard
+            sudo chown -R www-data:www-data /var/www/html/goec-dashboard
+            sudo chmod -R 755 /var/www/html/goec-dashboard
+            rm -rf ~/deploy-temp
+            echo "✅ New build deployed"
+            echo "♻️ Restarting Nginx"
+            sudo systemctl restart nginx
