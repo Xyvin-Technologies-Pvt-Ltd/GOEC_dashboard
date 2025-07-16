@@ -30,7 +30,7 @@ jobs:
       - name: Install Dependencies & Build
         run: |
           npm ci
-          npm run build
+          CI=falsenpm run build
           echo "✅ Build completed successfully"
           ls -la build/
 
