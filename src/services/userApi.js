@@ -76,6 +76,7 @@ export async function getUserByIdforAdmin(id) {
   try {
     const response = await USER_INSTANCE.get(`admin/userDatabyId/${id}`);
     return response.data;
+
   } catch (error) {
     throw error;
   }
