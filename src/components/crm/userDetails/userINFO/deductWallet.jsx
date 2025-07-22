@@ -105,7 +105,7 @@ export default function DeductWallet({userData, onIsChange, isChange, open, onCl
 
             <Stack direction={"column"} spacing={2}>
               <Typography variant="subtitle2" sx={{ color: "secondary.contrastText" }}>
-                Add Amount <span style={{ color: "#D14343" }}>*</span>
+                Deduct Amount <span style={{ color: "#D14343" }}>*</span>
               </Typography>
 
               <Controller
