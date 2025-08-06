@@ -6,6 +6,7 @@ import { ReactComponent as Logo } from "../assets/Logo.svg";
 import { siderbarListItems } from "../assets/json/sidebar";
 import { useAuth } from "../core/auth/AuthContext";
 import { useNavigate } from "react-router-dom";
+import HeaderLogo from "../assets/header-logo.png";
 
 const Sidebar = ({ open, onClose, ...props }) => {
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up("lg"));
@@ -88,15 +89,10 @@ const Sidebar = ({ open, onClose, ...props }) => {
                 paddingBottom: 3,
               }}
             >
-              <Logo
-                sx={{
-                  height: 42,
-                  width: 42,
-                }}
-              />
-              <Typography color="inherit" variant="caption">
+              <img src={HeaderLogo} alt="Logo" style={{ width: "40%" }} />
+              {/* <Typography color="inherit" variant="caption">
                 version 2.0
-              </Typography>
+              </Typography> */}
             </Box>
           </Box>
         </div>
