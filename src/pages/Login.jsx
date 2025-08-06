@@ -11,6 +11,7 @@ import { adminLogin } from "../services/userApi";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import StyledLoader from "../ui/styledLoader";
+import HeaderLogo from "../assets/header-logo.png";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -68,12 +69,7 @@ export default function Login() {
                 flexDirection: "column",
               }}
             >
-              <Logo
-                sx={{
-                  height: 60,
-                  width: 60,
-                }}
-              />
+              <img src={HeaderLogo} alt="Logo" style={{ width: "20%" }} />
               <StyledDivider />
             </Box>
           )}
