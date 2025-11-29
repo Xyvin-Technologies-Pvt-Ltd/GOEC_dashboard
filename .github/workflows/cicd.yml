@@ -12,49 +12,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout code
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2️⃣ Set up Node
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: npm
 
-      # 3️⃣ Install & Build React App
-      - name: Install Dependencies & Build
+      - name: Install & Build React App
         run: |
           npm ci
           CI=false npm run build
-          echo "🎉 Build completed"
+          echo "🎉 Build Completed"
           ls -la build/
 
-      # 4️⃣ Verify SSH connectivity
-      - name: Verify SSH to PROD
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.PROD_SERVER_IP }}
-          username: root
-          password: ${{ secrets.PROD_SERVER_PASSWORD }}
-          script: |
-            echo "🔗 Connection OK"
-            hostname
-            df -h
+      # Upload build folder using password authentication
+      - name: Upload build files to server
+        run: |
+          sudo apt-get update && sudo apt-get install -y sshpass rsync
+          sshpass -p "${{ secrets.PROD_SERVER_PASSWORD }}" rsync -avzr --delete \
+          ./build/ \
+          root@${{ secrets.PROD_SERVER_IP }}:/root/goec-new/
 
-      # 5️⃣ Upload Build Folder
-      - name: Upload Build Folder
-        uses: burnett01/rsync-deployments@5.2.1
-        with:
-          switches: -avzr --delete
-          path: build/
-          remote_path: /root/goec-new/
-          remote_host: ${{ secrets.PROD_SERVER_IP }}
-          remote_user: root
-          remote_password: ${{ secrets.PROD_SERVER_PASSWORD }}
-
-      # 6️⃣ Deploy & Restart NGINX
       - name: Deploy and Restart NGINX
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -63,28 +44,39 @@ jobs:
           password: ${{ secrets.PROD_SERVER_PASSWORD }}
           script: |
             set -e
-            echo "🚀 Starting deployment on AlmaLinux..."
+            echo "🚀 Deploying to AlmaLinux PROD..."
 
+            # Install nginx if missing
             if ! command -v nginx &>/dev/null; then
               echo "📦 Installing nginx..."
               sudo dnf install -y nginx
-              sudo systemctl enable nginx --now
+              sudo systemctl enable --now nginx
             fi
 
+            # Backup existing build
             if [ -d "/usr/share/nginx/html/goec-dashboard" ]; then
-              echo "📦 Backing up existing deployment..."
+              echo "📦 Creating backup..."
               cp -R /usr/share/nginx/html/goec-dashboard /usr/share/nginx/html/goec-dashboard.backup.$(date +%Y%m%d_%H%M%S)
             fi
 
+            echo "🗑 Removing old files..."
             rm -rf /usr/share/nginx/html/goec-dashboard
             mkdir -p /usr/share/nginx/html/goec-dashboard
+
+            echo "📥 Deploying new build..."
             cp -R /root/goec-new/* /usr/share/nginx/html/goec-dashboard/
 
+            echo "🔐 Fixing permissions..."
             chown -R nginx:nginx /usr/share/nginx/html/goec-dashboard
             chmod -R 755 /usr/share/nginx/html/goec-dashboard
+
+            echo "🧹 Cleaning temp folder..."
             rm -rf /root/goec-new
 
+            echo "🔍 Testing NGINX config..."
             nginx -t
+
+            echo "♻ Restarting nginx..."
             systemctl restart nginx
 
-            echo "🎉 Production Deployment Successful!"
+            echo "🎉 Deployment Completed Successfully!"
