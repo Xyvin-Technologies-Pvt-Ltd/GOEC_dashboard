@@ -8,11 +8,10 @@ on:
 
 jobs:
   deploy:
-    name: íº€ Build & Deploy Production Frontend
+    name: ğŸš€ Build & Deploy Production Frontend
     runs-on: ubuntu-latest
 
     steps:
-
       # 1ï¸âƒ£ Checkout code
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -26,18 +25,18 @@ jobs:
         run: |
           npm ci
           CI=false npm run build
-          echo "í¾‰ Build completed"
+          echo "ğŸ‰ Build completed"
           ls -la build/
 
       # 3ï¸âƒ£ Check SSH connection to AlmaLinux PROD server
       - name: Verify SSH to PROD
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.PROD_SERVER_IP }}
           username: root
           password: ${{ secrets.PROD_SERVER_PASSWORD }}
           script: |
-            echo "í´— Connected to AlmaLinux PROD Server"
+            echo "ğŸ”— Connection OK"
             hostname
             uname -a
             df -h
@@ -51,56 +50,53 @@ jobs:
           remote_path: /root/goec-new/
           remote_host: ${{ secrets.PROD_SERVER_IP }}
           remote_user: root
-          remote_key: ""
           remote_password: ${{ secrets.PROD_SERVER_PASSWORD }}
 
       # 5ï¸âƒ£ Deploy on AlmaLinux
       - name: Deploy and Restart NGINX
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.PROD_SERVER_IP }}
           username: root
           password: ${{ secrets.PROD_SERVER_PASSWORD }}
           script: |
             set -e
-            echo "íº€ Starting deployment on AlmaLinux..."
+            echo "ğŸš€ Starting deployment on AlmaLinux..."
 
-            # Ensure NGINX exists (if not installed)
+            # Ensure nginx installed
             if ! command -v nginx &>/dev/null; then
-              echo "í³¦ Installing NGINX..."
+              echo "ğŸ“¦ Installing nginx..."
               sudo dnf install -y nginx
               sudo systemctl enable nginx
               sudo systemctl start nginx
             fi
 
-            # Backup previous deployment if exists
+            # Backup previous version
             if [ -d "/usr/share/nginx/html/goec-dashboard" ]; then
-              echo "í³¦ Backup old build..."
+              echo "ğŸ“¦ Backing up old build..."
               cp -R /usr/share/nginx/html/goec-dashboard /usr/share/nginx/html/goec-dashboard.backup.$(date +%F_%H-%M-%S)
             fi
 
-            echo "í·‘ Removing old deployment..."
+            echo "ğŸ—‘ Removing old deployment..."
             rm -rf /usr/share/nginx/html/goec-dashboard
 
-            echo "í³ Creating new deployment folder..."
+            echo "ğŸ“ Creating new deployment folder..."
             mkdir -p /usr/share/nginx/html/goec-dashboard
 
-            echo "í³¥ Copying new build..."
+            echo "ğŸ“¥ Copying files..."
             cp -R /root/goec-new/* /usr/share/nginx/html/goec-dashboard/
 
-            echo "í´ Setting permissions..."
+            echo "ğŸ” Fixing permissions..."
             chown -R nginx:nginx /usr/share/nginx/html/goec-dashboard
             chmod -R 755 /usr/share/nginx/html/goec-dashboard
 
-            echo "í·¹ Cleaning temp build..."
+            echo "ğŸ§¹ Cleanup..."
             rm -rf /root/goec-new
 
-            echo "í´ Checking nginx config..."
+            echo "ğŸ” Testing nginx config..."
             nginx -t
 
             echo "â™» Restarting nginx..."
             systemctl restart nginx
 
-            echo "í¾‰ Deployment Successful for PROD!"
-            echo "í¼ Website Live: https://${{ secrets.PROD_DOMAIN }}"
-
+           
