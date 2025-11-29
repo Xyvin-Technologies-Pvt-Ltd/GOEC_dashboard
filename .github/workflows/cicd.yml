@@ -16,19 +16,22 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2️⃣ Install Node & Build React App
-      - name: Install & Build
+      # 2️⃣ Set up Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: npm
+
+      # 3️⃣ Install & Build React App
+      - name: Install Dependencies & Build
         run: |
           npm ci
           CI=false npm run build
           echo "🎉 Build completed"
           ls -la build/
 
-      # 3️⃣ Check SSH connection to AlmaLinux PROD server
+      # 4️⃣ Verify SSH connectivity
       - name: Verify SSH to PROD
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -38,10 +41,9 @@ jobs:
           script: |
             echo "🔗 Connection OK"
             hostname
-            uname -a
             df -h
 
-      # 4️⃣ Upload Build folder using rsync
+      # 5️⃣ Upload Build Folder
       - name: Upload Build Folder
         uses: burnett01/rsync-deployments@5.2.1
         with:
@@ -52,7 +54,7 @@ jobs:
           remote_user: root
           remote_password: ${{ secrets.PROD_SERVER_PASSWORD }}
 
-      # 5️⃣ Deploy on AlmaLinux
+      # 6️⃣ Deploy & Restart NGINX
       - name: Deploy and Restart NGINX
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -63,40 +65,26 @@ jobs:
             set -e
             echo "🚀 Starting deployment on AlmaLinux..."
 
-            # Ensure nginx installed
             if ! command -v nginx &>/dev/null; then
               echo "📦 Installing nginx..."
               sudo dnf install -y nginx
-              sudo systemctl enable nginx
-              sudo systemctl start nginx
+              sudo systemctl enable nginx --now
             fi
 
-            # Backup previous version
             if [ -d "/usr/share/nginx/html/goec-dashboard" ]; then
-              echo "📦 Backing up old build..."
-              cp -R /usr/share/nginx/html/goec-dashboard /usr/share/nginx/html/goec-dashboard.backup.$(date +%F_%H-%M-%S)
+              echo "📦 Backing up existing deployment..."
+              cp -R /usr/share/nginx/html/goec-dashboard /usr/share/nginx/html/goec-dashboard.backup.$(date +%Y%m%d_%H%M%S)
             fi
 
-            echo "🗑 Removing old deployment..."
             rm -rf /usr/share/nginx/html/goec-dashboard
-
-            echo "📁 Creating new deployment folder..."
             mkdir -p /usr/share/nginx/html/goec-dashboard
-
-            echo "📥 Copying files..."
             cp -R /root/goec-new/* /usr/share/nginx/html/goec-dashboard/
 
-            echo "🔐 Fixing permissions..."
             chown -R nginx:nginx /usr/share/nginx/html/goec-dashboard
             chmod -R 755 /usr/share/nginx/html/goec-dashboard
-
-            echo "🧹 Cleanup..."
             rm -rf /root/goec-new
 
-            echo "🔍 Testing nginx config..."
             nginx -t
-
-            echo "♻ Restarting nginx..."
             systemctl restart nginx
 
-           
+            echo "🎉 Production Deployment Successful!"
