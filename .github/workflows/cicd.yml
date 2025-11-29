@@ -1,127 +1,106 @@
-name: Deploy GOEC_dashboard to AWS Lightsail
+name: Deploy GOEC Dashboard (PRODUCTION)
 
 on:
   push:
-    paths:
-      - "**/*"
-      - ".github/workflows/cicd.yml"
     branches:
-      - main
+      - prod
   workflow_dispatch:
 
 jobs:
   deploy:
-    name: Build & Deploy React App
+    name: íº€ Build & Deploy Production Frontend
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the code
+
+      # 1ï¸âƒ£ Checkout code
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js (match your version, e.g. 18)
-      - name: Set up Node.js
+      # 2ï¸âƒ£ Install Node & Build React App
+      - name: Install & Build
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
-          cache: "npm"
-
-      # Step 3: Install dependencies and build React app
-      - name: Install Dependencies & Build
+          node-version: 18
+          cache: npm
         run: |
           npm ci
           CI=false npm run build
-          echo "âœ… Build completed successfully"
+          echo "í¾‰ Build completed"
           ls -la build/
 
-      # Step 4: Verify SSH connectivity and test connection
-      - name: Verify SSH connection to Lightsail
-        uses: appleboy/ssh-action@v1.0.3
+      # 3ï¸âƒ£ Check SSH connection to AlmaLinux PROD server
+      - name: Verify SSH to PROD
+        uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.LIGHTSAIL_HOST }}
-          username: ${{ secrets.LIGHTSAIL_USER }}
-          key: ${{ secrets.LIGHTSAIL_KEY }}
+          host: ${{ secrets.PROD_SERVER_IP }}
+          username: root
+          password: ${{ secrets.PROD_SERVER_PASSWORD }}
           script: |
-            echo "âœ… SSH connection OK"
-            echo "Current user: $(whoami)"
-            echo "Current directory: $(pwd)"
-            echo "Available disk space:"
+            echo "í´— Connected to AlmaLinux PROD Server"
+            hostname
+            uname -a
             df -h
-            echo "Nginx status:"
-            sudo systemctl status nginx --no-pager || echo "Nginx not running"
 
-      # Step 5: Clean temp deploy folder on Lightsail
-      - name: Prepare remote temp dir
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.LIGHTSAIL_HOST }}
-          username: ${{ secrets.LIGHTSAIL_USER }}
-          key: ${{ secrets.LIGHTSAIL_KEY }}
-          script: |
-            echo "ğŸ§¹ Cleaning up previous deployment..."
-            rm -rf ~/deploy-temp
-            mkdir -p ~/deploy-temp
-            echo "âœ… Temp directory prepared"
-
-      # Step 6: Rsync build output to Lightsail
-      - name: Upload build to Lightsail
+      # 4ï¸âƒ£ Upload Build folder using rsync
+      - name: Upload Build Folder
         uses: burnett01/rsync-deployments@5.2.1
         with:
           switches: -avzr --delete
           path: build/
-          remote_path: ~/deploy-temp/
-          remote_host: ${{ secrets.LIGHTSAIL_HOST }}
-          remote_user: ${{ secrets.LIGHTSAIL_USER }}
-          remote_key: ${{ secrets.LIGHTSAIL_KEY }}
+          remote_path: /root/goec-new/
+          remote_host: ${{ secrets.PROD_SERVER_IP }}
+          remote_user: root
+          remote_key: ""
+          remote_password: ${{ secrets.PROD_SERVER_PASSWORD }}
 
-      # Step 7: Move build to web root, restart Nginx
-      - name: Deploy & Restart Nginx
-        uses: appleboy/ssh-action@v1.0.3
+      # 5ï¸âƒ£ Deploy on AlmaLinux
+      - name: Deploy and Restart NGINX
+        uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.LIGHTSAIL_HOST }}
-          username: ${{ secrets.LIGHTSAIL_USER }}
-          key: ${{ secrets.LIGHTSAIL_KEY }}
+          host: ${{ secrets.PROD_SERVER_IP }}
+          username: root
+          password: ${{ secrets.PROD_SERVER_PASSWORD }}
           script: |
-            echo "ğŸš€ Starting deployment..."
+            set -e
+            echo "íº€ Starting deployment on AlmaLinux..."
 
-            # Backup existing deployment
-            if [ -d "/var/www/html/goec-dashboard" ]; then
-              echo "ğŸ“¦ Backing up existing deployment..."
-              sudo cp -R /var/www/html/goec-dashboard /var/www/html/goec-dashboard.backup.$(date +%Y%m%d_%H%M%S)
+            # Ensure NGINX exists (if not installed)
+            if ! command -v nginx &>/dev/null; then
+              echo "í³¦ Installing NGINX..."
+              sudo dnf install -y nginx
+              sudo systemctl enable nginx
+              sudo systemctl start nginx
             fi
 
-            # Remove old deployment
-            echo "ğŸ—‘ï¸ Removing old deployment..."
-            sudo rm -rf /var/www/html/goec-dashboard
+            # Backup previous deployment if exists
+            if [ -d "/usr/share/nginx/html/goec-dashboard" ]; then
+              echo "í³¦ Backup old build..."
+              cp -R /usr/share/nginx/html/goec-dashboard /usr/share/nginx/html/goec-dashboard.backup.$(date +%F_%H-%M-%S)
+            fi
 
-            # Create new directory
-            echo "ğŸ“ Creating deployment directory..."
-            sudo mkdir -p /var/www/html/goec-dashboard
+            echo "í·‘ Removing old deployment..."
+            rm -rf /usr/share/nginx/html/goec-dashboard
 
-            # Copy new build
-            echo "ğŸ“‹ Copying new build..."
-            sudo cp -R ~/deploy-temp/* /var/www/html/goec-dashboard/
+            echo "í³ Creating new deployment folder..."
+            mkdir -p /usr/share/nginx/html/goec-dashboard
 
-            # Set permissions
-            echo "ğŸ” Setting permissions..."
-            sudo chown -R www-data:www-data /var/www/html/goec-dashboard
-            sudo chmod -R 755 /var/www/html/goec-dashboard
+            echo "í³¥ Copying new build..."
+            cp -R /root/goec-new/* /usr/share/nginx/html/goec-dashboard/
 
-            # Clean up temp files
-            echo "ğŸ§¹ Cleaning up temp files..."
-            rm -rf ~/deploy-temp
+            echo "í´ Setting permissions..."
+            chown -R nginx:nginx /usr/share/nginx/html/goec-dashboard
+            chmod -R 755 /usr/share/nginx/html/goec-dashboard
 
-            # Test nginx configuration
-            echo "ğŸ” Testing nginx configuration..."
-            sudo nginx -t
+            echo "í·¹ Cleaning temp build..."
+            rm -rf /root/goec-new
 
-            # Restart nginx
-            echo "â™»ï¸ Restarting Nginx..."
-            sudo systemctl restart nginx
+            echo "í´ Checking nginx config..."
+            nginx -t
 
-            # Verify nginx is running
-            echo "âœ… Checking nginx status..."
-            sudo systemctl status nginx --no-pager
+            echo "â™» Restarting nginx..."
+            systemctl restart nginx
 
-            echo "ğŸ‰ Deployment completed successfully!"
-            echo "ğŸŒ Your app should be available at: http://${{ secrets.LIGHTSAIL_HOST }}"
+            echo "í¾‰ Deployment Successful for PROD!"
+            echo "í¼ Website Live: https://${{ secrets.PROD_DOMAIN }}"
+
