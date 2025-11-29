@@ -12,41 +12,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      # 2️⃣ Build React App
+      - name: Install & Build React App
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: npm
-
-      - name: Install & Build React App
-        run: |
+      - run: |
           npm ci
           CI=false npm run build
           echo "🎉 Build Completed"
           ls -la build/
 
-      # Upload build folder using password authentication
-      - name: Upload build files to server
+      # 3️⃣ Upload files using SSH key with rsync
+      - name: Upload build files to server via SSH Key
+        env:
+          SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
         run: |
-          sudo apt-get update && sudo apt-get install -y sshpass rsync
-          sshpass -p "${{ secrets.PROD_SERVER_PASSWORD }}" rsync -avzr --delete \
-          ./build/ \
-          root@${{ secrets.PROD_SERVER_IP }}:/root/goec-new/
+          sudo apt-get update && sudo apt-get install -y rsync
 
-      - name: Deploy and Restart NGINX
+          # Create private key file
+          echo "$SSH_KEY" > private_key.pem
+          chmod 600 private_key.pem
+
+          # Upload files
+          rsync -avzr --delete -e "ssh -o StrictHostKeyChecking=no -i private_key.pem" \
+            ./build/ \
+            root@${{ secrets.PROD_SERVER_IP }}:/root/goec-new/
+
+      # 4️⃣ Deploy on server & restart NGINX
+      - name: Deploy & Restart Nginx
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.PROD_SERVER_IP }}
           username: root
-          password: ${{ secrets.PROD_SERVER_PASSWORD }}
+          key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             set -e
-            echo "🚀 Deploying to AlmaLinux PROD..."
+            echo "🚀 Running deployment on AlmaLinux..."
 
-            # Install nginx if missing
+            # Ensure nginx installed
             if ! command -v nginx &>/dev/null; then
               echo "📦 Installing nginx..."
               sudo dnf install -y nginx
@@ -56,27 +65,28 @@ jobs:
             # Backup existing build
             if [ -d "/usr/share/nginx/html/goec-dashboard" ]; then
               echo "📦 Creating backup..."
-              cp -R /usr/share/nginx/html/goec-dashboard /usr/share/nginx/html/goec-dashboard.backup.$(date +%Y%m%d_%H%M%S)
+              cp -R /usr/share/nginx/html/goec-dashboard \
+                /usr/share/nginx/html/goec-dashboard.backup.$(date +%Y%m%d_%H%M%S)
             fi
 
-            echo "🗑 Removing old files..."
+            echo "🗑 Cleaning old files..."
             rm -rf /usr/share/nginx/html/goec-dashboard
             mkdir -p /usr/share/nginx/html/goec-dashboard
 
-            echo "📥 Deploying new build..."
+            echo "📥 Deploy new build..."
             cp -R /root/goec-new/* /usr/share/nginx/html/goec-dashboard/
 
-            echo "🔐 Fixing permissions..."
+            echo "🔐 Setting permissions..."
             chown -R nginx:nginx /usr/share/nginx/html/goec-dashboard
             chmod -R 755 /usr/share/nginx/html/goec-dashboard
 
-            echo "🧹 Cleaning temp folder..."
+            echo "🧹 Cleanup..."
             rm -rf /root/goec-new
 
-            echo "🔍 Testing NGINX config..."
+            echo "🔍 Validating config..."
             nginx -t
 
             echo "♻ Restarting nginx..."
             systemctl restart nginx
 
-            echo "🎉 Deployment Completed Successfully!"
+            echo "🎉 Deployment completed successfully!"
