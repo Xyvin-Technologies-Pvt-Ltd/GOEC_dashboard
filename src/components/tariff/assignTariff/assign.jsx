@@ -1,71 +1,63 @@
 import { Grid, Typography, Container, Stack, Box } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import StyledButton from "../../../ui/styledButton";
 import StyledSelectField from "../../../ui/styledSelectField";
 import TableCell from "@mui/material/TableCell";
-import { changeEVTarrif } from "../../../services/evMachineAPI";
 import { toast } from "react-toastify";
-import { getChargingTariffList } from "../../../services/chargingTariffAPI";
-import { userAssignAndunAssignTarrif } from "../../../services/userApi";
+import { useChargingTariffList } from "../../../hooks/queries/useChargingTariff";
+import { useChangeEvTariff } from "../../../hooks/mutations/useEvMachineMutation";
+import { useUserAssignUnassignTariff } from "../../../hooks/mutations/useUserMutation";
 
 export default function Assign({ tab, data, onClose, user }) {
-
-  const [tarrifList, setTarrifList] = useState([])
-  const [selectedtarrif, setSelectedTarrif] = useState()
+  const [selectedtarrif, setSelectedTarrif] = useState();
   const [pageNo, setPageNo] = useState(1);
-  const [totalCount, setTotalCount] = useState(1);
 
-  useEffect((filter={pageNo}) => {
-    getChargingTariffList(filter).then((res) => {
-      if (res) {
-        setTarrifList(res.result.map((dt) => ({ label: dt.name, value: dt._id })));
-        setTotalCount(res.totalCount);
-      }
-    })
-  }, [pageNo])
+  // Use TanStack Query hook for charging tariff list
+  const { data: tariffListData = {} } = useChargingTariffList(pageNo, "");
+  const tarrifList = tariffListData.result?.map((dt) => ({ label: dt.name, value: dt._id })) ?? [];
+
+  // Use TanStack Query mutation hooks
+  const changeEVTariffMutation = useChangeEvTariff({
+    onSuccess: () => {
+      toast.success("Successfully assigned", { position: "top-right" });
+      onClose && onClose();
+    },
+    onError: (error) => {
+      const errorMessage = error?.response?.data?.error || "Something went wrong";
+      toast.error(errorMessage, { position: "top-right" });
+    },
+  });
+
+  const userTariffMutation = useUserAssignUnassignTariff({
+    onSuccess: () => {
+      toast.success("Successfully assigned", { position: "top-right" });
+      onClose && onClose();
+    },
+    onError: (error) => {
+      const errorMessage = error?.response?.data?.error || "Something went wrong";
+      toast.error(errorMessage, { position: "top-right" });
+    },
+  });
 
 
   const assignTarrif = () => {
+    if (!selectedtarrif) return;
+    const dt = { chargingTariff: selectedtarrif.value };
     if (tab === "location") {
-      let dt = {
-        chargingTariff: selectedtarrif.value
-      }
-      changeEVTarrif(data._id, dt).then((res) => {
-        toast.success("Successfully assigned")
-        onClose && onClose()
-      }).catch((err) => {
-        toast.error(err.response.data.error)
-      })
+      changeEVTariffMutation.mutate({ evMachine: data._id, data: dt });
     } else if (tab === "personal") {
-      let dt = {
-        chargingTariff: selectedtarrif.value
-      }
-      userAssignAndunAssignTarrif(user._id, dt).then((res) => {
-        toast.success("Successfully assigned")
-        onClose && onClose()
-      }).catch((err) => {
-        toast.error(err.response.data.error)
-      })
+      userTariffMutation.mutate({ id: user._id, data: dt });
     }
-  }
+  };
 
   const unAssinHandle = () => {
     if (tab === "location") {
-      changeEVTarrif(data._id, {}).then((res) => {
-        onClose && onClose()
-      }).catch((err) => {
-        toast.error(err.response.data.error)
-      })
+      changeEVTariffMutation.mutate({ evMachine: data._id, data: {} });
     } else if (tab === "personal") {
-      userAssignAndunAssignTarrif(user._id, {}).then((res) => {
-        toast.success("Successfully unassigned")
-        onClose && onClose()
-      }).catch((err) => {
-        toast.error(err.response.data.error)
-      })
+      userTariffMutation.mutate({ id: user._id, data: {} });
     }
-  }
+  };
   return (
     <Box>
       <Container fixed>
