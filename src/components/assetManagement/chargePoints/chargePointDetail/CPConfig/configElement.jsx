@@ -3,11 +3,24 @@ import React, { useState } from "react";
 import StyledInput from "../../../../../ui/styledInput";
 import StyledButton from "../../../../../ui/styledButton";
 import { toast } from "react-toastify";
-import { changeConfiguration } from "../../../../../services/ocppAPI";
+import { useChangeConfiguration } from "../../../../../hooks/mutations/useOcppMutation";
 
 export default function ConfigElement({ label, data, ...props }) {
   const [inputValue, setInputValue] = useState(data);
   const [loading, setLoading] = useState(false);
+
+  const changeConfigurationMutation = useChangeConfiguration({
+    onSuccess: (res) => {
+      if (res.status) {
+        toast.success("Configuration updated successfully!");
+        setLoading(false);
+      }
+    },
+    onError: (error) => {
+      toast.error("Failed to update configuration.");
+      setLoading(false);
+    },
+  });
 
   const handleInputChange = (event) => {
     setInputValue(event.target.value);
@@ -15,20 +28,14 @@ export default function ConfigElement({ label, data, ...props }) {
 
   const handleSave = async () => {
     setLoading(true);
-    try {
-      const cpid = sessionStorage.getItem("cpid");
-      const res = await changeConfiguration(cpid, {
+    const cpid = sessionStorage.getItem("cpid");
+    changeConfigurationMutation.mutate({
+      cpid,
+      data: {
         key: label,
         value: inputValue,
-      });
-      if (res.status) {
-        toast.success("Configuration updated successfully!");
-      }
-    } catch (error) {
-      toast.error("Failed to update configuration.");
-    } finally {
-      setLoading(false);
-    }
+      },
+    });
   };
 
   return (
