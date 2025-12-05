@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom'
 import StyledSearchField from '../../../ui/styledSearchField'
 import { searchAndFilter } from '../../../utils/search'
 import { tableHeaderReplace } from '../../../utils/tableHeaderReplace'
-import { deleteChargingStation } from '../../../services/stationAPI'
 import { permissions } from '../../../core/routes/permissions'
 import { useAuth } from '../../../core/auth/AuthContext'
 
@@ -24,9 +23,9 @@ export default function AllChargeStation({ data, setPageNo, totalCount, setSearc
   const { userCan } = useAuth()
 
 
-  const handleSearch = (value)=>{
+  const handleSearch = (value) => {
     setSearchQuery(value)
-}
+  }
   const chargeStationData = tableHeaderReplace(data, ['name', 'address', 'longitude', 'latitude', 'owner', 'status'], tableHeader)
   const tableActionClick = (e) => {
     if (e.action === 'View') {
@@ -46,12 +45,12 @@ export default function AllChargeStation({ data, setPageNo, totalCount, setSearc
         }} />
       </LastSynced>
       <Box sx={{ p: 3 }}>
-        <StyledTable headers={tableHeader} 
-        setPageNo={setPageNo}
-        totalCount={totalCount}
-        data={chargeStationData}
-        actions={userCan(permissions.chargingStations.modify) ? ["Edit","View","Delete"] : ["View"]} 
-        onActionClick={tableActionClick} />
+        <StyledTable headers={tableHeader}
+          setPageNo={setPageNo}
+          totalCount={totalCount}
+          data={chargeStationData}
+          actions={userCan(permissions.chargingStations.modify) ? ["Edit", "View", "Delete"] : ["View"]}
+          onActionClick={tableActionClick} />
       </Box>
     </>
   )

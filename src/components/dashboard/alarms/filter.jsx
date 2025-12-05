@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import { Stack, Box, Grid, Typography } from "@mui/material";
+import { Stack, Box } from "@mui/material";
 import StyledSelectField from "../../../ui/styledSelectField";
 import StyledButton from "../../../ui/styledButton";
 import { useForm, Controller } from "react-hook-form";
 import StyledInput from "../../../ui/styledInput";
 import CalendarInput from "../../../ui/CalendarInput";
-import { getChargingPointsListOfStation, getListOfChargingStation } from "../../../services/stationAPI";
+import { useListOfChargingStation, useChargingPointsOfStation } from "../../../hooks/queries/useChargingStation";
 
 
 const statusList = [
@@ -19,8 +19,8 @@ const statusList = [
 ]
 
 export default function Filter({ onSubmited }) {
-  const [locationList, setLocationList] = useState([])
-  const [machineList, setMachineList] = useState([])
+  const [selectedStationId, setSelectedStationId] = useState(null);
+
   const {
     control,
     handleSubmit,
@@ -31,9 +31,21 @@ export default function Filter({ onSubmited }) {
     formState: { errors },
     clearErrors,
   } = useForm();
+
+  // TanStack Query hooks
+  const { data: stationsData } = useListOfChargingStation();
+  const { data: chargingPointsData } = useChargingPointsOfStation(
+    selectedStationId,
+    !!selectedStationId // only fetch when station is selected
+  );
+
+  // Extract data with safe defaults
+  const locationList = stationsData?.result?.map((dt) => ({ label: dt.name, value: dt._id })) || [];
+  const machineList = chargingPointsData?.result?.map((dt) => ({ label: dt.evMachines.CPID, value: dt.evMachines })) || [];
+
   const onSubmit = (data) => {
     // Handle form submission with data
-    if (data.startDate && !data.endDate ) {
+    if (data.startDate && !data.endDate) {
       setError("endDate", { type: "custom", message: "select End Date" })
       return
     }
@@ -50,12 +62,12 @@ export default function Filter({ onSubmited }) {
     let dt = {}
     for (const [key, value] of Object.entries(data)) {
       if (value && key != 'location') {
-        if(value.label){
+        if (value.label) {
           dt[key] = value.label
-        }else{
+        } else {
           dt[key] = value
         }
-        
+
       }
     }
     onSubmited && onSubmited(dt)
@@ -78,14 +90,15 @@ export default function Filter({ onSubmited }) {
   };
   const endDate = watch("endDate", ""); // Watching the value for 'expiryDate'
 
+  const handleLocationChange = (value) => {
+    if (value) {
+      setSelectedStationId(value.value);
+      setValue("location", value);
+    } else {
+      setSelectedStationId(null);
+    }
+  };
 
-  useEffect(() => {
-    getListOfChargingStation().then((res) => {
-      if (res.status) {
-        setLocationList(res.result.map((dt) => ({ label: dt.name, value: dt._id })))
-      }
-    })
-  }, [])
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -159,13 +172,7 @@ export default function Filter({ onSubmited }) {
                     placeholder={"Select Location"}
                     options={locationList}
                     onChange={(e) => {
-                      setMachineList([])
-                      setValue("location", e)
-                      getChargingPointsListOfStation(e.value).then((res) => {
-                        if (res.result) {
-                          setMachineList(res.result.map((dt) => ({ label: dt.evMachines.CPID, value: dt.evMachines })))
-                        }
-                      })
+                      handleLocationChange(e);
                     }}
                   />
                   {errors.location && (
@@ -224,7 +231,7 @@ export default function Filter({ onSubmited }) {
 
             <Stack direction={"row"} spacing={1} sx={{ justifyContent: 'center' }}>
               <StyledButton variant="secondary" width={120} type="button"
-                onClick={() => { reset({}); onSubmited() }}>
+                onClick={() => { reset({}); onSubmited(); setSelectedStationId(null); }}>
                 Reset
               </StyledButton>
               <StyledButton width={150} variant="primary" type="submit">
