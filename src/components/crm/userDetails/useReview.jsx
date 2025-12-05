@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Box, Grid, Pagination, PaginationItem, Stack, Typography } from "@mui/material";
 import { ReactComponent as ReloadIcon } from "../../../assets/icons/reload.svg";
 import { Star, DeleteOutline, ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 import LastSynced from "../../../layout/LastSynced";
-import { useLocation, useParams } from "react-router-dom";
-import { userReviews } from "../../../services/reviewApi";
+import { useParams } from "react-router-dom";
+import { useUserReviews } from "../../../hooks/queries/useReview";
 
 const ReviewComponent = ({ data }) => {
   const renderStars = () => {
@@ -46,19 +46,16 @@ const ReviewComponent = ({ data }) => {
 
 export default function UserReview() {
   const { id } = useParams();
-  const [reviews, setReviews] = useState([]);
 
-  const getData = async () => {
-    const res = await userReviews(id);
-    setReviews(res.result);
-  };
+  // TanStack Query hook
+  const { data: reviewsData, refetch } = useUserReviews(id);
 
-  useEffect(() => {
-    getData();
-  }, [id]);
+  // Extract data with safe defaults
+  const reviews = reviewsData?.result || [];
+
   return (
     <>
-      <LastSynced heading={"Reviews"} />
+      <LastSynced heading={"Reviews"} reloadHandle={refetch} />
       <Box
         sx={{
           backgroundColor: "#1D1B20",
@@ -68,7 +65,7 @@ export default function UserReview() {
         }}
       >
         {reviews.length <= 0 && (
-          <Typography variant="body1" sx={{ color: "secondary.contrastText" , textAlign: "center", margin: "20px"}}>
+          <Typography variant="body1" sx={{ color: "secondary.contrastText", textAlign: "center", margin: "20px" }}>
             No reviews
           </Typography>
         )}
