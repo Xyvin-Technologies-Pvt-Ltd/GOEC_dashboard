@@ -10,13 +10,19 @@ import StyledDivider from "../../../ui/styledDivider";
 import Assign from "./assign";
 import { ReactComponent as Close } from "../../../assets/icons/close-circle.svg";
 import { Controller, useForm } from "react-hook-form";
-import { getChargingPointsListOfStation } from "../../../services/stationAPI";
-import { getChargerTarrifDetail } from "../../../services/evMachineAPI";
+import { useChargingPointsForStations } from "../../../hooks/queries/useChargingStation";
+import { useChargerTariffDetail } from "../../../hooks/queries/useEvMachine";
+import { useEffect } from "react";
 
 export default function Location({ location }) {
   const [open, setOpen] = useState(false);
   const [chargerList, setChargerList] = useState([])
   const [currentTarrif, setCurrentTarrif] = useState()
+  const [selectedStationId, setSelectedStationId] = useState(null);
+  const [cpidForQuery, setCpidForQuery] = useState(null);
+
+  const { data: chargerOptions = [] } = useChargingPointsForStations(selectedStationId ? [selectedStationId] : null, !!selectedStationId);
+  const { data: tariffData, refetch: refetchTariff } = useChargerTariffDetail(cpidForQuery, false);
 
 
   const {
@@ -30,12 +36,18 @@ export default function Location({ location }) {
 
   const onSubmit = (data) => {
     // Handle form submission with data
-    getChargerTarrifDetail(data.CPID.label).then((res) => {
-      if (res.status) {
-        setCurrentTarrif(res.result[0])
-        handleOpen()
+    const cpidValue = data.CPID?.value || data.CPID?.label;
+    setCpidForQuery(cpidValue);
+    refetchTariff().then((res) => {
+      const result = res?.data || res;
+      if (result?.status) {
+        setCurrentTarrif(result.result[0]);
+        handleOpen();
       }
-    })
+    }).catch((err) => {
+      // handle error silently
+      console.error(err);
+    });
   };
 
   // Function to open the modal
@@ -50,12 +62,13 @@ export default function Location({ location }) {
 
   const stationChange = (e) => {
     setValue("location", e)
-    getChargingPointsListOfStation(e.value).then((res) => {
-      if (res.status) {
-        setChargerList(res.result.map((dt) => ({ label: dt.evMachines.CPID, value: dt.evMachines._id })))
-      }
-    })
+    setSelectedStationId(e.value);
   }
+
+  useEffect(() => {
+    if (chargerOptions && chargerOptions.length) setChargerList(chargerOptions);
+    else setChargerList([]);
+  }, [chargerOptions]);
   return (
     <>
       <Box>

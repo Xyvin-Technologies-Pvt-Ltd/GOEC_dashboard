@@ -9,40 +9,37 @@ import StyledButton from '../../../../ui/styledButton'
 import AssignedTarrif from './tariff/assignedTarrif'
 import LastSynced from '../../../../layout/LastSynced'
 import AssignTarrif from './tariff/assigntTarrif'
-import { changeEVTarrif, getChargerTarrifDetail } from '../../../../services/evMachineAPI'
+import { useChargerTariffDetail } from '../../../../hooks/queries/useEvMachine';
+import { useChangeEvTariff } from '../../../../hooks/mutations/useEvMachineMutation';
 import { toast } from 'react-toastify'
 
 
 
 
-export default function     Tariff({ CPID,id }) {
+export default function Tariff({ CPID, id }) {
     const [addOpen, setAddOpen] = useState(false)
-    const [tarrifDetails, setTarrifDetails] = useState([])
+    const { data: tarrifDetails = [], refetch: refetchTariffs } = useChargerTariffDetail(CPID);
+    const changeEVTariffMutation = useChangeEvTariff();
 
-    const init = () => {
-        getChargerTarrifDetail(CPID).then((res) => {
-            if (res.status) {
-                setTarrifDetails(res.result)
+    const unAssinHandle = () => {
+        changeEVTariffMutation.mutate(
+            { evMachine: id, data: {} },
+            {
+                onSuccess: (res) => {
+                    refetchTariffs();
+                    toast.success("Tariff unassigned successfully");
+                },
+                onError: (error) => {
+                    toast.error(error?.response?.data?.error || "Failed to unassign tariff");
+                }
             }
-        })
+        )
     }
-
-    useEffect(() => {
-        init()
-    }, [])
-
-const unAssinHandle = ()=>{
-    changeEVTarrif(id, {}).then((res) => {
-        init()
-      }).catch((err) => {
-        toast.error(err.response.data.error)
-      })
-}
 
     return (
         <>
-            <AssignTarrif open={addOpen} onClose={() => setAddOpen(false)} CPID={id} updated={init} />
-            <LastSynced heading='Tariff' reloadHandle={init}>
+            <AssignTarrif open={addOpen} onClose={() => setAddOpen(false)} CPID={id} updated={refetchTariffs} />
+            <LastSynced heading='Tariff' reloadHandle={refetchTariffs}>
                 <StyledButton variant={'primary'} style={{ width: '160px' }} onClick={() => setAddOpen(true)}>Assign Tariff</StyledButton>
             </LastSynced>
             <Grid container p={2}>

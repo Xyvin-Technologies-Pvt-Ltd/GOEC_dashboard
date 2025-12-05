@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import StyledTab from '../ui/styledTab'
 import AllEvChargers from '../components/dataManagement/evChargers/AllEvChargers';
 import AddEvCharger from '../components/dataManagement/evChargers/AddEvCharger';
-import { getEvModel } from '../services/evMachineAPI';
+import { useEvModelList } from '../hooks/queries/useEvMachine';
 
 
 export default function EvChargers() {
@@ -12,21 +12,26 @@ export default function EvChargers() {
   const [pageNo, setPageNo] = useState(1);
   const [totalCount, setTotalCount] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState({ pageNo: 1 });
 
-  const init = (filter = {pageNo}) => {
-    if(searchQuery){
-      filter.searchQuery = searchQuery;
-    }
-    getEvModel(filter).then((res) => {
-      if (res.status) {
-        setEvModelListData(res.result);
-        setTotalCount(res.totalCount);
-      }
-    });
-  };
+  // Use the query hook to fetch EV model list
+  const { data: evModelData = {}, refetch } = useEvModelList(filters);
 
+  // Update state when hook data changes
   useEffect(() => {
-    init();
+    if (evModelData.result) {
+      setEvModelListData(evModelData.result);
+      setTotalCount(evModelData.totalCount || 0);
+    }
+  }, [evModelData]);
+
+  // Update filters when pageNo or searchQuery changes
+  useEffect(() => {
+    const newFilters = { pageNo };
+    if (searchQuery) {
+      newFilters.searchQuery = searchQuery;
+    }
+    setFilters(newFilters);
   }, [pageNo, searchQuery]);
 
 
@@ -34,14 +39,13 @@ export default function EvChargers() {
     setTogglePage(e.index);
   };
 
-  
   return (
     <Box>
       <Stack direction={"row"} sx={{ backgroundColor: "secondary.main" }}>
         <StyledTab
           buttons={['All EV chargers', 'Add EV charger']} onChanged={buttonChanged} activeIndex={togglePage} />
       </Stack>
-      {togglePage === 0 ? <AllEvChargers data={evModelListData} setPageNo={setPageNo} totalCount={totalCount} updateData={init} setSearchQuery={setSearchQuery}/> : <AddEvCharger formSubmitted={() => { init(); setTogglePage(0) }} />}
+      {togglePage === 0 ? <AllEvChargers data={evModelListData} setPageNo={setPageNo} totalCount={totalCount} updateData={refetch} setSearchQuery={setSearchQuery}/> : <AddEvCharger formSubmitted={() => { refetch(); setTogglePage(0) }} />}
     </Box>
   );
 }
