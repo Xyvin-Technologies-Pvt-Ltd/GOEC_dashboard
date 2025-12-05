@@ -1,5 +1,5 @@
 import { Box, Stack, Typography } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import StyledSelectField from "../../../ui/styledSelectField";
 import AsyncSelect from "react-select/async";
 import InputField from "../../../ui/styledInput";
@@ -10,7 +10,7 @@ import { userSuggestionList } from "../../../services/userApi";
 import FileUpload from "../../../utils/FileUpload";
 import StyledTextArea from "../../../ui/styledTextArea";
 import { toast } from "react-toastify";
-import { sendBulkMail } from "../../../services/notificationAPI";
+import { useSendBulkMail } from "../../../hooks/mutations/useNotificationMutation";
 
 export default function EmailNotification() {
   const [userOptions, setUserOption] = useState([]);
@@ -31,6 +31,17 @@ export default function EmailNotification() {
       content: "",
     },
   });
+
+  const sendBulkMailMutation = useSendBulkMail({
+    onSuccess: (res) => {
+      toast.success("Send successfully");
+      reset();
+    },
+    onError: (error) => {
+      toast.error(error?.response?.data?.error || "Failed to send mail");
+    },
+  });
+
   const onSubmit = (data) => {
     const mails = data.sendTo.map((dt) => dt.value);
 
@@ -52,14 +63,7 @@ export default function EmailNotification() {
         formDataObject[pair[0]] = pair[1];
       }
     }
-    sendBulkMail(formDataObject)
-      .then((res) => {
-        toast.success("Send successfully");
-        reset();
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    sendBulkMailMutation.mutate(formDataObject);
   };
 
   const handleFileSelect = (file) => {
