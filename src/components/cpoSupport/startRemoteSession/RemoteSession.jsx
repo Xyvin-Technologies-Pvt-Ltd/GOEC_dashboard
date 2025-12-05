@@ -8,21 +8,34 @@ import LastSynced from "../../../layout/LastSynced";
 import StyledDivider from "../../../ui/styledDivider";
 import { ReactComponent as SearchButtonIcon } from "../../../assets/icons/searchGlass.svg";
 import { useForm, Controller } from "react-hook-form";
-import { getUserByEmailMobile } from "../../../services/userApi";
 import { toast } from "react-toastify";
 import StyledInput from "../../../ui/styledInput";
-import { getChargingPointsListOfStation, getChargingStationList, getListOfChargingStation, updateChargingStationByList } from "../../../services/stationAPI";
-import { remoteStart } from "../../../services/ocppAPI";
+import { useUserByEmailMobile } from "../../../hooks/queries/useUser";
+import { useListOfChargingStation, useChargingPointsOfStation } from "../../../hooks/queries/useChargingStation";
+import { useRemoteStart } from "../../../hooks/mutations/useOcppMutation";
 
 export default function RemoteSession() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [user, setUser] = useState();
+  const [selectedStationId, setSelectedStationId] = useState(null);
 
   const [locationList, setLocationList] = useState([])
   const [machineList, setMachineList] = useState([])
   const [connectorList, setConnectorList] = useState([])
-  const [loading, setLoading] = useState(false);
 
+  // TanStack Query hooks
+  const { data: userQueryData, refetch: refetchUser } = useUserByEmailMobile(`phoneNumber=${phoneNumber}`, false);
+  const { data: stationsData } = useListOfChargingStation();
+  const { data: chargingPointsData, refetch: refetchChargingPoints } = useChargingPointsOfStation(selectedStationId, false);
+  const { mutate: startRemoteSession, isPending: isStarting } = useRemoteStart({
+    onSuccess: () => {
+      toast.success("Remote session started");
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Failed to start remote session");
+    },
+  });
 
   const {
     control,
@@ -33,38 +46,35 @@ export default function RemoteSession() {
     setValue
   } = useForm();
   const onSubmit = (data) => {
-    setLoading(true);
-    let CPID = data.cpid.value.CPID
-    let dt = {
-      idTag : user.userId,
-      connectorId:data.connectorId.value
-  }
+    const CPID = data.cpid.value.CPID;
+    const requestData = {
+      idTag: user.userId,
+      connectorId: data.connectorId.value
+    };
 
-  remoteStart(dt,CPID).then((res)=>{
-    toast.success("remote session Started")
-  }).catch((error)=>{
-    console.error(error);
-  }).finally(()=>{
-    setLoading(false);
-  })
+    startRemoteSession({ data: requestData, cpid: CPID });
   };
 
   const handleUserFetch = () => {
-    getUserByEmailMobile(`phoneNumber=${phoneNumber}`).then((res) => {
-      setUser(res.result[0]);
+    refetchUser().then((res) => {
+      if (res.data?.result?.[0]) {
+        setUser(res.data.result[0]);
+      } else {
+        toast.error("User not found");
+        setUser(undefined);
+      }
     }).catch((error) => {
-      toast.error("user not found");
-      setUser()
-    })
+      toast.error("User not found");
+      setUser(undefined);
+    });
   };
 
+  // Update location list when stations data is available
   useEffect(() => {
-    getListOfChargingStation().then((res) => {
-      if (res.status) {
-        setLocationList(res.result.map((dt) => ({ label: dt.name, value: dt._id })))
-      }
-    })
-  }, [])
+    if (stationsData?.status && stationsData?.result) {
+      setLocationList(stationsData.result.map((dt) => ({ label: dt.name, value: dt._id })));
+    }
+  }, [stationsData]);
 
   const handlePhoneNumberChange = (e) => {
     setPhoneNumber(e.target.value);
@@ -133,13 +143,14 @@ export default function RemoteSession() {
                           placeholder={"Select Location"}
                           {...field}
                           onChange={(e) => {
-                            setMachineList([])
-                            setValue("location",e)
-                            getChargingPointsListOfStation(e.value).then((res) => {
-                              if (res.result) {
-                                setMachineList(res.result.map((dt) => ({ label: dt.evMachines.CPID, value: dt.evMachines })))
+                            setMachineList([]);
+                            setValue("location", e);
+                            setSelectedStationId(e.value);
+                            refetchChargingPoints().then((res) => {
+                              if (res.data?.result) {
+                                setMachineList(res.data.result.map((dt) => ({ label: dt.evMachines.CPID, value: dt.evMachines })));
                               }
-                            })
+                            });
                           }}
                         />
                         {errors.location && (
@@ -162,9 +173,9 @@ export default function RemoteSession() {
                           placeholder={"Select Chargepoint"}
                           {...field}
                           onChange={(e) => {
-                            setConnectorList([])
-                            setValue("cpid",e)
-                            setConnectorList(e.value.connectors.map((dt) => ({ label: dt.connectorId, value: dt.connectorId })))
+                            setConnectorList([]);
+                            setValue("cpid", e);
+                            setConnectorList(e.value.connectors.map((dt) => ({ label: dt.connectorId, value: dt.connectorId })));
                           }}
                         />
                         {errors.cpid && (
@@ -244,7 +255,7 @@ export default function RemoteSession() {
                         width="100"
                         height="50"
                       >
-                        {loading ? "Starting..." : "Start"}
+                        {isStarting ? "Starting..." : "Start"}
                       </StyledButton>
                     </Grid>
                   </Grid>

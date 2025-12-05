@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import ActiveSession from "../components/cpoSupport/activeSession/AllActiveSession";
 import NoActiveSession from "../components/cpoSupport/activeSession/NoActiveSession";
 import { DummyData } from "../assets/json/ActiveSessionsData";
-import { getActiveSession } from "../services/ocppAPI";
+import { useActiveSession } from "../hooks/queries/useOcpp";
 import { tableHeaderReplace } from "../utils/tableHeaderReplace";
 
 function restructureData(dataArray) {
-  
+
   return dataArray.map((item) => ({
     _id: item._id,
     transactionId: item.transactionId,
@@ -27,12 +27,11 @@ function restructureData(dataArray) {
 }
 
 export default function ActiveSessionPage() {
-  const [activeSession, setActiveSession] = useState([]);
+  // TanStack Query hook - automatically refetches every 5 seconds
+  const { data: activeSessionData, refetch } = useActiveSession();
 
-  const getData = async () => {
-    const res = await getActiveSession();
-    setActiveSession(res.result);
-  };
+  // Extract data with safe defaults
+  const activeSession = activeSessionData?.result || [];
 
   const tableHeader = [
     "OCPP Txn ID",
@@ -52,13 +51,9 @@ export default function ActiveSessionPage() {
 
   ];
 
-  useEffect(() => {
-    getData();
-  }, []);
-
   // const restructuredData = restructureData(activeSession);
 
-  const activeSessionData = tableHeaderReplace(
+  const activeSessionTableData = tableHeaderReplace(
     activeSession,
     [
       "transactionId",
@@ -81,6 +76,6 @@ export default function ActiveSessionPage() {
 
 
   return (
-    <>{activeSession.length > 0 ? <ActiveSession data={activeSessionData} dataReload={getData} tableHeader={tableHeader}/> : <NoActiveSession />}</>
+    <>{activeSession.length > 0 ? <ActiveSession data={activeSessionTableData} dataReload={refetch} tableHeader={tableHeader} /> : <NoActiveSession />}</>
   );
 }

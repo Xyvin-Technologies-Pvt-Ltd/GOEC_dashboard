@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import LastSynced from '../../../layout/LastSynced'
 import { Box, IconButton } from '@mui/material'
 import { Tune } from '@mui/icons-material'
 import { Bar } from 'react-chartjs-2'
-import { getDashboardUtilization } from '../../../services/ocppAPI'
+import { useDashboardUtilization } from '../../../hooks/queries/useOcpp'
 import RightDrawer from '../../../ui/RightDrawer'
 import Filter from './trends/filter'
 
@@ -20,32 +20,29 @@ const datas = [
 ];
 
 export default function Utilization() {
+    const [filter, setFilter] = useState({})
 
-    const [trendsUtilization, setTrendsUtilization] = useState([])
-    
-    const init = (filter={}) => {
-        getDashboardUtilization(filter).then((res) => {
-            if (res.status) {
-                setTrendsUtilization(res.result)
-            }
-        })
+    // TanStack Query hook
+    const { data: utilizationData, refetch } = useDashboardUtilization(filter)
+
+    // Extract data with safe defaults
+    const trendsUtilization = utilizationData?.result || []
+
+    const handleFilterSubmit = (newFilter) => {
+        setFilter(newFilter)
     }
-
-    useEffect(() => {
-        init()
-    }, [])
 
     const data = {
 
         datasets: [
             {
                 label: 'Energy Delivered(kWh)',
-                backgroundColor:'#DF5BCA',
+                backgroundColor: '#DF5BCA',
                 data: trendsUtilization?.map((e) => e.value1),
             },
             {
                 label: 'Revenue(INR)',
-                backgroundColor:'#574CA6',
+                backgroundColor: '#574CA6',
                 data: trendsUtilization?.map((e) => e.value2),
             }
         ],
@@ -92,12 +89,12 @@ export default function Utilization() {
     return (
         <>
             <LastSynced heading={'Analytics - Utilization'}>
-            <RightDrawer >
-                <Filter onSubmited={init} />
+                <RightDrawer >
+                    <Filter onSubmited={handleFilterSubmit} />
                 </RightDrawer>
             </LastSynced>
-            <Box sx={{ backgroundColor: 'secondary.main',borderRadius:'4px', height: { xs: 250, md: 350 }, p: { xs: 1, md: 2 },m:{ xs: 1, md: 2 }, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <Bar data={data} options={options}/>
+            <Box sx={{ backgroundColor: 'secondary.main', borderRadius: '4px', height: { xs: 250, md: 350 }, p: { xs: 1, md: 2 }, m: { xs: 1, md: 2 }, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <Bar data={data} options={options} />
             </Box>
         </>
     )

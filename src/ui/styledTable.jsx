@@ -7,7 +7,7 @@ import StyledStatusChip from "./styledStatusChip";
 import StyledPayloadTableCell from "./styledPayloadTableCell";
 import TableSkeleton from "./tableSkeleton";
 import { Typography } from "@mui/material";
-import { remoteStopTransaction } from "../services/ocppAPI";
+import { useRemoteStopTransaction } from "../hooks/mutations/useOcppMutation";
 import { toast } from "react-toastify";
 import moment from "moment";
 // StyledTable component
@@ -24,6 +24,18 @@ const StyledTable = ({
   const [page, setPage] = useState(0);
   const [firstopen, setFirstOpen] = useState(true);
   const [isChange, setIsChange] = useState(false);
+
+  // TanStack Query mutation hook
+  const { mutate: stopTransaction, isPending: isStopping } = useRemoteStopTransaction({
+    onSuccess: () => {
+      toast.success("Session terminated successfully");
+      setIsChange(!isChange);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.error || "Failed to terminate session");
+      setIsChange(!isChange);
+    },
+  });
 
   useEffect(() => {
     if (data.length > 0) {
@@ -45,20 +57,13 @@ const StyledTable = ({
     setPageNo(newPage + 1);
   };
 
-  const handleStopClick = async (session) => {
+  const handleStopClick = (session) => {
     const transactionId = session["OCPP Txn ID"] ? session["OCPP Txn ID"] : null;
-    // alert(`Terminate session for id: ${transactionId}`);
-    let payload = {
+    const payload = {
       transactionId: transactionId,
     };
-    try {
-      await remoteStopTransaction(session.CPID, payload);
-      toast.success("Session terminated successfully ");
-      setIsChange(!isChange);
-    } catch (error) {
-      toast.error(error.response.data.error);
-      setIsChange(!isChange);
-    }
+
+    stopTransaction({ cpid: session.CPID, data: payload });
   };
   let prevHeader = null;
 
@@ -135,8 +140,8 @@ const StyledTable = ({
                           />
                         ) : isPublished || isConnectionStatus ? (
                           <StyledStatusChip $status={row[header]}>{row[header]}</StyledStatusChip>
-                        // ) : isDateColumn ? (
-                        //   moment(row[header]).format("DD-MM-YYYY")
+                          // ) : isDateColumn ? (
+                          //   moment(row[header]).format("DD-MM-YYYY")
                         ) : row[header] || row[header] === "" ? (
                           row[header]
                         ) : (
@@ -240,14 +245,14 @@ export const TableCell = styled.td`
     props.$isfirstcolumn
       ? "#2D9CDB" // Blue text color for the first column
       : props.$isMessage
-      ? "red" // Red text color for the "Message" column
-      : props.$sourceData === "CMS"
-      ? props.$isCommand || props.$isPayload
-        ? "#EB5757" // Change color to red for isCommand and isPayload if sourceData is 'cms'
-        : "rgba(181, 184, 197, 1)" // Default text color for other columns
-      : props.$sourceData === "CP"
-      ? props.$isCommand || props.$isPayload
-        ? "#219653" // Change color to green for isCommand and isPayload if sourceData is 'cp'
-        : "rgba(181, 184, 197, 1)" // Default text color for other columns
-      : "rgba(181, 184, 197, 1)"}; // Default text color for other columns
+        ? "red" // Red text color for the "Message" column
+        : props.$sourceData === "CMS"
+          ? props.$isCommand || props.$isPayload
+            ? "#EB5757" // Change color to red for isCommand and isPayload if sourceData is 'cms'
+            : "rgba(181, 184, 197, 1)" // Default text color for other columns
+          : props.$sourceData === "CP"
+            ? props.$isCommand || props.$isPayload
+              ? "#219653" // Change color to green for isCommand and isPayload if sourceData is 'cp'
+              : "rgba(181, 184, 197, 1)" // Default text color for other columns
+            : "rgba(181, 184, 197, 1)"}; // Default text color for other columns
 `;

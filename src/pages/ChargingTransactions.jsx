@@ -1,43 +1,43 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useMemo } from "react";
 import AllChargingTransactions from "../components/chargingNetwork/chargingTransaction/AllChargingTransactions";
 import { ChargingTransactionDummyData } from "../assets/json/ChargingTransactionData";
-import { getAllOcppTransactionLogs } from "../services/ocppAPI";
-export default function ChargingTransactions() {
+import { useOcppTransactionLogs } from "../hooks/queries/useOcpp";
 
-  const [logs, setLogs] = useState([]);
+export default function ChargingTransactions() {
   const [pageNo, setPageNo] = useState(1);
-  const [totalCount, setTotalCount] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const init = (filter = {pageNo}) => {
+  // Build filter object with localStorage support
+  const filters = useMemo(() => {
     const filterStore = localStorage.getItem('filter');
-    if(filterStore){
+    let filter = { pageNo };
+
+    if (filterStore) {
       const cfilter = JSON.parse(filterStore);
-      cfilter.pageNo = filter.pageNo;
-      filter = {...cfilter};
+      cfilter.pageNo = pageNo;
+      filter = { ...cfilter };
     }
-    if(searchQuery){
+
+    if (searchQuery) {
       filter.searchQuery = searchQuery;
     }
-    getAllOcppTransactionLogs(filter).then((res) => {
-      if (res) {
-        setLogs(res.result);
-        setTotalCount(res.totalCount);
-      }
-    });
-  };
 
-  useEffect(() => {
-    init();
+    return filter;
   }, [pageNo, searchQuery]);
 
+  // TanStack Query hook
+  const { data: transactionLogsData, refetch } = useOcppTransactionLogs(filters);
+
+  // Extract data with safe defaults
+  const logs = transactionLogsData?.result || [];
+  const totalCount = transactionLogsData?.totalCount || 0;
 
   return (
     <div>
       <AllChargingTransactions
         data={logs}
-        updateData={init}
-        setPageNo={setPageNo} 
+        updateData={refetch}
+        setPageNo={setPageNo}
         totalCount={totalCount}
         setSearchQuery={setSearchQuery}
       />

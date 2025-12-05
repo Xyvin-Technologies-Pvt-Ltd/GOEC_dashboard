@@ -16,6 +16,7 @@ import {
   getConfiguration,
   getAlarmReport,
   getInvoice,
+  getChargingHistory,
 } from "../../services/ocppAPI";
 
 //* Get all OCPP logs with filters
@@ -139,4 +140,13 @@ export const useInvoice = (id, enabled = true) =>
     queryKey: ["invoice", id],
     queryFn: () => getInvoice(id),
     enabled: !!id && enabled,
+  });
+
+//* Get charging history for a user
+export const useChargingHistory = (userId, data = {}, filter = {}) =>
+  useQuery({
+    queryKey: ["chargingHistory", userId, data, filter],
+    queryFn: () => getChargingHistory(userId, data, filter),
+    enabled: !!userId,
+    placeholderData: keepPreviousData,
   });
