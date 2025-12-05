@@ -9,7 +9,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import StyledSelectField from "../../../ui/styledSelectField";
 import StyledButton from "../../../ui/styledButton";
 import { ReactComponent as UserIcon } from "../../../assets/icons/Frame 42744.svg";
@@ -20,14 +20,11 @@ import StyledList from "../../../ui/StyledList";
 import LastSynced from "../../../layout/LastSynced";
 import { useForm, Controller } from "react-hook-form";
 import StyledInput from "../../../ui/styledInput";
-import {
-  addRfidTag,
-  getUserByEmailMobile,
-  removeRfidTag,
-} from "../../../services/userApi";
+import { useAddRfidTag, useRemoveRfidTag } from "../../../hooks/mutations/useUserMutation";
+import { useUserByEmailMobile } from "../../../hooks/queries/useUser";
+import { useRfidUnassignedList } from "../../../hooks/queries/useRfid";
 import { toast } from "react-toastify";
 import StyledDivider from "../../../ui/styledDivider";
-import { getRfidUnassignedList } from "../../../services/rfidAPI";
 
 const typeOption = [
   { value: "personal", label: "Personal" },
@@ -78,7 +75,8 @@ const AssingedCard = ({ data, unassign }) => {
 
 const AssignRfid = () => {
   const [userInfo, setUserInfo] = useState();
-  const [rfidOption, setRfidOption] = useState([]);
+  const [phoneNumber, setPhoneNumber] = useState("");
+
   const {
     control,
     handleSubmit,
@@ -89,83 +87,84 @@ const AssignRfid = () => {
     getValues,
   } = useForm();
 
+  // TanStack Query hooks
+  const { data: rfidUnassignedData, refetch: refetchUnassignedRfids } = useRfidUnassignedList();
+  const { refetch: fetchUserByPhone } = useUserByEmailMobile(
+    `phoneNumber=${phoneNumber}`,
+    false // lazy loading
+  );
+
+  const { mutate: assignRfidTag, isPending: isAssigning } = useAddRfidTag({
+    onSuccess: () => {
+      toast.success("Successfully Assigned");
+      userFetchButtonHandle();
+      refetchUnassignedRfids();
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.message || "Failed to assign RFID");
+    },
+  });
+
+  const { mutate: unassignRfidTag, isPending: isUnassigning } = useRemoveRfidTag({
+    onSuccess: () => {
+      toast.success("Successfully unassigned");
+      userFetchButtonHandle();
+      refetchUnassignedRfids();
+    },
+    onError: (err) => {
+      console.error(err);
+      toast.error("Failed to unassign RFID");
+    },
+  });
+
+  // Extract data with safe defaults
+  const rfidOption = rfidUnassignedData?.result?.map((dt) => ({ label: dt.rfidTag, value: dt._id })) || [];
+
   const onSubmit = (data) => {
     // Handle form submission here
     if (!userInfo) {
       toast.error("user not found");
       return;
     }
-    let dt = {
+    const dt = {
       rfidTagId: data.rfid.value,
       rfidType: data.type.value,
     };
-    addRfidTag(userInfo._id, dt)
-      .then((res) => {
-        if (res.status) {
-          toast.success("successfully Assigned");
-          userFetchButtonHandle();
-          getrfidUnassignedList();
-        }
-      })
-      .catch((err) => {
-        toast.error(err.response.data.message);
-      });
+    assignRfidTag({ id: userInfo._id, data: dt });
   };
 
   const clearForm = () => {
     reset(); // This will clear the form
   };
 
-  const getrfidUnassignedList = () => {
-    getRfidUnassignedList().then((res) => {
-      if (res.status) {
-        setRfidOption(
-          res.result.map((dt) => ({ label: dt.rfidTag, value: dt._id }))
-        );
-      }
-    });
-  };
-
   const unAssignHandle = (dt) => {
-    let req = {
+    const req = {
       rfidTagId: dt._id,
     };
-    removeRfidTag(userInfo._id, req)
-      .then((res) => {
-        if (res.status) {
-          toast.success("successfully unassigned");
-          userFetchButtonHandle();
-          getrfidUnassignedList();
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    unassignRfidTag({ id: userInfo._id, data: req });
   };
 
   const userFetchButtonHandle = () => {
-    let mobile = userInfo
+    const mobile = userInfo
       ? userInfo.mobile
       : getValues().phoneNumber && getValues().phoneNumber;
     if (mobile.length > 9) {
-      getUserByEmailMobile(`phoneNumber=${getValues().phoneNumber}`)
-        .then((res) => {
-          if (res.success) {
-            setUserInfo(res.result[0]);
-          }
-        })
-        .catch((err) => {
-          toast.error(err.response.data.error);
+      setPhoneNumber(getValues().phoneNumber);
+      fetchUserByPhone().then((res) => {
+        if (res.data?.success) {
+          setUserInfo(res.data.result[0]);
+        } else {
+          toast.error("User not found");
           setUserInfo();
-        });
+        }
+      }).catch((err) => {
+        toast.error(err.response?.data?.error || "Failed to fetch user");
+        setUserInfo();
+      });
     } else {
       toast.error("please enter valid mobile number");
     }
   };
-
-  useEffect(() => {
-    getrfidUnassignedList();
-  }, []);
 
   return (
     <>
@@ -320,9 +319,14 @@ const AssignRfid = () => {
                     {" "}
                     Cancel{" "}
                   </StyledButton>
-                  <StyledButton variant={"primary"} width="160" type="submit">
+                  <StyledButton
+                    variant={"primary"}
+                    width="160"
+                    type="submit"
+                    disabled={isAssigning}
+                  >
                     {" "}
-                    Assign{" "}
+                    {isAssigning ? "Assigning..." : "Assign"}{" "}
                   </StyledButton>
                 </StyledFooter>
               </Grid>

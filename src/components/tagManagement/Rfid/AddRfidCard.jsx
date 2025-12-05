@@ -7,7 +7,7 @@ import StyledFooter from "../../../ui/StyledFooter";
 import StyledButton from "../../../ui/styledButton";
 import StyledSwitch from "../../../ui/styledSwitch";
 import { useForm, Controller } from "react-hook-form";
-import { createRfid, editRfid } from "../../../services/rfidAPI";
+import { useCreateRfid, useEditRfid } from "../../../hooks/mutations/useRfidMutation";
 import { toast } from "react-toastify";
 
 const AddRfidCard = ({ Close, editStatus = false, rfidData }) => {
@@ -24,50 +24,45 @@ const AddRfidCard = ({ Close, editStatus = false, rfidData }) => {
       serialNumber: editStatus ? rfidData["Serial No"] : "",
     },
   });
+
+  // TanStack Query mutation hooks
+  const { mutate: createRfidCard, isPending: isCreating } = useCreateRfid({
+    onSuccess: () => {
+      toast.success("RFID added successfully");
+      Close();
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.error || "Failed to add RFID");
+    },
+  });
+
+  const { mutate: updateRfidCard, isPending: isUpdating } = useEditRfid({
+    onSuccess: () => {
+      toast.success("RFID updated successfully");
+      Close();
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.error || "Failed to update RFID");
+    },
+  });
   const onSubmit = (data) => {
+    const dt = {
+      expiry: data.expiryDate,
+      rfidTag: data.rfidTag,
+      serialNumber: data.serialNumber,
+    };
+
     if (editStatus) {
-      updateRFID(data);
+      // Update existing RFID
+      if (data.activate !== undefined) {
+        dt.status = data.activate ? "active" : "inactive";
+      }
+      updateRfidCard({ id: rfidData._id, data: dt });
     } else {
-      createRFID(data);
+      // Create new RFID
+      dt.status = data.activate ? "active" : "unassigned";
+      createRfidCard(dt);
     }
-  };
-
-  const createRFID = (data) => {
-    let dt = {
-      expiry: data.expiryDate,
-      rfidTag: data.rfidTag,
-      serialNumber: data.serialNumber,
-      status: data.activate ? "active" : "unassigned",
-    };
-    createRfid(dt)
-      .then((res) => {
-        toast.success("RFID added successfully");
-        Close();
-      })
-      .catch((error) => {
-        toast.error(error.response.data.error);
-      });
-  };
-
-  const updateRFID = (data) => {
-    let dt = {
-      expiry: data.expiryDate,
-      rfidTag: data.rfidTag,
-      serialNumber: data.serialNumber,
-      // status: data.activate ? 'active' : 'inactive'
-    };
-
-    data.activate !== undefined &&
-      (dt.status = data.activate ? "active" : "inactive");
-
-    editRfid(rfidData._id, dt)
-      .then((res) => {
-        toast.success("RFID updated successfully");
-        Close();
-      })
-      .catch((error) => {
-        toast.error(error.response.data.error);
-      });
   };
 
   const handleDateChangeInParent = (date) => {
@@ -192,7 +187,7 @@ const AddRfidCard = ({ Close, editStatus = false, rfidData }) => {
                       handleChange(e);
                       // Additional logic if needed
                     }}
-                    // Adding 'required' attribute
+                  // Adding 'required' attribute
                   />
                 )}
               />

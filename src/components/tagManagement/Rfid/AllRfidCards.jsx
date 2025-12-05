@@ -8,7 +8,7 @@ import AddBulkRfidCard from './AddBulkRfidCard'
 import { tableHeaderReplace } from '../../../utils/tableHeaderReplace'
 import { Transition } from '../../../utils/DialogAnimation'
 import ConfirmDialog from '../../../ui/confirmDialog'
-import { deleteRfid } from '../../../services/rfidAPI'
+import { useDeleteRfid } from '../../../hooks/mutations/useRfidMutation'
 import { toast } from 'react-toastify'
 import { useAuth } from '../../../core/auth/AuthContext'
 import { permissions } from '../../../core/routes/permissions'
@@ -34,7 +34,20 @@ const AllRfidCards = ({ data, updateData, setPageNo, totalCount }) => {
   const [editstatus, setEditStatus] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const { userCan } = useAuth()
-  const rfData = tableHeaderReplace(data, ['rfidTag', 'username','serialNumber', 'createdAt', 'expiry', 'balance', 'status'], tableHeader)
+
+  // TanStack Query mutation hook
+  const { mutate: removeRfid, isPending: isDeleting } = useDeleteRfid({
+    onSuccess: () => {
+      toast.success("RFID Deleted Successfully");
+      setConfirmOpen(false);
+      updateData();
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.error || "Failed to delete RFID");
+    },
+  });
+
+  const rfData = tableHeaderReplace(data, ['rfidTag', 'username', 'serialNumber', 'createdAt', 'expiry', 'balance', 'status'], tableHeader)
 
 
   // Function to close the modal
@@ -65,13 +78,7 @@ const AllRfidCards = ({ data, updateData, setPageNo, totalCount }) => {
   };
 
   const deleteRFID = () => {
-    deleteRfid(selectData._id).then((res) => {
-      updateData()
-      toast.success("RFID Deleted Successfully")
-      setConfirmOpen(false)
-    }).catch((error) => {
-      toast.error(error.response.data.error)
-    })
+    removeRfid(selectData._id);
   }
 
   return (
