@@ -1,9 +1,9 @@
 import { Box } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import LastSynced from "../../../layout/LastSynced";
 import StyledTable from "../../../ui/styledTable";
 import { accountTransactionData } from "../../../assets/json/crm";
-import { getWalletTransaction } from "../../../services/transactionApi";
+import { useWalletTransaction } from "../../../hooks/queries/useTransaction";
 import { useLocation, useParams } from "react-router-dom";
 import { tableHeaderReplace } from "../../../utils/tableHeaderReplace";
 
@@ -30,23 +30,16 @@ const tableHeader = [
 
 export default function UserAccountTransactiomn() {
   const { id } = useParams();
-  const [transactionData, setTransactionData] = useState([])
   const [pageNo, setPageNo] = useState(1);
-  const [totalCount, setTotalCount] = useState(1);
 
-  const getData = async (filter={pageNo}) => {
-    const postData = {
-      user: id,
-     
-    };
-    const res = await getWalletTransaction(postData,filter);
-    setTransactionData(res.result);
-    setTotalCount(res.totalCount);
+  const postData = {
+    user: id,
   };
+  const filters = { pageNo };
 
-  useEffect(() => {
-    getData();
-  }, [id, pageNo]);
+  const { data: transactionResponse } = useWalletTransaction(postData, filters);
+  const transactionData = transactionResponse?.result || [];
+  const totalCount = transactionResponse?.totalCount || 0;
 
   const transData = tableHeaderReplace(transactionData, ["createdAt","type", "transactionId", "amount", "status", "currency"], tableHeader);
 

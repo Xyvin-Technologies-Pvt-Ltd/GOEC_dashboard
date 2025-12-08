@@ -7,7 +7,7 @@ import StyledButton from '../../../ui/styledButton';
 import AddVehicle from './addVehicle/AddVehicle';
 import { toast } from "react-toastify";
 import { tableHeaderReplace } from '../../../utils/tableHeaderReplace';
-import { deleteBrand } from '../../../services/vehicleAPI';
+import { useDeleteBrand } from '../../../hooks/mutations/useVehicleMutation';
 import ConfirmDialog from '../../../ui/confirmDialog';
 import { useAuth } from '../../../core/auth/AuthContext';
 import { permissions } from '../../../core/routes/permissions';
@@ -24,6 +24,7 @@ export default function Vehicles({ data, updateData, setPageNo1, totalCount1, se
   const [selectData, setSelectedData] = useState()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const { userCan } = useAuth()
+  const deleteBrandMutation = useDeleteBrand();
 
   const brandData = tableHeaderReplace(data, ['brandName', 'createdAt'], tableHeader)
 
@@ -42,14 +43,16 @@ export default function Vehicles({ data, updateData, setPageNo1, totalCount1, se
 
 
   const deleteBRAND = () => {
-    deleteBrand(selectData._id).then((res) => {
-      toast.success("OEM Deleted successfully");
-      updateData && updateData()
-
-    }).catch((error) => {
-      toast.success(`${error}`);
-      updateData && updateData()
-    })
+    deleteBrandMutation.mutate(selectData._id, {
+      onSuccess: () => {
+        toast.success("OEM deleted successfully");
+        updateData && updateData();
+        setConfirmOpen(false);
+      },
+      onError: (error) => {
+        toast.error(`Failed to delete OEM: ${error.message}`);
+      },
+    });
   }
 
   const handleSearch = (value)=>{
