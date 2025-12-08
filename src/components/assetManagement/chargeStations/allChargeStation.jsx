@@ -7,7 +7,7 @@ import StyledSearchField from '../../../ui/styledSearchField'
 import { searchAndFilter } from '../../../utils/search'
 import { tableHeaderReplace } from '../../../utils/tableHeaderReplace'
 import { permissions } from '../../../core/routes/permissions'
-import { useAuth } from '../../../core/auth/AuthContext'
+import { useAuthStore } from '../../../store'
 
 
 const tableHeader = [
@@ -20,7 +20,7 @@ const tableHeader = [
 
 export default function AllChargeStation({ data, setPageNo, totalCount, setSearchQuery, deleteData, editData, reloadData, ...props }) {
   const navigate = useNavigate()
-  const { userCan } = useAuth()
+  const hasPermission = useAuthStore((state) => state.hasPermission)
 
 
   const handleSearch = (value) => {
@@ -49,7 +49,7 @@ export default function AllChargeStation({ data, setPageNo, totalCount, setSearc
           setPageNo={setPageNo}
           totalCount={totalCount}
           data={chargeStationData}
-          actions={userCan(permissions.chargingStations.modify) ? ["Edit", "View", "Delete"] : ["View"]}
+          actions={hasPermission(permissions.chargingStations.modify) ? ["Edit", "View", "Delete"] : ["View"]}
           onActionClick={tableActionClick} />
       </Box>
     </>

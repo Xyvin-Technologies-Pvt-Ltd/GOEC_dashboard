@@ -6,7 +6,7 @@ import InputField from "../../../ui/styledInput";
 import StyledButton from "../../../ui/styledButton";
 import ProgressBar from "../../../ui/ProgressBar";
 import { Controller, useForm } from "react-hook-form";
-import { userSuggestionList } from "../../../services/userApi";
+import { useUserSuggestionList } from "../../../hooks/queries/useUser";
 import FileUpload from "../../../utils/FileUpload";
 import StyledTextArea from "../../../ui/styledTextArea";
 import { toast } from "react-toastify";
@@ -16,7 +16,12 @@ export default function EmailNotification() {
   const [userOptions, setUserOption] = useState([]);
   const [uploadPercentage, setUploadPercentage] = useState(0);
   const [selectedFile, setSelectedFile] = useState();
+  const [suggestionQuery, setSuggestionQuery] = useState("");
   const reference = useRef();
+  
+  // Use query hook for user suggestions
+  const { data: suggestionData } = useUserSuggestionList(suggestionQuery, !!suggestionQuery);
+  
   const {
     control,
     handleSubmit,
@@ -79,27 +84,23 @@ export default function EmailNotification() {
   };
 
   const loadUserOptions = async (inputValue) => {
-    try {
-      const response = await userSuggestionList(inputValue);
-      if (response.status) {
-        const mappedUsers = response.result.map((user) => ({
-          label: user.email,
-          value: user.email,
-        }));
+    setSuggestionQuery(inputValue);
+    
+    if (suggestionData?.result) {
+      const mappedUsers = suggestionData.result.map((user) => ({
+        label: user.email,
+        value: user.email,
+      }));
       
-        // Adding the 'All' option to the beginning of the mappedUsers array
-        const updatedSuggestions = [
-          { label: 'All', value: '*' },
-          ...mappedUsers,
-        ];
+      // Adding the 'All' option to the beginning of the mappedUsers array
+      const updatedSuggestions = [
+        { label: 'All', value: '*' },
+        ...mappedUsers,
+      ];
       
-        return updatedSuggestions;
-      }
-      return [];
-    } catch (error) {
-      console.error("Error fetching users", error);
-      return [];
+      return updatedSuggestions;
     }
+    return [];
   };
 
   return (
@@ -135,11 +136,18 @@ export default function EmailNotification() {
                         selectedOptions.some((option) => option.value === "*")
                       ) {
                         const confirmation = window.confirm("Are you sure want to send mail to all?");
-                        if(confirmation){                          
-                          loadUserOptions("").then((fullList) => {
-                            const filteredList = fullList.filter((option) => option.value !== '*');
-                            setValue("sendTo", filteredList);
-                          });
+                        if(confirmation){
+                          setSuggestionQuery("");
+                          // Wait for the data to update, then map it
+                          setTimeout(() => {
+                            if (suggestionData?.result) {
+                              const mappedUsers = suggestionData.result.map((user) => ({
+                                label: user.email,
+                                value: user.email,
+                              }));
+                              setValue("sendTo", mappedUsers);
+                            }
+                          }, 100);
                         }
                       } else {
                         setValue("sendTo", selectedOptions);

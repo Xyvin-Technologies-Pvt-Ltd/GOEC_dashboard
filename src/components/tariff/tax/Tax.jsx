@@ -11,14 +11,13 @@ import StyledButton from "../../../ui/styledButton";
 import StyledSearchField from "../../../ui/styledSearchField";
 import { tableHeaderReplace } from "../../../utils/tableHeaderReplace";
 import { useDeleteTax } from "../../../hooks/mutations/useTaxMutation";
-import { searchAndFilter } from "../../../utils/search";
-import { useAuth } from "../../../core/auth/AuthContext";
+import { useAuthStore } from "../../../store";
 import { permissions } from "../../../core/routes/permissions";
 function Tax({ data, headers, onIsChange, isChange, updateData, setPageNo, totalCount, setSearchQuery }) {
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState("add");
   const [tableData, setTableData] = useState();
-  const { userCan } = useAuth();
+  const hasPermission = useAuthStore((state) => state.hasPermission);
   const deleteTaxMutation = useDeleteTax();
 
   // Function to open the modal
@@ -82,7 +81,7 @@ function Tax({ data, headers, onIsChange, isChange, updateData, setPageNo, total
         setPageNo={setPageNo}
         totalCount={totalCount}
         onActionClick={handleClick}
-        showActionCell={userCan(permissions.tax.modify)}
+        showActionCell={hasPermission(permissions.tax.modify)}
         actions={["Edit","Delete"]}
         />
       </Box>

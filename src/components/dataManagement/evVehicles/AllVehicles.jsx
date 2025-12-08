@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import AddVehicles from "./AddVehicles";
 import { ReactComponent as Close } from "../../../assets/icons/close-icon-large.svg";
 import { Transition } from "../../../utils/DialogAnimation";
-import { useAuth } from "../../../core/auth/AuthContext";
+import { useAuthStore } from "../../../store";
 import { permissions } from "../../../core/routes/permissions";
 
 const tableHeader = [
@@ -36,7 +36,7 @@ export default function AllVehicles({ data, setPageNo, totalCount, setSearchQuer
   const [editOpen, setEditOpen] = useState(false);
   const deleteVehicleMutation = useDeleteVehicle();
   const VehicleData = tableHeaderReplace(data, ['brand', 'modelName', 'charger_types', 'number_of_ports'], tableHeader)
-  const { userCan } = useAuth()
+  const hasPermission = useAuthStore((state) => state.hasPermission)
   const tableActionClick = (e) => {
     if (e.action === "Edit") {
       setSelectedData(e.data)
@@ -80,7 +80,7 @@ export default function AllVehicles({ data, setPageNo, totalCount, setSearchQuer
         setPageNo={setPageNo}
         totalCount={totalCount}
         onActionClick={tableActionClick} 
-        showActionCell={userCan(permissions.evVehicle.modify)}
+        showActionCell={hasPermission(permissions.evVehicle.modify)}
         actions={["Edit", "Delete"]} />
       </Box>
     </>

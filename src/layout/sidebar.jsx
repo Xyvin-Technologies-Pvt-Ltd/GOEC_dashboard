@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
-import { Box, Drawer, Typography, useMediaQuery } from "@mui/material";
-
+import { Box, Drawer, useMediaQuery } from "@mui/material";
 import { NavItem } from "../ui/Navitem";
-import { ReactComponent as Logo } from "../assets/Logo.svg";
 import { siderbarListItems } from "../assets/json/sidebar";
-import { useAuth } from "../core/auth/AuthContext";
+import { useAuthStore } from "../store";
 import { useNavigate } from "react-router-dom";
 import HeaderLogo from "../assets/header-logo.png";
 
 const Sidebar = ({ open, onClose, ...props }) => {
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up("lg"));
-  const { userCan } = useAuth();
+  const hasPermission = useAuthStore((state) => state.hasPermission);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [filteredItems, setFilteredItems] = useState([]);
   const navigate = useNavigate();
@@ -24,7 +22,7 @@ const Sidebar = ({ open, onClose, ...props }) => {
           sub: item.sub?.filter(
             (subItem) =>
               !subItem.requiredRoles ||
-              subItem.requiredRoles.some((role) => userCan(role))
+              subItem.requiredRoles.some((role) => hasPermission(role))
           ),
         }))
         .filter((item) => (item.sub ? item.sub.length > 0 : true));
@@ -45,12 +43,15 @@ const Sidebar = ({ open, onClose, ...props }) => {
     };
 
     filterSidebarItems();
-  }, [activeIndex, navigate, userCan]);
+  }, [activeIndex, navigate, hasPermission]);
 
   const handleItemClick = (index) => {
-    setActiveIndex(index);
     if (index === activeIndex) {
-      onClose(); // Close the sidebar on item click
+      // If clicking the same item, toggle it (collapse)
+      setActiveIndex(-1);
+    } else {
+      // If clicking a different item, expand it
+      setActiveIndex(index);
     }
   };
 

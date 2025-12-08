@@ -12,7 +12,7 @@ import { tableHeaderReplace } from "../../../utils/tableHeaderReplace";
 import StyledSearchField from "../../../ui/styledSearchField";
 import { searchAndFilter } from "../../../utils/search";
 import { permissions } from "../../../core/routes/permissions";
-import { useAuth } from "../../../core/auth/AuthContext";
+import { useAuthStore } from "../../../store";
 
 function restructureData(dataArray) {
   return dataArray.map((item) => ({
@@ -30,7 +30,7 @@ function ChargingTariff({ data, headers, onIsChange, isChange, updateData, setPa
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState("add");
   const [tableData, setTableData] = useState();
-  const { userCan } = useAuth()
+  const hasPermission = useAuthStore((state) => state.hasPermission)
   // Function to open the modal
   const handleOpen = () => {
     setOpen(true);
@@ -97,7 +97,7 @@ function ChargingTariff({ data, headers, onIsChange, isChange, updateData, setPa
           setPageNo={setPageNo}
           totalCount={totalCount}
           onActionClick={handleClick}
-          showActionCell={userCan(permissions.chargingTariff.modify)}
+          showActionCell={hasPermission(permissions.chargingTariff.modify)}
           actions= {["Edit","Delete"]}
         />
       </Box>

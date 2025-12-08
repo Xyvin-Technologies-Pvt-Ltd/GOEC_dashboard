@@ -2,16 +2,25 @@ import { Box, Stack, Typography } from "@mui/material";
 import React from "react";
 import StyledDivider from "../../../../ui/styledDivider";
 import StyledButton from "../../../../ui/styledButton";
-import { userAssignAndunAssignTarrif } from "../../../../services/userApi";
+import { useUserAssignUnassignTariff } from "../../../../hooks/mutations/useUserMutation";
 import { toast } from "react-toastify";
 
 export default function TariffCard({ userId, onIsChange, isChange, data, ...props }) {
-  const unAssign = async () => {
-    const res = await userAssignAndunAssignTarrif(userId, {});
-    if (res.status) {
-      toast.success("Tariff unassigned successfully");
-      onIsChange(!isChange);
-    }
+  const assignUnassignTariffMutation = useUserAssignUnassignTariff();
+
+  const unAssign = () => {
+    assignUnassignTariffMutation.mutate(
+      { id: userId, data: {} },
+      {
+        onSuccess: () => {
+          toast.success("Tariff unassigned successfully");
+          onIsChange(!isChange);
+        },
+        onError: () => {
+          toast.error("Failed to unassign tariff");
+        },
+      }
+    );
   };
 
   return (

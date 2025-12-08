@@ -21,6 +21,7 @@ import {
   createAdmin,
   updateAdmin,
   deleteAdmin,
+  adminLogin,
 } from "../../services/userApi";
 
 //* Create user
@@ -295,5 +296,13 @@ export const useDeleteAdmin = (options = {}) => {
       queryClient.invalidateQueries({ queryKey: ["adminsList"] });
       options.onSuccess?.(data, variables, context);
     },
+  });
+};
+
+//* Admin login
+export const useAdminLogin = (options = {}) => {
+  return useMutation({
+    mutationFn: adminLogin,
+    ...options,
   });
 };

@@ -35,7 +35,9 @@ export const NavItem = (props) => {
                         navigate(`/${href}`);
                     } else {
                         // Existing logic for extendable items
-                        active ? indexChange() : <></>;
+                        if (active && typeof indexChange === 'function') {
+                            indexChange();
+                        }
                     } 
                 }}
                 sx={{

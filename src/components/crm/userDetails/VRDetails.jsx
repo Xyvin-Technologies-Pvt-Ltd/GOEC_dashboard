@@ -1,8 +1,8 @@
 import { Box, Grid, Stack, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import LastSynced from "../../../layout/LastSynced";
 import { useLocation, useParams } from "react-router-dom";
-import { uservehicleDetails } from "../../../services/userApi";
+import { useUserVehicleDetails } from "../../../hooks/queries/useUser";
 
 const VRCard = ({ data }) => {
   return (
@@ -54,16 +54,10 @@ const VRCard = ({ data }) => {
 
 export default function VRDetails() {
   const { id } = useParams();
-  const [VR, setVR] = useState();
 
-  const getData = async () => {
-    const res = await uservehicleDetails(id);
-    setVR(res.result);
-  };
+  const { data: vehicleData } = useUserVehicleDetails(id);
+  const VR = vehicleData?.result;
 
-  useEffect(() => {
-    getData();
-  }, [id]);
   return (
     <Box>
       <LastSynced heading={"VR Details"} />

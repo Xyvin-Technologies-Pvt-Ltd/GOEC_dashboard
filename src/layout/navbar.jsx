@@ -10,8 +10,8 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { ReactComponent as Notification } from "../assets/icons/notification.svg";
-import { useAuth } from "../core/auth/AuthContext";
 import LogoutTwoToneIcon from "@mui/icons-material/LogoutTwoTone";
+import { useAuthStore } from "../store";
 
 const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.secondary.main,
@@ -22,7 +22,8 @@ const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
 export const DashboardNavbar = (props) => {
   const { open, onSideBarOpen, ...other } = props;
 
-  const { user, logout } = useAuth();
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
 
   return (
     <DashboardNavbarRoot

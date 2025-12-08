@@ -10,7 +10,7 @@ import { Transition } from '../../../utils/DialogAnimation'
 import ConfirmDialog from '../../../ui/confirmDialog'
 import { useDeleteRfid } from '../../../hooks/mutations/useRfidMutation'
 import { toast } from 'react-toastify'
-import { useAuth } from '../../../core/auth/AuthContext'
+import { useAuthStore } from '../../../store'
 import { permissions } from '../../../core/routes/permissions'
 
 
@@ -33,7 +33,7 @@ const AllRfidCards = ({ data, updateData, setPageNo, totalCount }) => {
   const [selectData, setselectData] = useState()
   const [editstatus, setEditStatus] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const { userCan } = useAuth()
+  const hasPermission = useAuthStore((state) => state.hasPermission)
 
   // TanStack Query mutation hook
   const { mutate: removeRfid, isPending: isDeleting } = useDeleteRfid({
@@ -96,7 +96,7 @@ const AllRfidCards = ({ data, updateData, setPageNo, totalCount }) => {
           setPageNo={setPageNo}
           totalCount={totalCount}
           onActionClick={(e) => handleClick(e)}
-          showActionCell={userCan(permissions.rfid.modify)}
+          showActionCell={hasPermission(permissions.rfid.modify)}
           actions={["Edit", "Delete"]} />
       </Box>
       {/* Modal */}

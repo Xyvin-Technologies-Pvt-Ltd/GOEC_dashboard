@@ -9,7 +9,7 @@ import { Controller, useForm } from "react-hook-form";
 import FileUpload from "../../../utils/FileUpload";
 import StyledTextArea from "../../../ui/styledTextArea";
 import { toast } from "react-toastify";
-import { userSuggestionList } from "../../../services/userApi";
+import { useUserSuggestionList } from "../../../hooks/queries/useUser";
 import { useSendBulkPushNotification } from "../../../hooks/mutations/useNotificationMutation";
 import { useImageUpload } from "../../../hooks/mutations/useImageUpload";
 
@@ -17,11 +17,16 @@ export default function EmailNotification() {
   const [userList, setUserList] = useState([]);
   const [uploadPercentage, setUploadPercentage] = useState(0);
   const [selectedFile, setSelectedFile] = useState();
+  const [suggestionQuery, setSuggestionQuery] = useState("");
   const reference = useRef();
   
   // Use mutation hooks
   const sendBulkPushNotificationMutation = useSendBulkPushNotification();
   const imageUploadMutation = useImageUpload();
+  
+  // Use query hook for user suggestions
+  const { data: suggestionData } = useUserSuggestionList(suggestionQuery, !!suggestionQuery);
+  
   const {
     control,
     handleSubmit,
@@ -96,29 +101,24 @@ export default function EmailNotification() {
   };
 
   const loadUserOptions = async (inputValue) => {
-    try {
-      const response = await userSuggestionList(inputValue);
-      setUserList(response.result);
-   
-      if (response.status) {
-        const mappedUsers = response.result.map((user) => ({
-          label: user.mobile,
-          value: user.firebaseToken,
-        }));
+    setSuggestionQuery(inputValue);
+    
+    if (suggestionData?.result) {
+      const mappedUsers = suggestionData.result.map((user) => ({
+        label: user.mobile,
+        value: user.firebaseToken,
+      }));
       
-        // Adding the 'All' option to the beginning of the mappedUsers array
-        const updatedSuggestions = [
-          { label: 'All', value: '*' },
-          ...mappedUsers,
-        ];
+      // Adding the 'All' option to the beginning of the mappedUsers array
+      const updatedSuggestions = [
+        { label: 'All', value: '*' },
+        ...mappedUsers,
+      ];
       
-        return updatedSuggestions;
-      }
-      return [];
-    } catch (error) {
-      console.error("Error fetching users", error);
-      return [];
+      setUserList(suggestionData.result);
+      return updatedSuggestions;
     }
+    return [];
   };
 
   return (
@@ -154,11 +154,18 @@ export default function EmailNotification() {
                         selectedOptions.some((option) => option.value === "*")
                       ) {
                         const confirmation = window.confirm("Are you sure want to send notification to all?");
-                        if(confirmation){                            
-                          loadUserOptions("").then((fullList) => {
-                            const filteredList = fullList.filter((option) => option.value !== '*');
-                            setValue("sendTo", filteredList);
-                          });
+                        if(confirmation){
+                          setSuggestionQuery("");
+                          // Wait for the data to update, then map it
+                          setTimeout(() => {
+                            if (suggestionData?.result) {
+                              const mappedUsers = suggestionData.result.map((user) => ({
+                                label: user.mobile,
+                                value: user.firebaseToken,
+                              }));
+                              setValue("sendTo", mappedUsers);
+                            }
+                          }, 100);
                         }
                       } else {
                         setValue("sendTo", selectedOptions);
