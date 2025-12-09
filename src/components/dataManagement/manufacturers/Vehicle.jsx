@@ -7,9 +7,9 @@ import StyledButton from '../../../ui/styledButton';
 import AddVehicle from './addVehicle/AddVehicle';
 import { toast } from "react-toastify";
 import { tableHeaderReplace } from '../../../utils/tableHeaderReplace';
-import { deleteBrand } from '../../../services/vehicleAPI';
+import { useDeleteBrand } from '../../../hooks/mutations/useVehicleMutation';
 import ConfirmDialog from '../../../ui/confirmDialog';
-import { useAuth } from '../../../core/auth/AuthContext';
+import { useAuthStore } from '../../../store';
 import { permissions } from '../../../core/routes/permissions';
 
 
@@ -23,7 +23,8 @@ export default function Vehicles({ data, updateData, setPageNo1, totalCount1, se
   const [editStatus, setEditStatus] = useState(false)
   const [selectData, setSelectedData] = useState()
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const { userCan } = useAuth()
+  const hasPermission = useAuthStore((state) => state.hasPermission)
+  const deleteBrandMutation = useDeleteBrand();
 
   const brandData = tableHeaderReplace(data, ['brandName', 'createdAt'], tableHeader)
 
@@ -42,14 +43,16 @@ export default function Vehicles({ data, updateData, setPageNo1, totalCount1, se
 
 
   const deleteBRAND = () => {
-    deleteBrand(selectData._id).then((res) => {
-      toast.success("OEM Deleted successfully");
-      updateData && updateData()
-
-    }).catch((error) => {
-      toast.success(`${error}`);
-      updateData && updateData()
-    })
+    deleteBrandMutation.mutate(selectData._id, {
+      onSuccess: () => {
+        toast.success("OEM deleted successfully");
+        updateData && updateData();
+        setConfirmOpen(false);
+      },
+      onError: (error) => {
+        toast.error(`Failed to delete OEM: ${error.message}`);
+      },
+    });
   }
 
   const handleSearch = (value)=>{
@@ -74,7 +77,7 @@ export default function Vehicles({ data, updateData, setPageNo1, totalCount1, se
         setPageNo={setPageNo1}
         totalCount={totalCount1}
         actions={["Edit", "Delete"]} 
-        showActionCell={userCan(permissions.manufacture.modify)}
+        showActionCell={hasPermission(permissions.manufacture.modify)}
         onActionClick={tableActionClick} />
       </Box>
     </>)

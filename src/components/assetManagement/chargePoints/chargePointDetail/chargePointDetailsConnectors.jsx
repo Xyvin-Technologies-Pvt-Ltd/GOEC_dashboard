@@ -4,7 +4,6 @@ import StyledDivider from "../../../../ui/styledDivider";
 import { ReactComponent as Qr_evplug } from "../../../../assets/icons/material-symbols_qr-code.svg";
 import { ReactComponent as Mdi_unlocked } from "../../../../assets/icons/mdi_unlocked.svg"
 import { getConnectorIcon } from "../../../../utils/connectorIcons";
-import { unlock } from "../../../../services/ocppAPI";
 import { Download } from "@mui/icons-material";
 import { Transition } from "../../../../utils/DialogAnimation";
 

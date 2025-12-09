@@ -1,31 +1,25 @@
 import { Box, Stack } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import StyledTab from "../ui/styledTab";
 import AllRfidCards from '../components/tagManagement/Rfid/AllRfidCards';
 import AssignRfid from '../components/tagManagement/Rfid/AssignRfid';
-import { getRfidList } from '../services/rfidAPI';
+import { useRfidList } from '../hooks/queries/useRfid';
 
 const RfidCards = () => {
   const [togglePage, setTogglePage] = useState(0);
-  const [rfidData,setRfidData] = useState([])
   const [pageNo, setPageNo] = useState(1);
-  const [totalCount, setTotalCount] = useState(1);
 
-  const init = (filter = {pageNo}) => {
-    getRfidList(filter).then((res) => {
-      setRfidData(res.result)
-      setTotalCount(res.totalCount);
-    })
-  }
+  // TanStack Query hook
+  const { data: rfidListData, refetch } = useRfidList({ pageNo });
 
-  useEffect(() => {
-    init()
-  }, [pageNo])
-
+  // Extract data with safe defaults
+  const rfidData = rfidListData?.result || [];
+  const totalCount = rfidListData?.totalCount || 0;
 
   const buttonChanged = (e) => {
     setTogglePage(e.index);
   };
+
   return (
     <Box>
       <Stack direction={"row"} sx={{ backgroundColor: "secondary.main" }}>
@@ -34,7 +28,7 @@ const RfidCards = () => {
           onChanged={buttonChanged}
         />
       </Stack>
-      {togglePage === 0 ? <AllRfidCards data={rfidData} setPageNo={setPageNo} totalCount={totalCount} updateData={init}/> : <AssignRfid />}
+      {togglePage === 0 ? <AllRfidCards data={rfidData} setPageNo={setPageNo} totalCount={totalCount} updateData={refetch} /> : <AssignRfid />}
     </Box>
   )
 }

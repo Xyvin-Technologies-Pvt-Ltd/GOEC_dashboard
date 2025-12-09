@@ -1,31 +1,52 @@
 import { Grid, Typography, Container, Stack } from "@mui/material";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import StyledSelectField from "../../../ui/styledSelectField";
 import StyledButton from "../../../ui/styledButton";
 import InputField from "../../../ui/styledInput";
 import { Controller, useForm } from "react-hook-form";
-import { createChargingTariff, editChargingTariff } from "../../../services/chargingTariffAPI";
 import { toast } from "react-toastify";
-import { getTaxListDropdown } from "../../../services/taxAPI";
+import { useCreateChargingTariff, useEditChargingTariff } from "../../../hooks/mutations/useChargingTariffMutation";
+import { useTaxDropdown } from "../../../hooks/queries/useTax";
 
-export default function AddTariff({ action, data, onIsChange, isChange,updateData, setOpen }) {
-  const [taxListData, setTaxListData] = useState([]);
-  const getTariffData = () => {
-    getTaxListDropdown().then((res) => {
-      if (res) {
-        setTaxListData(res.taxs);
-      }
-    });
-  };
+export default function AddTariff({ action, data, onIsChange, isChange, updateData, setOpen }) {
+  // Use TanStack Query hook for tax dropdown
+  const { data: taxListData = [] } = useTaxDropdown();
+
+  // Use TanStack Query mutation hooks
+  const createMutation = useCreateChargingTariff({
+    onSuccess: () => {
+      toast.success("Charging Tariff created successfully", { position: "top-right" });
+      onIsChange(!isChange);
+      reset();
+      updateData && updateData();
+      setOpen(false);
+    },
+    onError: () => {
+      toast.error("Something went wrong", { position: "top-right" });
+    },
+  });
+
+  const editMutation = useEditChargingTariff({
+    onSuccess: () => {
+      toast.success("Charging Tariff updated successfully", { position: "top-right" });
+      onIsChange(!isChange);
+      reset();
+      updateData && updateData();
+      setOpen(false);
+    },
+    onError: () => {
+      toast.error("Something went wrong", { position: "top-right" });
+    },
+  });
 
   const defaultValues = useMemo(() => {
     return action === "edit"
       ? {
-          name: data.Name,
-          value: data.Value,
-          tax: data.Tax,
-          serviceFee: data["Service fee(INR)"]
+          name: data?.Name,
+          value: data?.Value,
+          tax: { label: data?.taxData?.name, value: data?.Tax },
+          serviceFee: data?.["Service fee(INR)"],
         }
       : {};
   }, [action, data]);
@@ -38,60 +59,27 @@ export default function AddTariff({ action, data, onIsChange, isChange,updateDat
     control,
   } = useForm({ defaultValues });
 
-  useEffect(() => {
-    getTariffData();
-    if (action === "edit") {
-      reset(defaultValues);
-    }
-  }, [action, defaultValues, reset]);
-
-  const handleCancel = ()=>{
+  const handleCancel = () => {
     setOpen(false);
     reset();
-  }
-  const onSubmit = async (formData) => {
+  };
+
+  const onSubmit = (formData) => {
     const addData = {
-      name : formData.name,
+      name: formData.name,
       value: formData.value,
       tax: formData.tax.value,
-      serviceAmount: formData.serviceFee
-    }
-    try {
-      if (action === "add") {
-        const res = await createChargingTariff(addData);
-        if (res) {
-          const successToastId = toast.success("Charging Tariff created successfully", {
-            position: "top-right",
-          });
-          onIsChange(!isChange);
-          toast.update(successToastId);
-          reset();
-          updateData && updateData()
-        }
-      } else if (action === "edit") {
-        const res = await editChargingTariff(data._id, addData);
-        if (res) {
-          const successToastId = toast.success("Charging Tariff updated successfully", {
-            position: "top-right",
-          });
-          onIsChange(!isChange);
-          toast.update(successToastId);
-          reset();
-          updateData && updateData()
-        }
-      }
-    } catch (error) {
-      const errorToastId = toast.error("Something went wrong", {
-        position: "top-right",
-      });
-      toast.update(errorToastId);
+      serviceAmount: formData.serviceFee,
+    };
+    if (action === "add") {
+      createMutation.mutate(addData);
+    } else if (action === "edit") {
+      editMutation.mutate({ id: data._id, data: addData });
     }
   };
 
-  const options = taxListData.map((res) => ({
-    value: res._id,
-    label: res.name,
-  }));
+  // taxListData is already in the format { label, value } from the query hook
+  const options = taxListData;
 
   return (
     <TableContainer>

@@ -8,12 +8,12 @@ import AddEvCharger from "./AddEvCharger";
 import { ReactComponent as Close } from "../../../assets/icons/close-icon-large.svg";
 import ConfirmDialog from "../../../ui/confirmDialog";
 import { toast } from "react-toastify";
-import { deleteEvModel } from "../../../services/evMachineAPI";
+import { useDeleteEvModel } from "../../../hooks/mutations/useEvMachineMutation";
 import { searchAndFilter } from "../../../utils/search";
 import StyledSearchField from "../../../ui/styledSearchField";
 import { Transition } from "../../../utils/DialogAnimation";
 import { permissions } from "../../../core/routes/permissions";
-import { useAuth } from "../../../core/auth/AuthContext";
+import { useAuthStore } from "../../../store";
 
 const tableHeader = [
   "Company Name",
@@ -42,7 +42,8 @@ export default function AllEvChargers({ data, updateData, setPageNo, totalCount,
   const [editOpen, setEditOpen] = useState(false)
   const [selectData, setSelectedData] = useState();
   const [dialogOpen, setDialogOpen] = useState(false)
-  const { userCan } = useAuth()
+  const hasPermission = useAuthStore((state) => state.hasPermission)
+  const deleteEvModelMutation = useDeleteEvModel();
 
   const evChargerData = tableHeaderReplace(data, ['oem', 'model_name', 'output_type', 'ocpp_version', 'charger_type', 'capacity', 'no_of_ports'], tableHeader)
 
@@ -56,11 +57,14 @@ export default function AllEvChargers({ data, updateData, setPageNo, totalCount,
   }
 
   const deleteData = () => {
-    deleteEvModel(selectData._id).then((res) => {
-      toast.success("EV charger Deleted successfull")
-      updateData && updateData()
-    }).catch((error) => {
-      toast.error("could not delete EV Charger")
+    deleteEvModelMutation.mutate(selectData._id, {
+      onSuccess: (res) => {
+        toast.success("EV charger Deleted successfully")
+        updateData && updateData()
+      },
+      onError: (error) => {
+        toast.error(error?.response?.data?.error || "Could not delete EV Charger")
+      }
     })
   }
 
@@ -89,7 +93,7 @@ export default function AllEvChargers({ data, updateData, setPageNo, totalCount,
           setPageNo={setPageNo}
           totalCount={totalCount}
           onActionClick={tableActionClick}
-          showActionCell={userCan(permissions.evChargersModel.modify)}
+          showActionCell={hasPermission(permissions.evChargersModel.modify)}
           actions={["Edit", "Delete"]} />
       </Box>
     </>

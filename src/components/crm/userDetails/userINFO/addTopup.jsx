@@ -8,7 +8,7 @@ import StyledDivider from "../../../../ui/styledDivider";
 import StyledButton from "../../../../ui/styledButton";
 import { useForm, Controller } from "react-hook-form";
 import { Transition } from "../../../../utils/DialogAnimation";
-import { toWallet } from "../../../../services/userApi";
+import { useAddToWallet } from "../../../../hooks/mutations/useUserMutation";
 import { toast } from "react-toastify";
 
 export default function AddTopup({ userData, onIsChange, isChange, open, onClose, ...props }) {
@@ -27,6 +27,8 @@ export default function AddTopup({ userData, onIsChange, isChange, open, onClose
     },
   });
 
+  const addToWalletMutation = useAddToWallet();
+
   const previousBalance = watch("previousBalance", userData?.wallet && userData?.wallet.toFixed(2));
   const amount = watch("amount", 0);
   const updatedBalance = Number(previousBalance) + Number(amount);
@@ -43,16 +45,24 @@ export default function AddTopup({ userData, onIsChange, isChange, open, onClose
       doneByAdmin:true,
       type:"admin topup"
     };
-    const res = await toWallet(userData._id, postData);
-    if (res) {
-      const successToastId = toast.success("Money added to wallet...", {
-        position: "top-right",
-      });
-      toast.update(successToastId);
-      reset();
-      onClose && onClose();
-      onIsChange(!isChange)
-    }
+    addToWalletMutation.mutate(
+      { id: userData._id, data: postData },
+      {
+        onSuccess: () => {
+          toast.success("Money added to wallet...", {
+            position: "top-right",
+          });
+          reset();
+          onClose && onClose();
+          onIsChange(!isChange);
+        },
+        onError: () => {
+          toast.error("Failed to add money to wallet", {
+            position: "top-right",
+          });
+        },
+      }
+    );
   };
 
   return (

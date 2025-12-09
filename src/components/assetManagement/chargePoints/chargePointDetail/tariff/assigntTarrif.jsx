@@ -9,34 +9,34 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Transition } from "../../../../../utils/DialogAnimation";
-import { getChargingTariffListDropdown } from "../../../../../services/chargingTariffAPI";
-import { changeEVTarrif } from "../../../../../services/evMachineAPI";
+import { useChargingTariffDropdown } from "../../../../../hooks/queries/useChargingTariff";
+import { useChangeEvTariff } from "../../../../../hooks/mutations/useEvMachineMutation";
 
 export default function AssignTarrif({ open, onClose, CPID, updated }) {
-  const { handleSubmit, setValue, reset, formState: { errors }, control } = useForm();
-  const [tarrifList, setTarrifList] = useState([])
-  const [totalCount, setTotalCount] = useState(1);
-
-  useEffect(() => {
-    getChargingTariffListDropdown().then((res) => {
-      if (res) {
-        setTarrifList(res.result.map((dt) => ({ label: dt.name, value: dt._id })));
-      }
-    })
-  }, [])
+  const { handleSubmit, reset, formState: { errors }, control } = useForm();
+  
+  // Use TanStack Query hook for charging tariff dropdown
+  const { data: tarrifList = [] } = useChargingTariffDropdown();
+  
+  // Use TanStack Query mutation hook for changing EV tariff
+  const changeEVTariffMutation = useChangeEvTariff({
+    onSuccess: () => {
+      toast.success("Tariff successfully assigned", { position: "top-right" });
+      updated && updated();
+      onClose && onClose();
+      reset();
+    },
+    onError: (error) => {
+      const errorMessage = error?.response?.data?.error || "Something went wrong";
+      toast.error(errorMessage, { position: "top-right" });
+    },
+  });
 
   const onSubmit = (data) => {
-    let dt = {
-      chargingTariff: data.chargingTariff.value
-    }
-    changeEVTarrif(CPID, dt).then((res) => {
-      toast.success("successfully assigned")
-      updated && updated()
-      onClose && onClose()
-    }).catch((err) => {
-      toast.error(err.response.data.error)
-    })
-
+    changeEVTariffMutation.mutate({
+      evMachine: CPID,
+      data: { chargingTariff: data.chargingTariff.value },
+    });
   };
 
 

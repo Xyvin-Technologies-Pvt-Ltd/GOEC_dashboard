@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form';
 import { excelToJSONConvert, exportRFIDSampleFile } from "../../../utils/excelExport";
 import { toast } from "react-toastify";
 import XLSX from 'sheetjs-style';
-import { createManyRfid } from "../../../services/rfidAPI";
+import { useCreateManyRfid } from "../../../hooks/mutations/useRfidMutation";
 
 const AddBulkRfidCard = ({ Close, Save }) => {
 
@@ -22,6 +22,17 @@ const AddBulkRfidCard = ({ Close, Save }) => {
   const [selectedFileName, setselectedFileName] = useState(null);
   const [buttonDisabled, setButtonDisabled] = useState(true)
   const [excelData, setExcelData] = useState([])
+
+  // TanStack Query mutation hook
+  const { mutate: createBulkRfid, isPending: isCreating } = useCreateManyRfid({
+    onSuccess: () => {
+      toast.success("RFID Added Successfully");
+      Close();
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.error || "Failed to add RFID cards");
+    },
+  });
 
   const handleFileSelect = (file) => {
     var re = /(\.csv|\.xls|\.xlsx)$/i;
@@ -60,21 +71,15 @@ const AddBulkRfidCard = ({ Close, Save }) => {
     // }, 500);
   };
 
-  const onSubmit =  (data) => {
+  const onSubmit = (data) => {
     if (excelData.length > 2) {
-      //API call
-      createManyRfid({data:excelData}).then(res=>{
-        toast.success("Rfid Addes Successfull")
-      }).catch(error=>{
-        toast.error(error.response.data.error)
-      })
-      Close();
+      // API call using mutation hook
+      createBulkRfid({ data: excelData });
     } else if (excelData.length > 50) {
       toast.error("Datas exceeding Limit! please enter on 50 Data Maximum ")
     } else if (excelData.length < 2) {
       toast.error("Datas no exist! please enter atleast 2 data")
     }
-
   };
 
   const handleBrowseClick = () => {

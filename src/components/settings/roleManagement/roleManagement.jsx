@@ -8,16 +8,16 @@ import StyledDivider from "../../../ui/styledDivider";
 import AddRole from "./addRole";
 import { ReactComponent as Close } from "../../../assets/icons/close-circle.svg";
 import { toast } from "react-toastify";
-import { deleteRole } from "../../../services/userApi";
+import { useDeleteRole } from "../../../hooks/mutations/useUserMutation";
 import { Transition } from "../../../utils/DialogAnimation";
-import { useAuth } from "../../../core/auth/AuthContext";
+import { useAuthStore } from "../../../store";
 import { permissions } from "../../../core/routes/permissions";
 
 export default function RoleManagement({ headers, data, setIsChange, isChange, setPageNo, totalCount }) {
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState("add");
   const [tableData, setTableData] = useState();
-  const { userCan } = useAuth()
+  const hasPermission = useAuthStore((state) => state.hasPermission)
   // Function to open the modal
   const handleOpen = () => {
     setTableData();
@@ -33,15 +33,23 @@ export default function RoleManagement({ headers, data, setIsChange, isChange, s
     toast.success("Role successfully updated!");
     handleClose(); // Close the modal after success
   };
-  const handleClick = async (e) => {
+  const deleteRoleMutation = useDeleteRole({
+    onSuccess: () => {
+      setIsChange(!isChange);
+      toast.success("Role deleted!");
+    },
+    onError: () => {
+      toast.error("Failed to delete role!");
+    },
+  });
+
+  const handleClick = (e) => {
     if (e.action === "Edit") {
       setAction("edit");
       setOpen(true);
       setTableData(e.data);
     } else if (e.action === "Delete") {
-      await deleteRole(e.data._id);
-      setIsChange(!isChange);
-      toast.success("Role deleted!");
+      deleteRoleMutation.mutate(e.data._id);
     }
   };
   return (
@@ -58,7 +66,7 @@ export default function RoleManagement({ headers, data, setIsChange, isChange, s
         setPageNo={setPageNo}
         totalCount={totalCount}
         onActionClick={handleClick} 
-        showActionCell={userCan(permissions.roleManagement.modify)}
+        showActionCell={hasPermission(permissions.roleManagement.modify)}
         actions={["Edit","Delete"]} />
       </Box>
       {/* Modal */} 

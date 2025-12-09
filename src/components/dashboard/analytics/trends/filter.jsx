@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
-import { Stack, Box, Grid, Typography } from "@mui/material";
+import { Stack, Box, Grid } from "@mui/material";
 import StyledSelectField from "../../../../ui/styledSelectField";
 import StyledButton from "../../../../ui/styledButton";
 import { useForm, Controller } from "react-hook-form";
 import StyledInput from "../../../../ui/styledInput";
 import CalendarInput from "../../../../ui/CalendarInput";
-import { getListOfChargingStation } from "../../../../services/stationAPI";
+import { useListOfChargingStation } from "../../../../hooks/queries/useChargingStation";
 
 export default function Filter({ onSubmited }) {
-  const [locations, setLocations] = useState([]);
-
   const {
     control,
     handleSubmit,
@@ -24,12 +22,25 @@ export default function Filter({ onSubmited }) {
       published: false, // Set the default value for "activate"
     },
   });
+
+  // TanStack Query hook
+  const { data: stationsData } = useListOfChargingStation();
+
+  // Extract data with safe defaults and add "All" option
+  const locations = useMemo(() => {
+    if (!stationsData?.result) return [];
+    return [
+      { label: "All", value: "all" },
+      ...stationsData.result.map((dt) => ({ label: dt.name, value: dt._id })),
+    ];
+  }, [stationsData]);
+
   const onSubmit = (data) => {
     let location = data.location?.map((item) => item.value);
-    if(data.location != undefined){
+    if (data.location != undefined) {
       if (location[0] === "all") {
         location = locations?.map((item) => item.value).filter(value => value !== "all");
-      }    
+      }
     }
     // Handle form submission with data
     let dt = {
@@ -52,17 +63,6 @@ export default function Filter({ onSubmited }) {
     clearErrors("endDate");
   };
   const endDate = watch("endDate", ""); // Watching the value for 'expiryDate'
-
-  useEffect(() => {
-    getListOfChargingStation().then((res) => {
-      if (res.status) {
-        setLocations([
-          { label: "All", value: "all" },
-          ...res.result.map((dt) => ({ label: dt.name, value: dt._id })),
-        ]);
-      }
-    });
-  }, []);
 
   return (
     <>

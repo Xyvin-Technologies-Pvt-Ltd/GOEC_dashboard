@@ -3,11 +3,12 @@ import React, { useEffect, useState } from 'react'
 import StyledTab from '../ui/styledTab'
 import AllChargePoint from '../components/assetManagement/chargePoints/allChargePoint';
 import AddChargePoint from '../components/assetManagement/chargePoints/AddChargePoint';
-import { deleteEvMachine, listEvMachine } from '../services/evMachineAPI';
 import ConfirmDialog from '../ui/confirmDialog';
 import { ReactComponent as Close } from "../assets/icons/close-icon-large.svg";
 import { toast } from 'react-toastify';
 import { Transition } from '../utils/DialogAnimation';
+import { useEvMachineList } from '../hooks/queries/useEvMachine';
+import { useDeleteEvMachine } from '../hooks/mutations/useEvMachineMutation';
 export default function ChargingPoints() {
   const [togglePage, setTogglePage] = useState(0);
   const [chargePointListData, setChargePointListData] = useState([])
@@ -17,30 +18,43 @@ export default function ChargingPoints() {
   const [pageNo, setPageNo] = useState(1);
   const [totalCount, setTotalCount] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState({ pageNo: 1 });
 
-  const init = (filter = {pageNo}) => {
-    if(searchQuery){
-      filter.searchQuery = searchQuery;
-    }
-    listEvMachine(filter).then((res) => {
-      if (res) {
-        setChargePointListData(res.result)
-        setTotalCount(res.totalCount);
-      }
-    }
-    )
-  }
+  // Use the query hook to fetch EV machine list
+  const { data: machineListData = {}, refetch } = useEvMachineList(filters);
+  
+  // Use the delete mutation hook
+  const deleteEvMachineMutation = useDeleteEvMachine();
 
+  // Update state when hook data changes
   useEffect(() => {
-    init();
-  }, [pageNo, searchQuery])
+    if (machineListData.result) {
+      setChargePointListData(machineListData.result);
+      setTotalCount(machineListData.totalCount || 0);
+    }
+  }, [machineListData]);
+
+  // Update filters when pageNo or searchQuery changes
+  useEffect(() => {
+    const newFilters = { pageNo };
+    if (searchQuery) {
+      newFilters.searchQuery = searchQuery;
+    }
+    setFilters(newFilters);
+  }, [pageNo, searchQuery]);
 
   const deleteData = () => {
-    deleteEvMachine(selectedData._id).then((res) => {
-      init();
-      toast.success("charging station deleted successfully")
-    })
-  }
+    deleteEvMachineMutation.mutate(selectedData._id, {
+      onSuccess: () => {
+        refetch();
+        toast.success("charging station deleted successfully");
+        setDialogOpen(false);
+      },
+      onError: (error) => {
+        toast.error(error?.response?.data?.error || "Failed to delete charging station");
+      },
+    });
+  };
 
   const buttonChanged = (e) => {
     setTogglePage(e.index)
@@ -59,7 +73,7 @@ export default function ChargingPoints() {
           <Typography sx={{ color: 'secondary.contrastText' }}>Edit ChargeStation</Typography>
           <Close style={{ cursor: 'pointer' }} onClick={() => { setEditDialogOpen(false) }} />
         </Stack>
-        <AddChargePoint formsubmitted={() => { init(); setEditDialogOpen(false); }} chargepointData={selectedData} editStatus={true} />
+        <AddChargePoint formsubmitted={() => { refetch(); setEditDialogOpen(false); }} chargepointData={selectedData} editStatus={true} />
       </Dialog>
       <StyledTab activeIndex={togglePage} buttons={['All Chargepoints', 'Add chargepoints']} onChanged={buttonChanged} />
       {togglePage === 0 ? <AllChargePoint
@@ -69,8 +83,8 @@ export default function ChargingPoints() {
         totalCount={totalCount}
         deleteData={(data) => { setSelectedData(data); setDialogOpen(true) }}
         editData={(data) => { setSelectedData(data); setEditDialogOpen(true) }} 
-        reloadData={init}/> : 
-        <AddChargePoint formsubmitted={() => { init(); setTogglePage(0); }} />}
+        reloadData={refetch}/> : 
+        <AddChargePoint formsubmitted={() => { refetch(); setTogglePage(0); }} />}
     </Box>
   )
 }

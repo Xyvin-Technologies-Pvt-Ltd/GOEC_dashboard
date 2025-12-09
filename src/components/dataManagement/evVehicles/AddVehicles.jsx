@@ -8,8 +8,8 @@ import FileUpload from "../../../utils/FileUpload";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { createVehicle, editVehicle, getBrandDropdown } from "../../../services/vehicleAPI";
-import { imageUploadAPI } from "../../../services/imageAPI";
+import { useBrandDropdown } from "../../../hooks/queries/useVehicle";
+import { useCreateVehicle, useEditVehicle, useVehicleImageUpload } from "../../../hooks/mutations/useVehicleMutation";
 
 let compactable_ports = [
   { label: "CCS", value: "CCS" },
@@ -28,6 +28,15 @@ let compactable_ports = [
 export default function AddVehicles({ vehicleData = {}, onClose, formSubmited, editStatus = false, ...props }) {
   const [brands, setBrands] = useState();
   const [selectedFile, setSelectedFile] = useState();
+  
+  // Use mutation hooks
+  const createVehicleMutation = useCreateVehicle();
+  const editVehicleMutation = useEditVehicle();
+  const imageUploadMutation = useVehicleImageUpload();
+  
+  // Use query hook for brand dropdown
+  const { data: brandDropdownData = [] } = useBrandDropdown();
+
   const { control, handleSubmit, reset, formState: { errors } } = useForm(
     {
       defaultValues: {
@@ -38,20 +47,13 @@ export default function AddVehicles({ vehicleData = {}, onClose, formSubmited, e
       }
     }
   );
-  const getBrandApi = () => {
-    getBrandDropdown().then((res) => {
-      if (res.status) {
-        const formattedBrands = res.result.map((brand) => ({
-          label: brand.brandName,
-          value: brand._id,
-        }));
-        setBrands(formattedBrands);
-      }
-    });
-  };
+
+  // Update brands state when brandDropdownData changes
   useEffect(() => {
-    getBrandApi();
-  }, []);
+    if (brandDropdownData && brandDropdownData.length > 0) {
+      setBrands(brandDropdownData);
+    }
+  }, [brandDropdownData]);
 
   const handleFileUpload = (file) => {
     setSelectedFile(file.files[0]);
@@ -68,57 +70,93 @@ export default function AddVehicles({ vehicleData = {}, onClose, formSubmited, e
 
 
 
-  const createVEHICLE = async (data) => {
+  const createVEHICLE = (data) => {
     if (!selectedFile) {
       toast.error("Select image");
       return
     }
 
-    try {
-      let uploadImage = await imageUploadAPI(selectedFile)
-      let dt =  {
-        "icon": uploadImage.url,
-        "brand": data.brand.value,
-        "modelName": data.modelName,
-        "compactable_port": data.compactable_port.map((item) => item.value)
-      }
+    imageUploadMutation.mutate(selectedFile, {
+      onSuccess: (uploadImage) => {
+        let dt = {
+          "icon": uploadImage.url,
+          "brand": data.brand.value,
+          "modelName": data.modelName,
+          "compactable_port": data.compactable_port.map((item) => item.value)
+        }
 
-
-      let createNew = await createVehicle(dt)
-      if (createNew.status) {
-        toast.success("vehicle created successfully");
-        reset();
-        formSubmited()
+        createVehicleMutation.mutate(dt, {
+          onSuccess: (createNew) => {
+            if (createNew.status) {
+              toast.success("vehicle created successfully");
+              reset();
+              formSubmited()
+            }
+          },
+          onError: (error) => {
+            toast.error(error?.response?.data?.error || "Failed to create Vehicle");
+          }
+        });
+      },
+      onError: (error) => {
+        toast.error("Failed to upload image");
       }
-    } catch (error) {
-      toast.error("Failed to create Vehicle");
-    }
-  
-    
+    });
   }
 
   const updateVEHICLE = (data) => {
     let dt = {}
     if (selectedFile) {
+      imageUploadMutation.mutate(selectedFile, {
+        onSuccess: (uploadImage) => {
+          dt = {
+            "icon": uploadImage.url,
+            "brand": data.brand.value ? data.brand.value : getBrandId(),
+            "modelName": data.modelName,
+            "compactable_port": typeof (data.compactable_port[0]) === "object" ? data.compactable_port.map((item) => item.value) : vehicleData["compactable_port"]
+          }
+          editVehicleMutation.mutate(
+            { id: vehicleData["_id"], data: dt },
+            {
+              onSuccess: (res) => {
+                if (res.status) {
+                  toast.success("vehicle updated successfully");
+                  reset();
+                  onClose()
+                }
+              },
+              onError: (error) => {
+                toast.error(error?.response?.data?.error || "Failed to update Vehicle");
+              }
+            }
+          );
+        },
+        onError: (error) => {
+          toast.error("Failed to upload image");
+        }
+      });
+    } else {
       dt = {
-        "icon": selectedFile
+        "brand": data.brand.value ? data.brand.value : getBrandId(),
+        "modelName": data.modelName,
+        "compactable_port": typeof (data.compactable_port[0]) === "object" ? data.compactable_port.map((item) => item.value) : vehicleData["compactable_port"]
       }
+      editVehicleMutation.mutate(
+        { id: vehicleData["_id"], data: dt },
+        {
+          onSuccess: (res) => {
+            if (res.status) {
+              toast.success("vehicle updated successfully");
+              reset();
+              onClose()
+            }
+          },
+          onError: (error) => {
+            toast.error(error?.response?.data?.error || "Failed to update Vehicle");
+          }
+        }
+      );
     }
-    dt = {
-      ...dt,
-      "brand": data.brand.value ? data.brand.value : getBrandId(),
-      "modelName": data.modelName,
-      "compactable_port": typeof (data.compactable_port[0]) === "object" ? data.compactable_port.map((item) => item.value) : vehicleData["compactable_port"]
-    }
-    editVehicle(vehicleData["_id"], dt).then((res) => {
-      if (res.status) {
-        toast.success("vehicle updated successfully");
-        reset();
-        onClose()
-      }
-    }).catch((error) => {
-      toast.error("Failed to update Vehicle");
-    })
   }
 
   const getBrandId = () => {

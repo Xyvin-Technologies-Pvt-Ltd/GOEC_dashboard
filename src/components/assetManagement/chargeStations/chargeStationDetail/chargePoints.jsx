@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import { Transition } from '../../../../utils/DialogAnimation'
 import { ReactComponent as Close } from "../../../../assets/icons/close-icon-large.svg";
 import { toast } from 'react-toastify'
-import { deleteEvMachine } from '../../../../services/evMachineAPI'
+import { useDeleteEvMachine } from '../../../../hooks/mutations/useEvMachineMutation';
 
 const tableHeader = [
   'CPID',
@@ -20,11 +20,12 @@ const tableHeader = [
 ]
 
 
-export default function ChargePoints({ data, stationId,dataUpdate, ...props }) {
+export default function ChargePoints({ data, stationId, dataUpdate, ...props }) {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [editStatus, setEditStatus] = useState(false)
-  const [selectedData, setSelectedData] =useState()
+  const [selectedData, setSelectedData] = useState()
+  const deleteEvMachineMutation = useDeleteEvMachine();
 
   const [allChargePointsData, setAllChargePointsData] = useState([])
   useEffect(() => {
@@ -55,15 +56,20 @@ export default function ChargePoints({ data, stationId,dataUpdate, ...props }) {
       
     }
   }
-  const formSubmitHandle = ()=>{
+  const formSubmitHandle = () => {
     dataUpdate();
     setOpen(false);
   }
 
   const deleteData = (data) => {
-    deleteEvMachine(data._id).then((res) => {
-      toast.success("charging station deleted successfully")
-      dataUpdate()
+    deleteEvMachineMutation.mutate(data._id, {
+      onSuccess: (res) => {
+        toast.success("Charge point deleted successfully")
+        dataUpdate()
+      },
+      onError: (error) => {
+        toast.error(error?.response?.data?.error || "Failed to delete charge point")
+      }
     })
   }
 

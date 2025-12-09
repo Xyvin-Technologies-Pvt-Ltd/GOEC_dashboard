@@ -1,5 +1,5 @@
 import { Alert, Box, Grid, Snackbar, Typography } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import StationDetail from './chargeStationDetail/stationDetail'
 import OwnerDetail from './chargeStationDetail/ownerDetail'
 import Analytics from './chargeStationDetail/analytics'
@@ -8,58 +8,46 @@ import { ArrowBackIosNew } from '@mui/icons-material'
 import StyledTab from '../../../ui/styledTab'
 import ChargePoints from './chargeStationDetail/chargePoints'
 import Reviews from './chargeStationDetail/reviews'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { getChargingPointsListOfStation, getChargingStationById } from '../../../services/stationAPI'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useChargingStationById } from '../../../hooks/queries/useChargingStation'
+import { useDeleteReview } from '../../../hooks/mutations/useReviewMutation'
 import StyledBackdropLoader from '../../../ui/styledBackdropLoader'
-import { deleteReview, getReviewBySation } from '../../../services/reviewApi'
 import ConfirmDialog from '../../../ui/confirmDialog'
+
 export default function ChargeStationDetail() {
     const { id } = useParams();
-    const [stationDetails, setStationDetails] = useState()
     const [toggleOption, setToggleoption] = useState(0)
-    const [loaderOpen, setLoaderOpen] = useState(true)
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
     const [selectedReview, setSelectedReview] = useState(false)
     const [errorMsg, setErrorMsg] = useState();
     const [snackbarOpen, setSnackbarOpen] = useState(false);
 
     const navigate = useNavigate()
+
+    // TanStack Query hooks
+    const { data: stationData, isLoading, refetch } = useChargingStationById(id);
+    const { mutate: removeReview } = useDeleteReview({
+        onSuccess: () => {
+            setErrorMsg(<Alert severity="success" sx={{ width: '100%' }}>Review deleted </Alert>);
+            setSnackbarOpen(true);
+            refetch();
+        },
+    });
+
+    // Extract data with safe defaults
+    const stationDetails = stationData?.result;
+
     const onChangeToggleOption = (e) => {
         setToggleoption(e.index)
     }
-    const init = () => {
-        stationDetailGet()
-    }
-
-    const stationDetailGet = () => {
-        getChargingStationById(id).then((res) => {
-            if (res.status) {
-                setStationDetails(res.result)
-            }
-            setLoaderOpen(false)
-        }
-        )
-    }
-
-    useEffect(() => {
-        init()
-    }, [])
-
 
     const reviewDelete = () => {
-        deleteReview(selectedReview._id).then((res) => {
-            setErrorMsg(<Alert severity="success" sx={{ width: '100%' }}>Review deleted </Alert >)
-            setSnackbarOpen(true)
-            init()
-        })
+        removeReview(selectedReview._id);
     }
-
-
-    
 
     return (
         <>
-            <StyledBackdropLoader open={loaderOpen} />
+            <StyledBackdropLoader open={isLoading} />
             <Snackbar
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                 open={snackbarOpen}
@@ -91,9 +79,8 @@ export default function ChargeStationDetail() {
             }
             <StyledTab buttons={['Charge-points', 'Reviews']} onChanged={onChangeToggleOption} />
             {stationDetails && (toggleOption === 0 ?
-                <ChargePoints data={stationDetails && stationDetails.chargers} stationId={stationDetails && stationDetails._id}  dataUpdate={init} /> :
-                <Reviews data={stationDetails && stationDetails.reviews} deleteClickHandle={(data) => { setConfirmDialogOpen(true); setSelectedReview(data) }} dataUpdate={init} />)}
+                <ChargePoints data={stationDetails && stationDetails.chargers} stationId={stationDetails && stationDetails._id} dataUpdate={refetch} /> :
+                <Reviews data={stationDetails && stationDetails.reviews} deleteClickHandle={(data) => { setConfirmDialogOpen(true); setSelectedReview(data) }} dataUpdate={refetch} />)}
         </>
     )
 }
-

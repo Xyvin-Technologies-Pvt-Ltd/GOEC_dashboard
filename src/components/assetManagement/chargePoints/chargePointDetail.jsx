@@ -16,9 +16,9 @@ import Alarm from './chargePointDetail/alarm'
 import Tariff from './chargePointDetail/tariff'
 
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { getEvMachineById } from '../../../services/evMachineAPI'
+import { useEvMachineById } from '../../../hooks/queries/useEvMachine'
+import { useClearCache, useReset, useUnlock } from '../../../hooks/mutations/useOcppMutation'
 import StyledBackdropLoader from '../../../ui/styledBackdropLoader'
-import { clearCache, reset, unlock } from '../../../services/ocppAPI'
 import { toast } from 'react-toastify'
 
 
@@ -26,77 +26,88 @@ export default function ChargePointDetail() {
     const navigate = useNavigate()
     const { id } = useParams();
     const [toggleOption, setToggleoption] = useState(0)
-    const [loaderOpen, setLoaderOpen] = useState(true)
-    const [chargepointData, setChargepointData] = useState()
-
-
-
-    const init = () => {
-        getEvMachineById(id).then((res) => {
-            if (res.status) {
-                setChargepointData(res.result)
-                sessionStorage.setItem('cpid', res.result.CPID);
-            }
-            setLoaderOpen(false)
-        })
-    }
+    const { data: chargepointData, isLoading: loaderOpen } = useEvMachineById(id);
+    const resetMutation = useReset();
+    const clearCacheMutation = useClearCache();
+    const unlockMutation = useUnlock();
 
     useEffect(() => {
-        init()
-    }, [])
+        if (chargepointData?.CPID) {
+            sessionStorage.setItem('cpid', chargepointData.CPID);
+        }
+    }, [chargepointData])
 
 
+
+    const actionButtonHandle = (button) => {
+        if (button === "hard") {
+            resetMutation.mutate(
+                { cpid: chargepointData.CPID, formData: { type: "Hard" } },
+                {
+                    onSuccess: (res) => {
+                        if (res.status) {
+                            toast.success(res.message)
+                        } else {
+                            toast.error(res.message)
+                        }
+                    },
+                    onError: (error) => {
+                        toast.error(error?.message || "Failed to reset")
+                    },
+                }
+            )
+        } else if (button === "soft") {
+            resetMutation.mutate(
+                { cpid: chargepointData.CPID, formData: { type: "Soft" } },
+                {
+                    onSuccess: (res) => {
+                        if (res.status) {
+                            toast.success(res.message)
+                        } else {
+                            toast.error(res.message)
+                        }
+                    },
+                    onError: (error) => {
+                        toast.error(error?.message || "Failed to reset")
+                    },
+                }
+            )
+        } else if (button === "cache") {
+            clearCacheMutation.mutate(chargepointData.CPID, {
+                onSuccess: (res) => {
+                    if (res.status) {
+                        toast.success(res.message)
+                    } else {
+                        toast.error(res.message)
+                    }
+                },
+                onError: (error) => {
+                    toast.error(error?.message || "Failed to clear cache")
+                },
+            })
+        }
+    }
 
     const onChangeToggleOption = (e) => {
         setToggleoption(e.index)
     }
 
-    const actionButtonHandle = (button) => {
-        if (button === "hard") {
-           let data = {type: "Hard"}
-            reset(chargepointData.CPID, data).then((res) => {
-                if (res.status) {
-                    toast.success(res.message)
-                } else {
-                    toast.error(res.message)
-                }
-            }).catch((error) => {
-                toast.error(error.message)
-            })
-        } else if (button === "soft") {
-            let data = {type: "Soft"}
-            reset(chargepointData.CPID, data).then((res) => {
-                if (res.status) {
-                    toast.success(res.message)
-                } else {
-                    toast.error(res.message)
-                }
-            }).catch((error) => {
-                toast.error(error.message)
-            })
-        } else if (button == "cache") {
-            clearCache(chargepointData.CPID).then((res) => {
-                if (res.status) {
-                    toast.success(res.message)
-                } else {
-                    toast.error(res.message)
-                }
-            }).catch((error) => {
-                toast.error(error.message)
-            })
-        }
-    }
-
     const connectorUnlock = (connectorId) => {
-        unlock(chargepointData.CPID, { connectorId: connectorId }).then((res) => {
-            if (res.status) {
-                toast.success(res.message)
-            } else {
-                toast.error(res.message)
+        unlockMutation.mutate(
+            { cpid: chargepointData.CPID, data: { connectorId: connectorId } },
+            {
+                onSuccess: (res) => {
+                    if (res.status) {
+                        toast.success(res.message)
+                    } else {
+                        toast.error(res.message)
+                    }
+                },
+                onError: (error) => {
+                    toast.error(error?.message || "Failed to unlock connector")
+                },
             }
-        }).catch((error) => {
-            toast.error(error.message)
-        })
+        )
     }
     return (
         <>

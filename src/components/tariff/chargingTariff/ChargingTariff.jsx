@@ -6,13 +6,13 @@ import { ReactComponent as Close } from "../../../assets/icons/close-circle.svg"
 import StyledDivider from "../../../ui/styledDivider";
 import AddTariff from "./addTariff";
 import StyledButton from "../../../ui/styledButton";
-import { deleteChargingTariff } from "../../../services/chargingTariffAPI";
+import { useDeleteChargingTariff } from "../../../hooks/mutations/useChargingTariffMutation";
 import { ToastContainer, toast } from "react-toastify";
 import { tableHeaderReplace } from "../../../utils/tableHeaderReplace";
 import StyledSearchField from "../../../ui/styledSearchField";
 import { searchAndFilter } from "../../../utils/search";
 import { permissions } from "../../../core/routes/permissions";
-import { useAuth } from "../../../core/auth/AuthContext";
+import { useAuthStore } from "../../../store";
 
 function restructureData(dataArray) {
   return dataArray.map((item) => ({
@@ -30,7 +30,7 @@ function ChargingTariff({ data, headers, onIsChange, isChange, updateData, setPa
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState("add");
   const [tableData, setTableData] = useState();
-  const { userCan } = useAuth()
+  const hasPermission = useAuthStore((state) => state.hasPermission)
   // Function to open the modal
   const handleOpen = () => {
     setOpen(true);
@@ -42,21 +42,24 @@ function ChargingTariff({ data, headers, onIsChange, isChange, updateData, setPa
     setOpen(false);
   };
 
+  // Use TanStack Query mutation hook for delete
+  const deleteMutation = useDeleteChargingTariff({
+    onSuccess: () => {
+      toast.success("Tariff deleted successfully", { position: "top-right" });
+      onIsChange(!isChange);
+    },
+    onError: () => {
+      toast.error("Failed to delete tariff", { position: "top-right" });
+    },
+  });
+
   const handleClick = (e) => {
     if (e.action === "Edit") {
       setAction("edit");
       setOpen(true);
       setTableData(e.data);
     } else if (e.action === "Delete") {
-      setAction("delete");
-      const res = deleteChargingTariff(e.data._id);
-      if (res) {
-        const successToastId = toast.success("Tax deleted successfully", {
-          position: "top-right",
-        });
-        onIsChange(!isChange);
-        toast.update(successToastId);
-      }
+      deleteMutation.mutate(e.data._id);
     }
   };
 
@@ -94,7 +97,7 @@ function ChargingTariff({ data, headers, onIsChange, isChange, updateData, setPa
           setPageNo={setPageNo}
           totalCount={totalCount}
           onActionClick={handleClick}
-          showActionCell={userCan(permissions.chargingTariff.modify)}
+          showActionCell={hasPermission(permissions.chargingTariff.modify)}
           actions= {["Edit","Delete"]}
         />
       </Box>

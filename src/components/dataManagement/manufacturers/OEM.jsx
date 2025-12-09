@@ -8,8 +8,8 @@ import { toast } from "react-toastify";
 import AddOEM from './addOEM/AddOEM';
 import { tableHeaderReplace } from '../../../utils/tableHeaderReplace';
 import ConfirmDialog from '../../../ui/confirmDialog';
-import { deleteOem } from '../../../services/evMachineAPI';
-import { useAuth } from '../../../core/auth/AuthContext';
+import { useDeleteOem } from '../../../hooks/mutations/useEvMachineMutation';
+import { useAuthStore } from '../../../store';
 import { permissions } from '../../../core/routes/permissions';
 
 
@@ -27,7 +27,8 @@ export default function OEM({ data, updateData, setPageNo, totalCount, setSearch
   const [editStatus, setEditStatus] = useState(false)
   const [selectData, setSelectedData] = useState()
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const { userCan } = useAuth()
+  const hasPermission = useAuthStore((state) => state.hasPermission)
+  const deleteOemMutation = useDeleteOem();
 
   const oemData = tableHeaderReplace(data, ['name', 'createdAt'], tableHeader)
 
@@ -45,13 +46,16 @@ export default function OEM({ data, updateData, setPageNo, totalCount, setSearch
   }
 
   const deleteOEM = () => {
-    deleteOem(selectData._id).then((res) => {
-      toast.success("OEM Deleted successfully");
-      updateData && updateData()
-
-    }).catch((error) => {
-      toast.error(`${error}`);
-      updateData && updateData()
+    deleteOemMutation.mutate(selectData._id, {
+      onSuccess: (res) => {
+        toast.success("OEM Deleted successfully");
+        updateData && updateData();
+        setConfirmOpen(false);
+      },
+      onError: (error) => {
+        toast.error(error?.response?.data?.error || `${error}`);
+        updateData && updateData();
+      }
     })
   }
 
@@ -76,7 +80,7 @@ export default function OEM({ data, updateData, setPageNo, totalCount, setSearch
         setPageNo={setPageNo}
         totalCount={totalCount}
         actions={["Edit", "Delete"]} 
-        showActionCell={userCan(permissions.manufacture.modify)}
+        showActionCell={hasPermission(permissions.manufacture.modify)}
         onActionClick={tableActionClick} />
       </Box>
     </>)

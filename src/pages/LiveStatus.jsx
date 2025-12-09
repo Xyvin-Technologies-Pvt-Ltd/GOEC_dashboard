@@ -5,29 +5,31 @@ import { Box, IconButton, Stack } from "@mui/material";
 import { Map, TableRowsRounded } from "@mui/icons-material";
 import TableContainer from "../components/dashboard/liveStatus/tableContainer";
 import LastSynced from "../layout/LastSynced";
-import { updateChargingStationByList } from "../services/stationAPI";
 
-
+import { useUpdateChargingStationByList } from "../hooks/mutations/useChargingStationMutation";
 
 export default function LiveStatus() {
   const [mapViewActive, setMapView] = useState(true)
-    const [chargingStations, setChargingStations] = useState([]);
+  const [chargingStations, setChargingStations] = useState([]);
 
+  const { mutate: updateList } = useUpdateChargingStationByList({
+    onSuccess: (res) => {
+      if (res.status) {
+        setChargingStations(res.result)
+      }
+    }
+  });
 
-    useEffect(() => {
-      init();
-    }, []);
+  const init = () => {
+    updateList({
+      "latitude": " 10.0136039",
+      "longitude": "76.3117538"
+    })
+  }
 
-    const init = ()=>[
-      updateChargingStationByList({
-        "latitude":" 10.0136039",
-         "longitude":"76.3117538"
-     }).then((res)=>{
-        if (res.status) {
-          setChargingStations(res.result)
-        }
-      })
-    ]
+  useEffect(() => {
+    init();
+  }, []);
   const iconClickHandle = () => {
     setMapView(!mapViewActive)
   }
