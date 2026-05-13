@@ -45,16 +45,34 @@ export default function Assign({ tab, data, onClose, user }) {
     if (!selectedtarrif) return;
     const dt = { chargingTariff: selectedtarrif.value };
     if (tab === "location") {
-      changeEVTariffMutation.mutate({ evMachine: data._id, data: dt });
+      const evMachineId = data?._id;
+      if (!evMachineId) {
+        toast.error("Missing charge point. Close the dialog and select a CPID again.", { position: "top-right" });
+        return;
+      }
+      changeEVTariffMutation.mutate({ evMachine: evMachineId, data: dt });
     } else if (tab === "personal") {
+      if (!user?._id) {
+        toast.error("Missing user. Please load a valid user first.", { position: "top-right" });
+        return;
+      }
       userTariffMutation.mutate({ id: user._id, data: dt });
     }
   };
 
   const unAssinHandle = () => {
     if (tab === "location") {
-      changeEVTariffMutation.mutate({ evMachine: data._id, data: {} });
+      const evMachineId = data?._id;
+      if (!evMachineId) {
+        toast.error("Missing charge point. Close the dialog and select a CPID again.", { position: "top-right" });
+        return;
+      }
+      changeEVTariffMutation.mutate({ evMachine: evMachineId, data: {} });
     } else if (tab === "personal") {
+      if (!user?._id) {
+        toast.error("Missing user.", { position: "top-right" });
+        return;
+      }
       userTariffMutation.mutate({ id: user._id, data: {} });
     }
   };

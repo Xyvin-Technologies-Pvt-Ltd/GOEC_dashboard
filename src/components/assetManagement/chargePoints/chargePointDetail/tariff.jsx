@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Box, Grid, Stack, Typography } from '@mui/material'
 import { ReactComponent as ReloadIcon } from '../../../../assets/icons/reload.svg'
 import StyledSearchField from '../../../../ui/styledSearchField'
@@ -13,12 +13,18 @@ import { useChargerTariffDetail } from '../../../../hooks/queries/useEvMachine';
 import { useChangeEvTariff } from '../../../../hooks/mutations/useEvMachineMutation';
 import { toast } from 'react-toastify'
 
-
-
+function normalizeTariffList(payload) {
+    if (payload == null) return []
+    if (Array.isArray(payload)) return payload
+    if (Array.isArray(payload.result)) return payload.result
+    if (payload.result != null && typeof payload.result === 'object') return [payload.result]
+    return []
+}
 
 export default function Tariff({ CPID, id }) {
     const [addOpen, setAddOpen] = useState(false)
-    const { data: tarrifDetails = [], refetch: refetchTariffs } = useChargerTariffDetail(CPID);
+    const { data: tariffPayload, refetch: refetchTariffs } = useChargerTariffDetail(CPID);
+    const tarrifDetails = useMemo(() => normalizeTariffList(tariffPayload), [tariffPayload])
     const changeEVTariffMutation = useChangeEvTariff();
 
     const unAssinHandle = () => {
@@ -45,7 +51,7 @@ export default function Tariff({ CPID, id }) {
             <Grid container p={2}>
                 {
                     tarrifDetails.map((dt, ind) => (
-                        <Grid item xs={12} md={3} xl={2} key={ind}>
+                        <Grid item xs={12} md={3} xl={2} key={dt?._id ?? ind}>
                             <AssignedTarrif data={dt} unassignedHandle={unAssinHandle} />
                         </Grid>
                     ))
