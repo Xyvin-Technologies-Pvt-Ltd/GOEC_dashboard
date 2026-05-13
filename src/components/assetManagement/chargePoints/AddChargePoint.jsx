@@ -27,6 +27,11 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
   const stationList = stationListData || [];
   const OEMList = oemListData || [];
   const modelList = modelListData || [];
+  const editConfigurationUrl =
+    chargepointData?.configuration_url != null &&
+    String(chargepointData.configuration_url).trim() !== ""
+      ? String(chargepointData.configuration_url)
+      : null;
 
   const {
     control,
@@ -148,9 +153,16 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
             </Typography>
             <Stack spacing={2}>
               <StyledInput
-                placeholder={`${chargepointData && chargepointData.configuration_url}`}
+                placeholder={editConfigurationUrl ?? "—"}
                 disabled iconright={<ContentCopy style={{ cursor: 'pointer' }}
-                  onClick={() => { navigator.clipboard.writeText(`${chargepointData && chargepointData.configuration_url}`); toast.success("copied") }} />}
+                  onClick={() => {
+                    if (!editConfigurationUrl) {
+                      toast.info("No configuration URL to copy");
+                      return;
+                    }
+                    navigator.clipboard.writeText(editConfigurationUrl);
+                    toast.success("copied");
+                  }} />}
                 style={{ height: '50px', backgroundColor: '#4A4458' }} />
             </Stack>
           </Stack>
