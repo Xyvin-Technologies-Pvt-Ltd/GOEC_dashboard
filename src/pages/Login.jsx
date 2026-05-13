@@ -11,7 +11,7 @@ import StyledLoader from "../ui/StyledLoader";
 import HeaderLogo from "../assets/header-logo.png";
 import { useAuthStore } from "../store";
 
-const errorMessageClass = "text-sm text-[#D25B5B]";
+const errorMessageClass = "text-sm text-destructive";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -25,11 +25,7 @@ export default function Login() {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      email: "",
-      password: "",
-      remail: "",
-    },
+    defaultValues: { email: "", password: "", remail: "" },
   });
 
   const onSubmit = async (formData) => {
@@ -42,14 +38,12 @@ export default function Login() {
     }
   };
 
-  const handleForgot = () => {
-    navigate("/forgot-password");
-  };
+  const handleForgot = () => navigate("/forgot-password");
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="flex min-h-screen items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
-        <div className="my-8 rounded-[10px] bg-[#1c1d22] py-2">
+        <div className="rounded-lg bg-card py-2">
           {!forgotShow && (
             <div className="flex flex-col items-center justify-center">
               <img src={HeaderLogo} alt="Logo" className="w-1/5" />
@@ -57,17 +51,18 @@ export default function Login() {
             </div>
           )}
           {!forgotShow ? (
-            <div className="p-4">
+            <div className="p-6">
               <h1 className="mb-1 text-2xl font-semibold text-foreground">Sign In</h1>
-              <p className="mb-8 text-sm font-normal text-[#828282]">
+              <p className="mb-8 text-sm font-normal text-text-dim">
                 Login to your account to continue the process
               </p>
-              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
+              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
                 <Controller
                   name="email"
                   control={control}
+                  rules={{ required: "Email is required" }}
                   render={({ field }) => (
-                    <>
+                    <div className="flex flex-col gap-2">
                       <StyledInput
                         {...field}
                         icon={<MailOutline />}
@@ -76,22 +71,22 @@ export default function Login() {
                       {errors.email && (
                         <span className={errorMessageClass}>{errors.email.message}</span>
                       )}
-                    </>
+                    </div>
                   )}
-                  rules={{ required: "Email is required" }}
                 />
                 <Controller
                   name="password"
                   control={control}
+                  rules={{ required: "Password is required" }}
                   render={({ field }) => (
-                    <>
+                    <div className="flex flex-col gap-2">
                       <StyledInput
                         {...field}
                         icon={<Lock />}
                         iconright={
                           <Visibility
                             onClick={() => setShowPassword(!showPassword)}
-                            style={{ cursor: "pointer" }}
+                            className="cursor-pointer"
                           />
                         }
                         type={showPassword ? "text" : "password"}
@@ -100,9 +95,8 @@ export default function Login() {
                       {errors.password && (
                         <span className={errorMessageClass}>{errors.password.message}</span>
                       )}
-                    </>
+                    </div>
                   )}
-                  rules={{ required: "Password is required" }}
                 />
                 {isLoading ? (
                   <div className="flex justify-center">
@@ -115,7 +109,7 @@ export default function Login() {
                 )}
                 <button
                   type="button"
-                  className="mb-8 cursor-pointer text-left text-sm font-normal text-[#2D9CDB]"
+                  className="cursor-pointer text-left text-sm font-normal text-link"
                   onClick={() => setForgotShow(!forgotShow)}
                 >
                   Forgot Your Password?
@@ -123,20 +117,21 @@ export default function Login() {
               </form>
             </div>
           ) : (
-            <div className="p-4">
-              <div className="flex items-center justify-between">
-                <h1 className="mb-1 text-2xl font-semibold text-foreground">
-                  Forgot Your Password?
-                </h1>
+            <div className="p-6">
+              <div className="mb-1 flex items-center justify-between">
+                <h1 className="text-2xl font-semibold text-foreground">Forgot Your Password?</h1>
                 <Close onClick={() => setForgotShow(!forgotShow)} className="cursor-pointer" />
               </div>
-              <p className="mb-8 text-sm font-normal text-[#828282]">We will send you a reset link</p>
-              <form onSubmit={handleSubmit(handleForgot)} className="flex flex-col gap-8">
+              <p className="mb-8 text-sm font-normal text-text-dim">
+                We will send you a reset link
+              </p>
+              <form onSubmit={handleSubmit(handleForgot)} className="flex flex-col gap-6">
                 <Controller
                   name="remail"
                   control={control}
+                  rules={{ required: "Email is required" }}
                   render={({ field }) => (
-                    <>
+                    <div className="flex flex-col gap-2">
                       <StyledInput
                         {...field}
                         icon={<MailOutline />}
@@ -145,9 +140,8 @@ export default function Login() {
                       {errors.remail && (
                         <span className={errorMessageClass}>{errors.remail.message}</span>
                       )}
-                    </>
+                    </div>
                   )}
-                  rules={{ required: "Email is required" }}
                 />
                 <StyledButton variant="primary" width="100%" type="submit">
                   Send

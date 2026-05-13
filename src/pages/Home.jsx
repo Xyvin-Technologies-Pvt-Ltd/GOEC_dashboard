@@ -1,24 +1,19 @@
 import React from "react";
 import StyledTable from "../ui/StyledTable.jsx";
 import { DummyData } from "../assets/json/TableData";
+import DashboardLayout from "../layout/dashboardLayout.jsx";
+import { PageContainer } from "@/components/ui/page-container";
+import { PageHeader } from "@/components/ui/page-header";
 
-import DashboardLayout from '../layout/dashboardLayout.jsx'
+const headers = ["OCCP Txn ID", "User Name", "Charge Station Name", "status"];
 
 export default function Home() {
-
-  const headers = [
-    "OCCP Txn ID",
-    "User Name",
-    "Charge Station Name" ,
-    "status"
-  ];
-
-
-
   return (
-      <DashboardLayout>
+    <DashboardLayout>
+      <PageContainer>
+        <PageHeader title="Dashboard" subtitle="Live charge transaction overview" />
         <StyledTable headers={headers} data={DummyData} />
-      </DashboardLayout>
-
+      </PageContainer>
+    </DashboardLayout>
   );
 }

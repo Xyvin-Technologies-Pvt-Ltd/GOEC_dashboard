@@ -19,15 +19,15 @@ export default function RightDrawer({ children, title = "Filter" }) {
           type="button"
           variant="ghost"
           size="icon"
-          className="rounded bg-[#322f3b] text-foreground hover:bg-[#322f3b]/90"
+          className="rounded bg-surface-iconbutton text-foreground hover:bg-surface-iconbutton/90"
           aria-label="Open filters"
         >
           <OutlineIcon className="text-foreground" />
         </Button>
       </SheetTrigger>
-      <SheetContent className="border-border bg-[#27292f] text-foreground">
-        <SheetHeader className="border-b border-white/10 bg-[#1c1d22] p-4 text-left">
-          <SheetTitle className="text-[#b5b8c5]">{title}</SheetTitle>
+      <SheetContent className="border-border bg-background text-foreground">
+        <SheetHeader className="border-b border-white/10 bg-card p-4 text-left">
+          <SheetTitle className="text-muted-foreground">{title}</SheetTitle>
         </SheetHeader>
         <div className="p-2">{children}</div>
       </SheetContent>

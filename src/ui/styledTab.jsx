@@ -10,7 +10,7 @@ export default function StyledTab({ buttons, activeIndex = 0, onChanged, classNa
   return (
     <div
       className={cn(
-        "flex flex-row justify-center bg-[#1c1d22] pl-2 md:justify-start",
+        "flex flex-row justify-center bg-card pl-2 md:justify-start",
         className,
       )}
       {...props}
@@ -22,10 +22,10 @@ export default function StyledTab({ buttons, activeIndex = 0, onChanged, classNa
             key={ind}
             type="button"
             className={cn(
-              "h-[60px] border-0 border-b-2 border-transparent px-4 text-sm font-medium transition-colors",
+              "h-14 border-0 border-b-2 border-transparent px-4 text-sm font-medium transition-colors",
               isActive
-                ? "border-b-white bg-[#4a4458] text-[#f7f8fc]"
-                : "text-[#b5b8c5] hover:bg-white/10",
+                ? "border-b-foreground bg-accent text-foreground"
+                : "text-muted-foreground hover:bg-white/10",
             )}
             onClick={() => {
               setActiveInd(ind);

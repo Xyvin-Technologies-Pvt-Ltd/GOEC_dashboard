@@ -43,12 +43,8 @@ const StyledButton = React.forwardRef(
     if (mb != null) marginStyle.marginBottom = toCssLen(mb);
     if (ml != null) marginStyle.marginLeft = toCssLen(ml);
 
-    const sizeStyle = {};
-    if (width != null) sizeStyle.width = toCssLen(width);
-    else {
-      sizeStyle.width = "100%";
-      sizeStyle.maxWidth = "482px";
-    }
+    const sizeStyle = { width: width != null ? toCssLen(width) : "100%" };
+    if (width == null) sizeStyle.maxWidth = "100%";
     if (height != null) sizeStyle.height = toCssLen(height);
     if (fontSize != null) sizeStyle.fontSize = toCssLen(fontSize);
 
@@ -59,8 +55,8 @@ const StyledButton = React.forwardRef(
         ref={ref}
         variant={shadcnVariant}
         className={cn(
-          variant === "secondary" && "bg-[#333] text-white shadow-md hover:bg-[#444]",
-          variant === "gray" && "bg-[#39383d] text-white shadow-md hover:bg-[#39383d]/90",
+          variant === "secondary" && "bg-secondary text-foreground shadow-md hover:bg-secondary/80",
+          variant === "gray" && "bg-surface-alt text-foreground shadow-md hover:bg-surface-alt/90",
           className,
         )}
         style={{ ...sizeStyle, ...paddingStyle, ...marginStyle, ...style }}

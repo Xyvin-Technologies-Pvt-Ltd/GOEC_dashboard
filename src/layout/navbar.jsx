@@ -12,6 +12,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { ReactComponent as Notification } from "../assets/icons/notification.svg";
 import LogoutTwoToneIcon from "@mui/icons-material/LogoutTwoTone";
 import { useAuthStore } from "../store";
+import { tokens } from "../theme/tokens";
 
 const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.secondary.main,
@@ -19,21 +20,15 @@ const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
   boxShadow: "none",
 }));
 
-export const DashboardNavbar = (props) => {
-  const { open, onSideBarOpen, ...other } = props;
-
+export const DashboardNavbar = ({ onSideBarOpen, ...other }) => {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
 
   return (
     <DashboardNavbarRoot
       sx={{
-        left: {
-          lg: 260,
-        },
-        width: {
-          lg: "calc(100% - 260px)",
-        },
+        left: { lg: tokens.layout.sidebarWidth },
+        width: { lg: `calc(100% - ${tokens.layout.sidebarWidth}px)` },
         border: "none",
       }}
       {...other}
@@ -41,61 +36,42 @@ export const DashboardNavbar = (props) => {
       <Toolbar
         disableGutters
         sx={{
-          minHeight: 64,
+          minHeight: tokens.layout.navbarHeight,
           left: 0,
-          px: 2,
+          px: { xs: 1.5, md: 2 },
         }}
       >
         <IconButton
           onClick={onSideBarOpen}
-          sx={{
-            display: {
-              xs: "inline-flex",
-              lg: "none",
-            },
-          }}
+          sx={{ display: { xs: "inline-flex", lg: "none" } }}
+          aria-label="Open navigation"
         >
           <MenuIcon fontSize="small" />
         </IconButton>
 
         <Box sx={{ flexGrow: 1 }} />
-        <Box sx={{ paddingRight: "25px" }}>
+        <Box sx={{ pr: { xs: 2, md: 3 } }}>
           <Notification />
         </Box>
 
         <Stack
-          direction={"row"}
-          spacing={5}
-          sx={{
-            pr: 2,
-            mr: 2,
-          }}
+          direction="row"
+          spacing={{ xs: 2, md: 3 }}
+          alignItems="center"
+          sx={{ pr: { xs: 1, md: 2 }, mr: { xs: 1, md: 2 } }}
         >
           <Typography
             sx={{
               color: "primary.DimText",
+              display: { xs: "none", sm: "block" },
             }}
             variant="subtitle2"
           >
-            {" "}
             {user?.name || "Guest"}
           </Typography>
 
-          {/* <Avatar
-                  sx={{
-                    cursor: 'pointer',
-                    height: 40,
-                    width: 40,
-                    ml: 1,
-                    bgcolor: grey[500]
-                  }}       
-                        
-                      >
-                        
-                      </Avatar> */}
-
           <Tooltip title="Logout">
-            <LogoutTwoToneIcon sx={{ cursor: "pointer" }} onClick={logout} />
+            <LogoutTwoToneIcon className="cursor-pointer" onClick={logout} />
           </Tooltip>
         </Stack>
       </Toolbar>

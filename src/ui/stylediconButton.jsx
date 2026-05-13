@@ -5,7 +5,7 @@ const StyledIconButton = ({ icon, className, ...props }) => (
     role="button"
     tabIndex={0}
     className={cn(
-      "flex cursor-pointer items-center justify-center rounded bg-[#322f3b] px-4 py-2",
+      "flex cursor-pointer items-center justify-center rounded bg-accent/80 px-4 py-2",
       className,
     )}
     {...props}

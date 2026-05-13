@@ -49,14 +49,14 @@ const StyledTable = ({
   const isEmpty = !data?.length;
 
   return (
-    <div className="my-4 overflow-x-auto rounded-lg bg-[#121212]">
+    <div className="my-4 overflow-x-auto rounded-lg bg-surface-deep">
       <UiTable>
         <UiTableHeader>
           <UiTableRow className="border-border hover:bg-transparent">
             {headers.map((header) => (
               <UiTableHead
                 key={header}
-                className="whitespace-nowrap text-[#b5b8c5] first-letter:uppercase"
+                className="whitespace-nowrap text-muted-foreground first-letter:uppercase"
               >
                 {header}
               </UiTableHead>
@@ -90,36 +90,26 @@ const StyledTable = ({
               return (
                 <UiTableRow
                   key={rowIndex}
-                  className="border-[#333] odd:bg-transparent even:bg-[#242424]"
+                  className="border-border-subtle odd:bg-transparent even:bg-surface-muted"
                 >
                   {headers.map((header, cellIndex) => {
-                    const isStatusColumn = header.toLowerCase() === "status";
-                    const isPayload = header.toLowerCase() === "payload data";
-                    const isTerminateSession = header.toLowerCase() === "terminate session";
-                    const isPublished = header.toLowerCase() === "published";
-                    const isConnectionStatus = header.toLowerCase() === "connector status";
-                    const isCommand = header.toLowerCase() === "command";
+                    const lowered = header.toLowerCase();
+                    const isStatusColumn = lowered === "status";
+                    const isPayload = lowered === "payload data";
+                    const isTerminateSession = lowered === "terminate session";
+                    const isPublished = lowered === "published";
+                    const isConnectionStatus = lowered === "connector status";
+                    const isCommand = lowered === "command";
+                    const isFirstCell = cellIndex === 0;
 
                     const cellTextClass = cn(
                       "font-sans text-xs leading-[150%]",
-                      cellIndex === 0 && "cursor-pointer text-[#2D9CDB]",
-                      header.toLowerCase() === "message" && "text-red-500",
-                      sourceData === "CMS" &&
-                        (isCommand || isPayload) &&
-                        "text-[#EB5757]",
-                      sourceData === "CP" && (isCommand || isPayload) && "text-[#219653]",
-                      !cellIndex &&
-                        !(
-                          sourceData === "CMS" ||
-                          sourceData === "CP" ||
-                          header.toLowerCase() === "message"
-                        ) &&
-                        "text-[#b5b8c5]",
-                      !cellIndex &&
-                        (sourceData === "CMS" || sourceData === "CP") &&
-                        !isCommand &&
-                        !isPayload &&
-                        "text-[#b5b8c5]",
+                      isFirstCell && "cursor-pointer text-link",
+                      lowered === "message" && "text-destructive",
+                      sourceData === "CMS" && (isCommand || isPayload) && "text-cms",
+                      sourceData === "CP" && (isCommand || isPayload) && "text-cp",
+                      isFirstCell && !["CMS", "CP"].includes(sourceData) && lowered !== "message" && "text-muted-foreground",
+                      isFirstCell && ["CMS", "CP"].includes(sourceData) && !isCommand && !isPayload && "text-muted-foreground",
                     );
 
                     return (
@@ -127,7 +117,7 @@ const StyledTable = ({
                         key={`${rowIndex}-${header}`}
                         className={cellTextClass}
                         onClick={() => {
-                          if (showActionCell && cellIndex === 0 && actions.includes("View")) {
+                          if (showActionCell && isFirstCell && actions.includes("View")) {
                             onActionClick?.({ action: "View", data: row });
                           }
                         }}

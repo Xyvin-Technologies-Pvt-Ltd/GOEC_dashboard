@@ -8,10 +8,8 @@ export default function LastSynced({ heading, children, reloadHandle, lastSyncVi
   const [rotate, setRotate] = useState(0);
   const rafRef = useRef(null);
 
-  useEffect(() => {
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
+  useEffect(() => () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
   }, []);
 
   const startSpin = () => {
@@ -32,25 +30,28 @@ export default function LastSynced({ heading, children, reloadHandle, lastSyncVi
   return (
     <Stack
       direction={{ xs: "column", md: "row" }}
+      spacing={{ xs: 2, md: 0 }}
       sx={{
         alignItems: { md: "center" },
         justifyContent: "space-between",
         backgroundColor: "primary.grey",
-        p: 2,
+        p: 3,
+        gap: { xs: 2, md: 0 },
       }}
     >
-      <Stack direction="column" sx={{ ml: 2 }}>
+      <Stack direction="column" sx={{ ml: { xs: 0, md: 2 } }}>
         <Typography variant="body1" sx={{ color: "secondary.contrastText" }}>
           {heading}
         </Typography>
         {lastSyncVisible && (
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1} alignItems="center">
             <Typography sx={{ color: "secondary.greytext", fontSize: 12 }}>Last synced</Typography>
             <Typography sx={{ color: "success.main", fontSize: 12 }}>
               <ReactTimeAgo date={date} locale="en-US" />
             </Typography>
             <ReloadIcon
-              style={{ cursor: "pointer", transform: `rotate(${rotate}deg)` }}
+              className="cursor-pointer"
+              style={{ transform: `rotate(${rotate}deg)` }}
               onClick={() => {
                 setDate(new Date());
                 reloadHandle?.();
@@ -60,7 +61,7 @@ export default function LastSynced({ heading, children, reloadHandle, lastSyncVi
           </Stack>
         )}
       </Stack>
-      <Stack direction={{ sm: "column", md: "row" }} spacing={2}>
+      <Stack direction={{ xs: "column", md: "row" }} spacing={2} sx={{ width: { xs: "100%", md: "auto" } }}>
         {children}
       </Stack>
     </Stack>

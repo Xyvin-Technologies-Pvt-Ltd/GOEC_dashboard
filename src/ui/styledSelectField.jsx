@@ -1,5 +1,40 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
+import { tokens } from "../theme/tokens";
+
+const { colors } = tokens;
+
+const buildStyles = (height) => ({
+  control: (provided, state) => ({
+    ...provided,
+    width: "100%",
+    padding: 8,
+    border: `1px solid ${colors.border}`,
+    borderRadius: 4,
+    backgroundColor: state.isFocused ? colors.surfaceAlt : colors.surfaceAlt,
+    color: state.isFocused ? colors.text : colors.textMuted,
+    boxShadow: state.isFocused ? `0 0 0 2px ${colors.text}` : "none",
+    cursor: "pointer",
+    height: height || undefined,
+    overflow: "scroll",
+  }),
+  input: (base) => ({ ...base, color: colors.text }),
+  indicatorSeparator: (provided) => ({ ...provided, display: "none" }),
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isFocused ? colors.surfaceMuted : colors.surfaceAlt,
+    color: state.isFocused ? colors.text : colors.textMuted,
+    cursor: "pointer",
+    ":active": { backgroundColor: colors.surfaceMuted },
+  }),
+  menu: (provided) => ({ ...provided, backgroundColor: colors.surfaceAlt, color: colors.textMuted }),
+  singleValue: (provided) => ({ ...provided, color: colors.text }),
+});
+
+const customTheme = (theme) => ({
+  ...theme,
+  colors: { ...theme.colors, primary: colors.surfaceAlt },
+});
 
 const StyledSelectField = ({
   options,
@@ -14,56 +49,6 @@ const StyledSelectField = ({
   ...props
 }) => {
   const [valueOptions, setValueOption] = useState({});
-
-  const customStyles = {
-    control: (provided, state) => ({
-      ...provided,
-      width: "100%",
-      padding: "8px",
-      border: "1px solid var(--White-20, rgba(255, 255, 255, 0.20));",
-      borderRadius: "4px",
-      backgroundColor: state.isFocused ? "#39383D" : "var(--inner, #39383D)",
-      color: state.isFocused ? "#fff" : "#B5B8C5",
-      boxShadow: state.isFocused ? "0 0 0 2px #fff" : "none",
-      cursor: "pointer",
-      height: height && height,
-      overflow: "scroll",
-    }),
-    input: (base) => ({
-      ...base,
-      color: "#fff",
-    }),
-    indicatorSeparator: (provided) => ({
-      ...provided,
-      display: "none",
-    }),
-    option: (provided, state) => ({
-      ...provided,
-      backgroundColor: state.isFocused ? "#242424" : " #39383D",
-      color: state.isFocused ? "#fff" : "#B5B8C5",
-      cursor: "pointer",
-      ":active": {
-        backgroundColor: "#242424",
-      },
-    }),
-    menu: (provided) => ({
-      ...provided,
-      backgroundColor: "var(--inner, #39383D)",
-      color: "#B5B8C5",
-    }),
-    singleValue: (provided) => ({
-      ...provided,
-      color: "#F7F8FC",
-    }),
-  };
-
-  const customTheme = (theme) => ({
-    ...theme,
-    colors: {
-      ...theme.colors,
-      primary: "var(--inner, #39383D)",
-    },
-  });
 
   useEffect(() => {
     let selectedIndex = -1;
@@ -80,11 +65,9 @@ const StyledSelectField = ({
               multiSelected.push(options[i]);
             }
           }
-        } else {
-          if (options[i].value === value || options[i].label === value) {
-            selectedIndex = i;
-            break;
-          }
+        } else if (options[i].value === value || options[i].label === value) {
+          selectedIndex = i;
+          break;
         }
       }
     }
@@ -93,9 +76,7 @@ const StyledSelectField = ({
     } else {
       setValueOption({ value: options && !isMulti && options[selectedIndex] });
     }
-    if (!value) {
-      setValueOption({ value: "" });
-    }
+    if (!value) setValueOption({ value: "" });
   }, [value, options, isMulti]);
 
   return (
@@ -105,7 +86,7 @@ const StyledSelectField = ({
         options={options}
         onChange={onChange}
         onInputChange={onInputChange}
-        styles={customStyles}
+        styles={buildStyles(height)}
         theme={customTheme}
         isMulti={isMulti}
         isSearchable={isSearchable}

@@ -5,55 +5,43 @@ import { siderbarListItems } from "../assets/json/sidebar";
 import { useAuthStore } from "../store";
 import { useNavigate } from "react-router-dom";
 import HeaderLogo from "../assets/header-logo.png";
+import { tokens } from "../theme/tokens";
 
-const Sidebar = ({ open, onClose, ...props }) => {
+const Sidebar = ({ open, onClose }) => {
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up("lg"));
   const hasPermission = useAuthStore((state) => state.hasPermission);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [filteredItems, setFilteredItems] = useState([]);
   const navigate = useNavigate();
 
-  // Load sidebar items initially and on user permission changes
   useEffect(() => {
-    const filterSidebarItems = () => {
-      const updatedItems = siderbarListItems()
-        .map((item) => ({
-          ...item,
-          sub: item.sub?.filter(
-            (subItem) =>
-              !subItem.requiredRoles ||
-              subItem.requiredRoles.some((role) => hasPermission(role))
-          ),
-        }))
-        .filter((item) => (item.sub ? item.sub.length > 0 : true));
-      setFilteredItems(updatedItems);
+    const updatedItems = siderbarListItems()
+      .map((item) => ({
+        ...item,
+        sub: item.sub?.filter(
+          (subItem) =>
+            !subItem.requiredRoles ||
+            subItem.requiredRoles.some((role) => hasPermission(role)),
+        ),
+      }))
+      .filter((item) => (item.sub ? item.sub.length > 0 : true));
+    setFilteredItems(updatedItems);
 
-      const pathWhenDashboard =
-        updatedItems[0]?.extendable
-          ? `/${updatedItems[0].sub[0]?.href}`
-          : `/${updatedItems[0]?.href}`;
-      const nextPath =
-        window.location.pathname === "" || window.location.pathname === "/dashboard"
-          ? pathWhenDashboard
-          : `${window.location.pathname}`;
-      navigate(nextPath);
-      // Check if the active index is still valid after filtering
-      if (activeIndex >= updatedItems.length) {
-        setActiveIndex(-1);
-      }
-    };
-
-    filterSidebarItems();
+    const pathWhenDashboard = updatedItems[0]?.extendable
+      ? `/${updatedItems[0].sub[0]?.href}`
+      : `/${updatedItems[0]?.href}`;
+    const nextPath =
+      window.location.pathname === "" || window.location.pathname === "/dashboard"
+        ? pathWhenDashboard
+        : `${window.location.pathname}`;
+    navigate(nextPath);
+    if (activeIndex >= updatedItems.length) {
+      setActiveIndex(-1);
+    }
   }, [activeIndex, navigate, hasPermission]);
 
   const handleItemClick = (index) => {
-    if (index === activeIndex) {
-      // If clicking the same item, toggle it (collapse)
-      setActiveIndex(-1);
-    } else {
-      // If clicking a different item, expand it
-      setActiveIndex(index);
-    }
+    setActiveIndex(index === activeIndex ? -1 : index);
   };
 
   return (
@@ -65,46 +53,29 @@ const Sidebar = ({ open, onClose, ...props }) => {
         sx: {
           backgroundColor: "secondary.main",
           color: "secondary.contrastText",
-          width: 260,
+          width: tokens.layout.sidebarWidth,
           border: "none",
         },
       }}
       sx={{ zIndex: (theme) => theme.zIndex.appBar + 100 }}
       variant={lgUp ? "permanent" : "temporary"}
     >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-        }}
-      >
-        <div>
-          <Box sx={{ p: 4 }}>
-            <Box
-              sx={{
-                alignItems: "center",
-                cursor: "pointer",
-                display: "flex",
-                flexDirection: "column",
-                borderRadius: 1,
-                paddingBottom: 3,
-              }}
-            >
-              <img src={HeaderLogo} alt="Logo" style={{ width: "40%" }} />
-              {/* <Typography color="inherit" variant="caption">
-                version 2.0
-              </Typography> */}
-            </Box>
+      <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        <Box sx={{ p: { xs: 3, md: 4 } }}>
+          <Box
+            sx={{
+              alignItems: "center",
+              cursor: "pointer",
+              display: "flex",
+              flexDirection: "column",
+              borderRadius: 1,
+              pb: 3,
+            }}
+          >
+            <img src={HeaderLogo} alt="Logo" className="w-2/5" />
           </Box>
-        </div>
-        <Box
-          sx={{
-            flexGrow: 1,
-            maxHeight: "calc(100vh - 15px)",
-            overflowY: "auto",
-          }}
-        >
+        </Box>
+        <Box sx={{ flex: 1, overflowY: "auto", minHeight: 0 }}>
           {filteredItems.map((item, index) => (
             <NavItem
               key={item.title}

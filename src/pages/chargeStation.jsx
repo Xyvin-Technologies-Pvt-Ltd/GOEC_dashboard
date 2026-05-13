@@ -19,28 +19,18 @@ export default function ChargingStation() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filters = { pageNo };
-  if (searchQuery) {
-    filters.searchQuery = searchQuery;
-  }
+  if (searchQuery) filters.searchQuery = searchQuery;
 
   const { data: stationData, refetch } = useChargingStationList(filters);
   const chargeStationListData = stationData?.result || [];
   const totalCount = stationData?.totalCount || 1;
 
   const { mutate: deleteStation } = useDeleteChargingStation({
-    onSuccess: () => {
-      toast.success("charging station deleted successfully");
-    },
+    onSuccess: () => toast.success("charging station deleted successfully"),
   });
 
   const deleteData = () => {
-    if (selectedData?._id) {
-      deleteStation(selectedData._id);
-    }
-  };
-
-  const buttonChanged = (e) => {
-    setTogglePage(e.index);
+    if (selectedData?._id) deleteStation(selectedData._id);
   };
 
   return (
@@ -50,23 +40,23 @@ export default function ChargingStation() {
         title="Confirm Delete"
         subtitle="Do you want to Delete"
         buttonText="Delete"
-        onClose={() => {
-          setDialogOpen(false);
-        }}
+        onClose={() => setDialogOpen(false)}
         confirmButtonHandle={deleteData}
       />
       <Dialog open={editDialogOpen} maxWidth="md" fullWidth TransitionComponent={Transition}>
         <Stack
           direction="row"
           sx={{
-            p: 2,
+            p: 3,
             backgroundColor: "primary.main",
             justifyContent: "space-between",
-            borderBottom: "solid 1px #fff3",
+            alignItems: "center",
+            borderBottom: "1px solid",
+            borderColor: "rgba(255,255,255,0.2)",
           }}
         >
           <Typography sx={{ color: "secondary.contrastText" }}>Edit ChargeStation</Typography>
-          <Close style={{ cursor: "pointer" }} onClick={() => setEditDialogOpen(false)} />
+          <Close className="cursor-pointer" onClick={() => setEditDialogOpen(false)} />
         </Stack>
         <AddChargingStation
           formSubmited={() => {
@@ -80,7 +70,7 @@ export default function ChargingStation() {
       <StyledTab
         activeIndex={togglePage}
         buttons={["All Charge stations", "Add Charge Station"]}
-        onChanged={buttonChanged}
+        onChanged={(e) => setTogglePage(e.index)}
       />
       {togglePage === 0 ? (
         <AllChargeStation

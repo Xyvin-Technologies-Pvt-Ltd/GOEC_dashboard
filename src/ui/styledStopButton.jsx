@@ -6,7 +6,7 @@ const StyledStopButton = React.forwardRef(({ className, children, ...props }, re
     ref={ref}
     type="button"
     className={cn(
-      "ml-auto inline-flex cursor-pointer items-start gap-2.5 rounded border-0 bg-[#663131] px-5 py-2.5 text-center font-sans text-[11px] font-medium uppercase tracking-wide text-white hover:bg-[#a8322c]",
+      "ml-auto inline-flex cursor-pointer items-start gap-2.5 rounded border-0 bg-danger-bg px-5 py-2.5 text-center font-sans text-[11px] font-medium uppercase tracking-wide text-white hover:bg-danger-bg-hover",
       className,
     )}
     {...props}

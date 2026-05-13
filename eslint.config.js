@@ -37,6 +37,18 @@ export default [
       "react/display-name": "off",
       "react/jsx-key": "warn",
       "react/no-unescaped-entities": "off",
+      // Guardrail: ban arbitrary hex/pixel values inside Tailwind className props.
+      // Use design tokens defined in src/index.css @theme and src/theme/tokens.js instead.
+      // Brand-gradient utilities (from-[#...] to-[#...]) and dimension utilities are allowed via overrides below.
+      "no-restricted-syntax": [
+        "warn",
+        {
+          selector:
+            "JSXAttribute[name.name='className'] > Literal[value=/\\[#[0-9a-fA-F]{3,8}\\]/]",
+          message:
+            "Avoid arbitrary hex colors in className. Use semantic tokens from src/index.css @theme (e.g. bg-card, text-muted-foreground, bg-surface-deep).",
+        },
+      ],
     },
     settings: {
       react: {

@@ -23,7 +23,7 @@ const ConfirmDialog = ({
       if (!next) onClose?.();
     }}
   >
-    <AlertDialogContent className="border-border bg-[#27292f] text-foreground">
+    <AlertDialogContent className="border-border bg-background text-foreground">
       <AlertDialogHeader>
         <AlertDialogTitle className="text-foreground">{title}</AlertDialogTitle>
         <AlertDialogDescription className="text-muted-foreground">{subtitle}</AlertDialogDescription>

@@ -18,9 +18,7 @@ const StyledDropdown = ({ height, width, component, alignRight }) => {
 
   useEffect(() => {
     document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
+    return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
   return (
@@ -28,14 +26,14 @@ const StyledDropdown = ({ height, width, component, alignRight }) => {
       <button
         type="button"
         aria-expanded={isOpen}
-        className="flex cursor-pointer items-center justify-center gap-2.5 rounded border border-black/20 bg-[#322f3b] px-5 py-4"
+        className="flex cursor-pointer items-center justify-center gap-2.5 rounded border border-black/20 bg-surface-iconbutton px-5 py-4"
         onClick={handleTriggerClick}
       >
         <OutlineIcon />
       </button>
       <div
         className={cn(
-          "absolute z-10 min-h-[200px] min-w-[200px] bg-[#322f3b] p-3 shadow-lg",
+          "absolute z-10 min-h-[200px] min-w-[200px] bg-surface-iconbutton p-3 shadow-lg",
           isOpen ? "block" : "hidden",
           alignRight ? "right-0" : "left-0",
         )}

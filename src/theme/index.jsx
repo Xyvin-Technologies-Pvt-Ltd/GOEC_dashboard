@@ -1,80 +1,55 @@
 import { createTheme } from '@mui/material';
+import { tokens } from './tokens';
+
+const { colors: c, space: s, radius: r, breakpoints: bp, font } = tokens;
 
 export const theme = createTheme({
   breakpoints: {
-    values: {
-      xs: 0,
-      sm: 600,
-      md: 1000,
-      lg: 1200,
-      xl: 1920
-    }
+    values: { xs: bp.xs, sm: bp.sm, md: bp.md, lg: bp.lg, xl: bp.xl },
   },
   components: {
     MuiButton: {
       defaultProps: {
-        disableElevation: true
+        disableElevation: true,
       },
       styleOverrides: {
         root: {
-          textTransform: 'none'
+          textTransform: 'none',
         },
-        sizeSmall: {
-          padding: '6px 16px'
-        },
-        sizeMedium: {
-          padding: '8px 20px'
-        },
-        sizeLarge: {
-          padding: '11px 24px'
-        },
-        textSizeSmall: {
-          padding: '7px 12px'
-        },
-        textSizeMedium: {
-          padding: '9px 16px'
-        },
-        textSizeLarge: {
-          padding: '12px 16px'
-        }
-      }
+        sizeSmall: { padding: `${s[2] - 2}px ${s[4]}px` },     // 6px 16px
+        sizeMedium: { padding: `${s[2]}px ${s[5]}px` },         // 8px 20px
+        sizeLarge: { padding: `${s[3] - 1}px ${s[6]}px` },      // 11px 24px
+        textSizeSmall: { padding: `${s[2] - 1}px ${s[3]}px` },  // 7px 12px
+        textSizeMedium: { padding: `${s[3] - 3}px ${s[4]}px` }, // 9px 16px
+        textSizeLarge: { padding: `${s[3]}px ${s[4]}px` },      // 12px 16px
+      },
     },
     MuiButtonBase: {
-      defaultProps: {
-        disableRipple: true
-      }
+      defaultProps: { disableRipple: true },
     },
     MuiCardContent: {
       styleOverrides: {
         root: {
-          padding: '32px 24px',
-          '&:last-child': {
-            paddingBottom: '32px'
-          }
-        }
-      }
+          padding: `${s[8]}px ${s[6]}px`,
+          '&:last-child': { paddingBottom: `${s[8]}px` },
+        },
+      },
     },
     MuiCardHeader: {
       defaultProps: {
-        titleTypographyProps: {
-          variant: 'h6'
-        },
-        subheaderTypographyProps: {
-          variant: 'body2'
-        }
+        titleTypographyProps: { variant: 'h6' },
+        subheaderTypographyProps: { variant: 'body2' },
       },
       styleOverrides: {
-        root: {
-          padding: '32px 24px'
-        }
-      }
+        root: { padding: `${s[8]}px ${s[6]}px` },
+      },
     },
     MuiCssBaseline: {
       styleOverrides: {
         '*': {
           boxSizing: 'border-box',
           margin: 0,
-          padding: 0
+          padding: 0,
         },
         html: {
           MozOsxFontSmoothing: 'grayscale',
@@ -82,38 +57,34 @@ export const theme = createTheme({
           display: 'flex',
           flexDirection: 'column',
           minHeight: '100%',
-          width: '100%'
+          width: '100%',
         },
         body: {
           display: 'flex',
           flex: '1 1 auto',
           flexDirection: 'column',
           minHeight: '100%',
-          width: '100%'
+          width: '100%',
         },
         '#__next': {
           display: 'flex',
           flex: '1 1 auto',
           flexDirection: 'column',
           height: '100%',
-          width: '100%'
-        }
-      }
+          width: '100%',
+        },
+      },
     },
     MuiOutlinedInput: {
       styleOverrides: {
-        notchedOutline: {
-          borderColor: '#E6E8F0'
-        }
-      }
+        notchedOutline: { borderColor: c.borderDivider },
+      },
     },
     MuiTableHead: {
       styleOverrides: {
         root: {
-          backgroundColor: '#F3F4F6',
-          '.MuiTableCell-root': {
-            color: '#374151'
-          },
+          backgroundColor: c.neutral100,
+          '.MuiTableCell-root': { color: c.neutral700 },
           borderBottom: 'none',
           '& .MuiTableCell-root': {
             borderBottom: 'none',
@@ -121,103 +92,101 @@ export const theme = createTheme({
             fontWeight: 600,
             lineHeight: 1,
             letterSpacing: 0.5,
-            textTransform: 'uppercase'
+            textTransform: 'uppercase',
           },
           '& .MuiTableCell-paddingCheckbox': {
-            paddingTop: 4,
-            paddingBottom: 4
-          }
-        }
-      }
-    }
+            paddingTop: s[1],
+            paddingBottom: s[1],
+          },
+        },
+      },
+    },
   },
   palette: {
     neutral: {
-      100: '#F3F4F6',
-      200: '#E5E7EB',
-      300: '#D1D5DB',
-      400: '#9CA3AF',
-      500: '#6B7280',
-      600: '#4B5563',
-      700: '#374151',
-      800: '#1F2937',
-      900: '#111827'
+      100: c.neutral100,
+      200: c.neutral200,
+      300: c.neutral300,
+      400: c.neutral400,
+      500: c.neutral500,
+      600: c.neutral600,
+      700: c.neutral700,
+      800: c.neutral800,
+      900: c.neutral900,
     },
     action: {
-      active: '#6B7280',
+      active: c.neutral500,
       focus: 'rgba(55, 65, 81, 0.12)',
       hover: 'rgba(55, 65, 81, 0.04)',
       selected: 'rgba(55, 65, 81, 0.08)',
       disabledBackground: 'rgba(55, 65, 81, 0.12)',
-      disabled: 'rgba(55, 65, 81, 0.26)'
+      disabled: 'rgba(55, 65, 81, 0.26)',
     },
     background: {
       default: '#F9FAFC',
-      paper: '#FFFFFF'
+      paper: '#FFFFFF',
     },
-    divider: '#E6E8F0',
+    divider: c.borderDivider,
     primary: {
-      main: '#27292F',
-      light: '#828DF8',
-      dark: '#3832A0',
-      contrastText: '#F7F8FC',
-      DimText: '#828282',
-      grey:'#212326',
-      button:'#000',
+      main: c.primaryMain,
+      light: c.primaryLight,
+      dark: c.primaryDark,
+      contrastText: c.text,
+      DimText: c.primaryDimText,
+      grey: c.primaryGrey,
+      button: c.primaryButton,
       subButton: 'rgba(181, 184, 197,0.2)',
-      saveButton: '#0047C2'
+      saveButton: c.primarySaveButton,
     },
     secondary: {
-      main: '#1C1D22',
-      light: '#3FC79A',
-      dark: '#0B815A',
-      contrastText: '#B5B8C5',
-      greytext: '#bdbdbd',
-      button:'#4A4458',
-      contrast: '#171717',
-      lightGray: '#39383D',
-      cardbg: '#2B2930'
-
-      
+      main: c.secondaryMain,
+      light: c.successLight,
+      dark: c.successDark,
+      contrastText: c.secondaryContrastText,
+      greytext: c.secondaryGreyText,
+      button: c.secondaryButton,
+      contrast: c.secondaryContrast,
+      lightGray: c.secondaryLightGray,
+      cardbg: c.secondaryCardBg,
     },
     success: {
-      main: '#27AE60',
-      light: '#43C6B7',
-      dark: '#0E8074',
-      contrastText: '#FFFFFF'
+      main: c.success,
+      light: c.successLight,
+      dark: c.successDark,
+      contrastText: '#FFFFFF',
     },
     info: {
-      main: '#2196F3',
-      light: '#64B6F7',
-      dark: '#0B79D0',
-      contrastText: '#FFFFFF'
+      main: c.info,
+      light: c.infoLight,
+      dark: c.infoDark,
+      contrastText: '#FFFFFF',
     },
     warning: {
-      main: '#FFB020',
-      light: '#FFBF4C',
-      dark: '#B27B16',
-      contrastText: '#FFFFFF'
+      main: c.warning,
+      light: c.warningLight,
+      dark: c.warningDark,
+      contrastText: '#FFFFFF',
     },
     error: {
-      main: '#D14343',
-      light: '#DA6868',
-      dark: '#922E2E',
-      contrastText: '#FFFFFF'
+      main: c.danger,
+      light: c.dangerLight,
+      dark: c.dangerDark,
+      contrastText: '#FFFFFF',
     },
     text: {
       primary: '#121828',
       secondary: '#65748B',
-      disabled: 'rgba(55, 65, 81, 0.48)'
+      disabled: 'rgba(55, 65, 81, 0.48)',
     },
-    disabledColor:{
-      main: '#97999c',
-      light: '#97999c',
-      dark: '#97999c',
-      contrastText: '#FFFFFF'
+    disabledColor: {
+      main: c.disabledColor,
+      light: c.disabledColor,
+      dark: c.disabledColor,
+      contrastText: '#FFFFFF',
     },
   },
   shape: {
-    borderRadius: 8
+    borderRadius: r.lg,
   },
   shadows: [
     'none',
@@ -244,74 +213,28 @@ export const theme = createTheme({
     '0px 25px 50px rgba(100, 116, 139, 0.25)',
     '0px 25px 50px rgba(100, 116, 139, 0.25)',
     '0px 25px 50px rgba(100, 116, 139, 0.25)',
-    '0px 25px 50px rgba(100, 116, 139, 0.25)'
+    '0px 25px 50px rgba(100, 116, 139, 0.25)',
   ],
   typography: {
-    button: {
-      fontWeight: 600
-    },
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
-    body1: {
-      fontSize: '1rem',
-      fontWeight: 400,
-      lineHeight: 1.5
-    },
-    body2: {
-      fontSize: '0.875rem',
-      fontWeight: 400,
-      lineHeight: 1.57
-    },
-    subtitle1: {
-      fontSize: '1rem',
-      fontWeight: 500,
-      lineHeight: 1.75
-    },
-    subtitle2: {
-      fontSize: '0.875rem',
-      fontWeight: 500,
-      lineHeight: 1.57
-    },
+    button: { fontWeight: 600 },
+    fontFamily: font.family,
+    body1: { fontSize: '1rem', fontWeight: 400, lineHeight: 1.5 },
+    body2: { fontSize: '0.875rem', fontWeight: 400, lineHeight: 1.57 },
+    subtitle1: { fontSize: '1rem', fontWeight: 500, lineHeight: 1.75 },
+    subtitle2: { fontSize: '0.875rem', fontWeight: 500, lineHeight: 1.57 },
     overline: {
       fontSize: '0.75rem',
       fontWeight: 600,
       letterSpacing: '0.5px',
       lineHeight: 2.5,
-      textTransform: 'uppercase'
+      textTransform: 'uppercase',
     },
-    caption: {
-      fontSize: '0.75rem',
-      fontWeight: 400,
-      lineHeight: 1.66
-    },
-    h1: {
-      fontWeight: 700,
-      fontSize: '3.5rem',
-      lineHeight: 1.375
-    },
-    h2: {
-      fontWeight: 700,
-      fontSize: '3rem',
-      lineHeight: 1.375
-    },
-    h3: {
-      fontWeight: 700,
-      fontSize: '2.25rem',
-      lineHeight: 1.375
-    },
-    h4: {
-      fontWeight: 700,
-      fontSize: '2rem',
-      lineHeight: 1.375
-    },
-    h5: {
-      fontWeight: 600,
-      fontSize: '1.5rem',
-      lineHeight: 1.375
-    },
-    h6: {
-      fontWeight: 600,
-      fontSize: '1.125rem',
-      lineHeight: 1.375
-    }
-  }
+    caption: { fontSize: '0.75rem', fontWeight: 400, lineHeight: 1.66 },
+    h1: { fontWeight: 700, fontSize: '3.5rem', lineHeight: 1.375 },
+    h2: { fontWeight: 700, fontSize: '3rem', lineHeight: 1.375 },
+    h3: { fontWeight: 700, fontSize: '2.25rem', lineHeight: 1.375 },
+    h4: { fontWeight: 700, fontSize: '2rem', lineHeight: 1.375 },
+    h5: { fontWeight: 600, fontSize: '1.5rem', lineHeight: 1.375 },
+    h6: { fontWeight: 600, fontSize: '1.125rem', lineHeight: 1.375 },
+  },
 });
