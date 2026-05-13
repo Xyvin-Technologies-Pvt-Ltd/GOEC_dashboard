@@ -31,7 +31,9 @@ export async function deleteEvMachine(Id) {
 export async function getEvMachineById(Id) {
   try {
     const response = await EV_MACHINE_INSTANCE.get(`evMachine/dashboard/${Id}`);
-    return response.data;
+    const payload = response.data;
+    // Dashboard detail responses match list shape: { result: document } (see chargeStationDetail).
+    return payload?.result ?? payload;
   } catch (error) {
     throw error;
   }

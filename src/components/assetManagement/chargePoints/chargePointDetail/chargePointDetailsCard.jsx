@@ -9,6 +9,10 @@ import moment from "moment";
 export default function ChargePointDetailsCard({ data }) {
   const station = data?.chargingStationDetails?.[0];
   const model = data?.evModelDetails?.[0];
+  const configurationUrl =
+    data?.configuration_url != null && String(data.configuration_url).trim() !== ""
+      ? String(data.configuration_url)
+      : null;
 
   return (
     <Box pb={2} sx={{ backgroundColor: "secondary.main", borderRadius: "4px" }}>
@@ -35,15 +39,17 @@ export default function ChargePointDetailsCard({ data }) {
         </Typography>
         <Stack spacing={2}>
           <StyledInput
-            placeholder={`${data && data.configuration_url}`}
+            placeholder={configurationUrl ?? "—"}
             disabled
             iconright={
               <ContentCopy
                 style={{ cursor: "pointer" }}
                 onClick={() => {
-                  navigator.clipboard.writeText(
-                    `${data && data.configuration_url}`
-                  );
+                  if (!configurationUrl) {
+                    toast.info("No configuration URL to copy");
+                    return;
+                  }
+                  navigator.clipboard.writeText(configurationUrl);
                   toast.success("copied");
                 }}
               />
