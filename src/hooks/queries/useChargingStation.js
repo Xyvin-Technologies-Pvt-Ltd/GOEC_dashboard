@@ -5,7 +5,7 @@ import {
   getChargingStationById,
   getChargingPointsListOfStation,
   getListOfChargingStation,
-} from "../../services/stationAPI";
+} from "../../api/station.api";
 
 //* Get charging station list with filters
 export const useChargingStationList = (filters) =>

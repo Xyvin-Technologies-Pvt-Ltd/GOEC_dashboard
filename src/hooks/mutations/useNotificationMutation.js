@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import {
   sendBulkMail,
   sendBulkPushNotification,
-} from "../../services/notificationAPI";
+} from "../../api/notification.api";
 
 //* Send bulk mail
 export const useSendBulkMail = (options = {}) => {

@@ -1,9 +1,9 @@
-import { Box, Grid, Stack, Typography } from '@mui/material'
+import { Grid, Stack, Typography } from '@mui/material'
 import React from 'react'
 import LastSynced from '../layout/LastSynced'
-import StyledInput from '../ui/styledInput'
-import StyledSelectField from '../ui/styledSelectField'
-import StyledButton from '../ui/styledButton'
+import StyledInput from '../ui/StyledInput'
+import StyledSelectField from '../ui/StyledSelectField'
+import StyledButton from '../ui/StyledButton'
 import CustomerCard from '../components/crm/searchCustomer/customerCard'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
@@ -50,9 +50,9 @@ export default function SearchCustomers() {
   }
 
   return (
-    <Box>
+    <div className="w-full">
       <LastSynced heading={'Search Customer'} lastSyncVisible={false} />
-      <Stack direction={'column'} spacing={1} sx={{ backgroundColor: 'secondary.main', m: 4, py: 4, px: 4, borderRadius: 2 }}>
+      <Stack direction={'column'} spacing={1} className="m-4 flex flex-col rounded-2xl bg-secondary py-4 px-4">
         <Typography>Search by</Typography>
         <Stack spacing={2} direction={{ xs: 'column', md: 'row' }}>
           <StyledSelectField options={selectOptions} placeholder={'select Search Option'} value={selectedOption}
@@ -69,6 +69,6 @@ export default function SearchCustomers() {
           </Grid>
         }
       </Grid>
-    </Box>
+    </div>
   )
 }

@@ -1,67 +1,29 @@
-import React, { useState, forwardRef } from 'react'
-import styled, { css } from 'styled-components';
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
-const InputContainer = styled.div`
-  position: relative;
-  display: flex;
-  width: 100%;
-  padding: 16px;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.20);
-  background: var(--inner, #39383D);
-  border-radius: 4px;
-`;
-
-const InputField = styled.textarea`
-color: #FFFFFF;
-background: none;
-resize: none;
-font-feature-settings: 'clig' off, 'liga' off;
-/* Small Caption/ Medium */
-font-family: Inter;
-font-size: 14px;
-width:100%;
-min-width:60px;
-font-style: normal;
-font-weight: 400;
-line-height: ${props => props.lineHeight || '16px'}; 
-height: ${props => props.height || '16px'};
-background: var(--inner, #39383D);
-border:none;
-&::placeholder {
-  color: #B5B8C5; 
-  ${props =>
-    props.specialAlign &&
-    css`
-    position: absolute;
-    top: 0; 
-    left: 0;
-    margin: 0; 
-    `}
-}
-&:focus {
-    outline: none; // Disable the default focus outline
-    border: none;  // Set border to none when focusing
-    // Add any additional styles you want when the input is focused
-  }
-  
-`;
-
-const StyledTextArea = forwardRef(({onTextChange, icon, placeholder,iconright,value, lineHeight,specialAlign, ...props },ref) => {
-  return (
-    <InputContainer {...props}>
-      <InputField 
-        autoComplete="off"
-        placeholder={placeholder} 
-        value={value} 
-        onChange={onTextChange} 
-        lineHeight={lineHeight}
-        specialAlign={specialAlign}
+const StyledTextArea = React.forwardRef(
+  ({ icon, placeholder, lineHeight, specialAlign, className, ...props }, ref) => (
+    <div
+      className={cn(
+        "relative flex w-full items-start gap-2 rounded border border-white/20 bg-[var(--inner)] p-4",
+        className,
+      )}
+    >
+      {icon && <span className="flex size-6 shrink-0 items-center justify-center text-[#87898e]">{icon}</span>}
+      <textarea
         ref={ref}
-        {...props} />
-    </InputContainer>
-  );
-});
+        autoComplete="off"
+        placeholder={placeholder}
+        className={cn(
+          "min-h-[80px] w-full resize-none border-0 bg-[var(--inner)] font-sans text-sm font-normal text-white outline-none placeholder:text-[#b5b8c5] focus:ring-0",
+          specialAlign && "placeholder:absolute placeholder:left-0 placeholder:top-0 placeholder:m-0",
+        )}
+        style={{ lineHeight: lineHeight || "16px" }}
+        {...props}
+      />
+    </div>
+  ),
+);
+StyledTextArea.displayName = "StyledTextArea";
 
 export default StyledTextArea;

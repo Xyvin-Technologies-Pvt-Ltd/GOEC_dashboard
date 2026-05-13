@@ -5,7 +5,7 @@ import {
   getWalletTransactionFilteredList,
   getWalletReport,
   getAccountTransactionReport,
-} from "../../services/walletAPI";
+} from "../../api/wallet.api";
 
 //* Get wallet transaction list
 export const useWalletTransactionList = () =>

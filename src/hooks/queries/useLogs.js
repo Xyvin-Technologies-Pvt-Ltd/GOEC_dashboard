@@ -1,5 +1,5 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { getServerLogs } from "../../services/logsApi";
+import { getServerLogs } from "../../api/logs.api";
 
 //* Get server logs with filters
 export const useServerLogs = (filters) =>

@@ -1,7 +1,7 @@
 import { Box, Stack, Typography } from "@mui/material";
 import React from "react";
-import StyledDivider from "../../../../ui/styledDivider";
-import StyledButton from "../../../../ui/styledButton";
+import StyledDivider from "../../../../ui/StyledDivider";
+import StyledButton from "../../../../ui/StyledButton";
 import { useUserAssignUnassignTariff } from "../../../../hooks/mutations/useUserMutation";
 import { toast } from "react-toastify";
 

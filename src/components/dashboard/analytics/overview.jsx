@@ -4,7 +4,7 @@ import { Box, Grid, Stack, Typography } from '@mui/material'
 import { Circle } from '@mui/icons-material';
 import { Pie } from 'react-chartjs-2';
 import { useTheme } from '@emotion/react';
-import DashboardDataCard from '../../../ui/dashboardDataCard';
+import DashboardDataCard from '../../../ui/DashboardDataCard';
 
 
 

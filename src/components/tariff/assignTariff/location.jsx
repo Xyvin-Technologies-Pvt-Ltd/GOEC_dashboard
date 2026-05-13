@@ -1,12 +1,11 @@
 import { Grid, Typography, Container, Stack, Modal, Box, Dialog } from "@mui/material";
 import React, { useState } from "react";
-import styled from "styled-components";
 import LastSynced from "../../../layout/LastSynced";
-import StyledSelectField from "../../../ui/styledSelectField";
-import StyledButton from "../../../ui/styledButton";
-import StyledWarning from "../../../ui/styledWarning";
+import StyledSelectField from "../../../ui/StyledSelectField";
+import StyledButton from "../../../ui/StyledButton";
+import StyledWarning from "../../../ui/StyledWarning";
 import { ReactComponent as Warn } from "../../../assets/icons/textWarn.svg";
-import StyledDivider from "../../../ui/styledDivider";
+import StyledDivider from "../../../ui/StyledDivider";
 import Assign from "./assign";
 import { ReactComponent as Close } from "../../../assets/icons/close-circle.svg";
 import { Controller, useForm } from "react-hook-form";

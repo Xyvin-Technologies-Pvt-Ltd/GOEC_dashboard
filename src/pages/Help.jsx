@@ -1,6 +1,5 @@
-import { Box, Stack } from "@mui/material";
 import React, { useState } from "react";
-import StyledTab from "../ui/styledTab";
+import StyledTab from "../ui/StyledTab";
 import About from "../components/help/About";
 
 function Help() {
@@ -10,15 +9,15 @@ function Help() {
       setTogglePage(e.index);
     };
   return (
-    <Box>
-      <Stack direction={"row"} sx={{ backgroundColor: "secondary.main" }}>
+    <div className="w-full">
+      <div className="flex flex-row bg-secondary">
         <StyledTab
           buttons={["About Us", "Raise Ticket"]}
           onChanged={buttonChanged}
         />
-      </Stack>
+      </div>
       {togglePage === 0 ? <About /> : ""}
-    </Box>
+    </div>
   );
 }
 

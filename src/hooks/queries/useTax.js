@@ -3,7 +3,7 @@ import {
   getTaxList,
   getTaxListDropdown,
   getTaxById,
-} from "../../services/taxAPI";
+} from "../../api/tax.api";
 
 //* Get tax list with filters
 export const useTaxList = (filters) =>

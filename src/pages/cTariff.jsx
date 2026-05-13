@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Box } from "@mui/material";
 import ChargingTariff from "../components/tariff/chargingTariff/ChargingTariff.jsx";
 import { useChargingTariffList } from "../hooks/queries/useChargingTariff.js";
 
@@ -28,7 +27,7 @@ export default function CTariff() {
   };
 
   return (
-    <Box>
+    <div className="w-full">
       <ChargingTariff
         data={tariffListData}
         setSearchQuery={setSearchQuery}
@@ -39,6 +38,6 @@ export default function CTariff() {
         isChange={isChange}
         updateData={updateData}
       />
-    </Box>
+    </div>
   );
 }

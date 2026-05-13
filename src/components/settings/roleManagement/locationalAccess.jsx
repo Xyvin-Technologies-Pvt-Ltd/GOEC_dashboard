@@ -2,7 +2,7 @@ import { Grid, Typography } from "@mui/material";
 import React, { useMemo } from "react";
 import { useListOfChargingStation } from "../../../hooks/queries/useChargingStation";
 import { Controller, useFormContext } from "react-hook-form";
-import StyledSelectField from "../../../ui/styledSelectField";
+import StyledSelectField from "../../../ui/StyledSelectField";
 
 function LocationalAccess({ isUpdate, datas }) {
   const {

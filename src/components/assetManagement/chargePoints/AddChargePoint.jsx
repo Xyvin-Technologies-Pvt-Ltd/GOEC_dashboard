@@ -1,19 +1,23 @@
-import styled from "styled-components";
 import { Box, Container, Grid, Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import StyledSelectField from "../../../ui/styledSelectField";
-import StyledSwitch from "../../../ui/styledSwitch";
+import StyledSelectField from "../../../ui/StyledSelectField";
+import StyledSwitch from "../../../ui/StyledSwitch";
 import { ReactComponent as Calendar } from "../../../assets/icons/calendar.svg";
 import { useForm, Controller } from "react-hook-form";
 
-import StyledInput from "../../../ui/styledInput";
+import StyledInput from "../../../ui/StyledInput";
 import CalendarInput from "../../../ui/CalendarInput";
-import StyledButton from "../../../ui/styledButton";
+import StyledButton from "../../../ui/StyledButton";
 import { useChargingStationDropdown } from "../../../hooks/queries/useChargingStation";
 import { useOemDropdown, useEvModelDropdown } from "../../../hooks/queries/useEvMachine";
 import { useCreateEvMachine, useEditEvMachine } from "../../../hooks/mutations/useEvMachineMutation";
 import { toast } from "react-toastify";
 import { ContentCopy } from "@mui/icons-material";
+
+const errorMessageStyle = {
+  color: "red",
+};
+
 // StyledTable component
 const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted, editStatus = false, isFromStation = false, stationId }) => {
 
@@ -38,15 +42,16 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
     clearErrors,
   } = useForm({
     defaultValues: {
-      chargePointDisplayName: editStatus ? chargepointData["name"] : '',
-      locationName: editStatus ? chargepointData["Station"] : '',
-      chargePointOEM: editStatus ? chargepointData["OEM"] : '',
-      authorisationkey: editStatus ? chargepointData["authorization_key"] : '',
-      serialNumber: editStatus ? chargepointData["serial_number"] : '',
-      commissionedDate: editStatus ? chargepointData["commissioned_date"] : '',
-      model: editStatus ? chargepointData["Model"] : '',
-      chargePointDisplayName: editStatus ? chargepointData["CPID"] : '',
-      CPID: editStatus ? chargepointData["CPID"] : '',
+      chargePointDisplayName: editStatus
+        ? chargepointData["CPID"] ?? chargepointData["name"]
+        : "",
+      locationName: editStatus ? chargepointData["Station"] : "",
+      chargePointOEM: editStatus ? chargepointData["OEM"] : "",
+      authorisationkey: editStatus ? chargepointData["authorization_key"] : "",
+      serialNumber: editStatus ? chargepointData["serial_number"] : "",
+      commissionedDate: editStatus ? chargepointData["commissioned_date"] : "",
+      model: editStatus ? chargepointData["Model"] : "",
+      CPID: editStatus ? chargepointData["CPID"] : "",
     },
   });
 
@@ -472,19 +477,3 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
 };
 
 export default AddChargePoint;
-
-//! STYLINGS
-
-// Styled action cell
-
-// Styled table container
-export const TableContainer = styled.div`
-  background: #27292f; // Dark background for the table
-  overflow-x: auto; // Allows table to be scrollable horizontally
-  border-radius: 8px; // Rounded corners
-`;
-
-const errorMessageStyle = {
-  color: "red",
-  // margin: '1px 0',
-};

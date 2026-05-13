@@ -1,6 +1,6 @@
 import { List, ListItem, ListItemText } from '@mui/material'
 import React from 'react'
-import StyledDivider from './styledDivider'
+import StyledDivider from './StyledDivider'
 
 const StyledList = ({data}) => {
     return (

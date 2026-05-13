@@ -7,7 +7,7 @@ import {
   editBrand,
   deleteBrand,
   vehicleImageUpload,
-} from "../../services/vehicleAPI";
+} from "../../api/vehicle.api";
 
 //* Create vehicle
 export const useCreateVehicle = (options = {}) => {

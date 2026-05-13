@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { Box, Modal, Stack, Typography } from "@mui/material";
-import StyledTable from "../../../ui/styledTable";
+import StyledTable from "../../../ui/StyledTable";
 import LastSynced from "../../../layout/LastSynced";
 import { ReactComponent as Close } from "../../../assets/icons/close-circle.svg";
-import StyledDivider from "../../../ui/styledDivider";
+import StyledDivider from "../../../ui/StyledDivider";
 import AddTariff from "./addTariff";
-import StyledButton from "../../../ui/styledButton";
+import StyledButton from "../../../ui/StyledButton";
 import { useDeleteChargingTariff } from "../../../hooks/mutations/useChargingTariffMutation";
 import { ToastContainer, toast } from "react-toastify";
-import { tableHeaderReplace } from "../../../utils/tableHeaderReplace";
-import StyledSearchField from "../../../ui/styledSearchField";
-import { searchAndFilter } from "../../../utils/search";
-import { permissions } from "../../../core/routes/permissions";
+import { tableHeaderReplace } from "../../../components/common/tableHeaderReplace";
+import StyledSearchField from "../../../ui/StyledSearchField";
+import { searchAndFilter } from "../../../components/common/search";
+import { permissions } from "../../../routes/permissions";
 import { useAuthStore } from "../../../store";
 
 function restructureData(dataArray) {

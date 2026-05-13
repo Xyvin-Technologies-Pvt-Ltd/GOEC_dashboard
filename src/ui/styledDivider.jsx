@@ -1,10 +1,5 @@
-import styled from 'styled-components';
+import { cn } from "@/lib/utils";
 
-const StyledDivider = styled.div`
-  width: 100%;
-  height: 1px;
-  background-color:rgba(255, 255, 255, 0.20);
-  margin: 10px 0;
-`;
-
-export default StyledDivider;
+export default function StyledDivider({ className }) {
+  return <div className={cn("my-4 h-px w-full max-w-md bg-white/50", className)} />;
+}

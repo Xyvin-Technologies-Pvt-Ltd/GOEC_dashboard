@@ -1,6 +1,6 @@
 import  * as FileSaver from 'file-saver';
 import { toast } from 'react-toastify';
-import XLSX from 'sheetjs-style';
+import * as XLSX from 'xlsx';
 
 
 const dataHeader = [{

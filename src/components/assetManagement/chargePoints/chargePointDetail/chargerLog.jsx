@@ -1,27 +1,43 @@
 import React, { useEffect, useState } from 'react'
 import { Box, Modal, Stack, Typography } from '@mui/material'
 import { ReactComponent as ReloadIcon } from '../../../../assets/icons/reload.svg'
-import StyledSearchField from '../../../../ui/styledSearchField'
+import StyledSearchField from '../../../../ui/StyledSearchField'
 import { FileDownloadOutlined } from '@mui/icons-material'
-import StyledTable from '../../../../ui/styledTable'
+import StyledTable from '../../../../ui/StyledTable'
 import { chargerLogData } from '../../../../assets/json/chargepoints'
 import LastSynced from '../../../../layout/LastSynced'
-import StyledIconButton from '../../../../ui/stylediconButton'
+import StyledIconButton from '../../../../ui/StyledIconButton'
 import { useMachineLog } from '../../../../hooks/queries/useOcpp'
-import { tableHeaderReplace } from '../../../../utils/tableHeaderReplace'
-import { searchAndFilter } from '../../../../utils/search'
+import { tableHeaderReplace } from '../../../../components/common/tableHeaderReplace'
+import { searchAndFilter } from '../../../../components/common/search'
 import RightDrawer from '../../../../ui/RightDrawer'
 import Filter from './chargerLog/filter'
 import { exportExcelData } from '../../../../utils/excelExport'
 import Indicator from './indicator'
-import StyledDivider from '../../../../ui/styledDivider'
+import StyledDivider from '../../../../ui/StyledDivider'
 import { ReactComponent as Close } from "../../../../assets/icons/close-circle.svg";
 import { Controller, useForm } from 'react-hook-form'
-import StyledInput from '../../../../ui/styledInput'
+import StyledInput from '../../../../ui/StyledInput'
 import CalendarInput from '../../../../ui/CalendarInput'
-import StyledButton from '../../../../ui/styledButton'
-import styled from "styled-components";
+import StyledButton from '../../../../ui/StyledButton'
+import { Label } from '../../../common/FilterPrimitives'
 
+const modalStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "auto",
+    bgcolor: "#27292F",
+    boxShadow: 10,
+    p: 4,
+    color: "#fff",
+    outline: "none",
+  };
+
+const errorMessageStyle = {
+    color: "red",
+  };
 
 const tableHeader = [
     'Connector Id',
@@ -239,57 +255,3 @@ export default function ChargerLog({ CPID }) {
     )
 }
 
-// Modal style
-const modalStyle = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: "auto", // Adjust width to fit your content or screen
-    bgcolor: "#27292F", // Dark background color
-    boxShadow: 10,
-    p: 4,
-    color: "#fff", // White text for better visibility on dark background
-    outline: "none", // Remove the focus ring
-  };
-  
-  const errorMessageStyle = {
-    color: "red",
-    // margin: '1px 0',
-  };
-
-  export const FormContainer = styled.div`
-  display: inline-flex;
-  padding: 30px 20px;
-  flex-direction: column;
-  align-items: center;
-  gap: 17px;
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-  border-radius: 4px;
-  background: #1c1d22;
-`;
-
-export const Heading = styled.h1`
-  color: var(--Grey, #b5b8c5);
-  text-align: center;
-  font-family: Inter;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  letter-spacing: 0.3px;
-`;
-
-export const Label = styled.label`
-  color: var(--white, #f7f8fc);
-  text-align: start;
-  width: 100%;
-  height: 16px;
-  font-family: Inter;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  letter-spacing: 0.3px;
-  text-transform: capitalize;
-`;

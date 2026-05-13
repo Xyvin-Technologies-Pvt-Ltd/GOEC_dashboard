@@ -1,4 +1,3 @@
-import { Box } from "@mui/material";
 import { DummyData } from "../assets/json/AdminActivityData";
 import AdminActivity from "../components/settings/adminActivity/adminActivity";
 import { useState } from "react";
@@ -19,9 +18,9 @@ function AASettings() {
 
 
   return (
-    <Box>
+    <div className="w-full">
       <AdminActivity headers={tableHeader} data={DummyData} setPageNo={setPageNo} totalCount={totalCount}/>
-    </Box>
+    </div>
   );
 }
 

@@ -1,16 +1,17 @@
-import { Box, Container, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
-import StyledDivider from "../ui/styledDivider";
-import StyledInput from "../ui/styledInput";
+import StyledDivider from "../ui/StyledDivider";
+import StyledInput from "../ui/StyledInput";
 import { MailOutline, Lock, Visibility } from "@mui/icons-material";
-import StyledButton from "../ui/styledButton";
+import StyledButton from "../ui/StyledButton";
 import { Controller, useForm } from "react-hook-form";
 import { ReactComponent as Close } from "../assets/icons/close-circle.svg";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import StyledLoader from "../ui/styledLoader";
+import StyledLoader from "../ui/StyledLoader";
 import HeaderLogo from "../assets/header-logo.png";
 import { useAuthStore } from "../store";
+
+const errorMessageClass = "text-sm text-[#D25B5B]";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +24,13 @@ export default function Login() {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+      remail: "",
+    },
+  });
 
   const onSubmit = async (formData) => {
     try {
@@ -35,194 +42,121 @@ export default function Login() {
     }
   };
 
-  const handleForgot = (formData) => {
+  const handleForgot = () => {
     navigate("/forgot-password");
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-      }}
-    >
-      <Container maxWidth="sm">
-        <Stack
-          sx={{ backgroundColor: "secondary.main", borderRadius: "10px" }}
-          py={2}
-          my={4}
-        >
+    <div className="flex min-h-screen items-center justify-center px-4">
+      <div className="w-full max-w-md">
+        <div className="my-8 rounded-[10px] bg-[#1c1d22] py-2">
           {!forgotShow && (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                flexDirection: "column",
-              }}
-            >
-              <img src={HeaderLogo} alt="Logo" style={{ width: "20%" }} />
+            <div className="flex flex-col items-center justify-center">
+              <img src={HeaderLogo} alt="Logo" className="w-1/5" />
               <StyledDivider />
-            </Box>
+            </div>
           )}
           {!forgotShow ? (
-            <Box p={2}>
-              <Typography
-                sx={{ marginBottom: 1, fontSize: "24px", fontWeight: "600" }}
-              >
-                Sign In
-              </Typography>
-              <Typography
-                sx={{
-                  marginBottom: 4,
-                  fontSize: "14px",
-                  fontWeight: "400",
-                  color: "primary.DimText",
-                }}
-              >
+            <div className="p-4">
+              <h1 className="mb-1 text-2xl font-semibold text-foreground">Sign In</h1>
+              <p className="mb-8 text-sm font-normal text-[#828282]">
                 Login to your account to continue the process
-              </Typography>
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <Stack spacing={4}>
-                  <Controller
-                    name="email"
-                    control={control}
-                    // defaultValue={"riyaskh123@gmail.com"}
-                    render={({ field }) => (
-                      <>
-                        <StyledInput
-                          {...field}
-                          icon={<MailOutline />}
-                          placeholder={"Enter your email"}
-                        />
-                        {errors.email && (
-                          <span style={errorMessageStyle}>
-                            {errors.email.message}
-                          </span>
-                        )}
-                      </>
-                    )}
-                    rules={{ required: "Email is required" }}
-                  />
-                  <Controller
-                    name="password"
-                    control={control}
-                    // defaultValue={"5p7gePwg6D"}
-                    render={({ field }) => (
-                      <>
-                        <StyledInput
-                          {...field}
-                          icon={<Lock />}
-                          iconright={
-                            <Visibility
-                              onClick={() => setShowPassword(!showPassword)}
-                              style={{ cursor: "pointer" }}
-                            />
-                          }
-                          type={showPassword ? "text" : "password"}
-                          placeholder={"Enter your password"}
-                        />
-                        {errors.email && (
-                          <span style={errorMessageStyle}>
-                            {errors.password.message}
-                          </span>
-                        )}
-                      </>
-                    )}
-                    rules={{ required: "Password is required" }}
-                  />
-                  {isLoading ? (
-                    <Box sx={{ display: "flex", justifyContent: "center" }}>
-                      <StyledLoader />
-                    </Box>
-                  ) : (
-                    <StyledButton
-                      variant={"primary"}
-                      width="100%"
-                      type="submit"
-                      disabled={isLoading}
-                    >
-                      Sign in
-                    </StyledButton>
+              </p>
+              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
+                <Controller
+                  name="email"
+                  control={control}
+                  render={({ field }) => (
+                    <>
+                      <StyledInput
+                        {...field}
+                        icon={<MailOutline />}
+                        placeholder="Enter your email"
+                      />
+                      {errors.email && (
+                        <span className={errorMessageClass}>{errors.email.message}</span>
+                      )}
+                    </>
                   )}
-                  <Typography
-                    sx={{
-                      marginBottom: 4,
-                      fontSize: "14px",
-                      fontWeight: "400",
-                      color: "#2D9CDB",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => setForgotShow(!forgotShow)}
-                  >
-                    Forgot Your Password?
-                  </Typography>
-                </Stack>
-              </form>
-            </Box>
-          ) : (
-            <Box p={2}>
-              <Box
-                display={"flex"}
-                alignItems={"center"}
-                justifyContent={"space-between"}
-              >
-                <Typography
-                  sx={{ marginBottom: 1, fontSize: "24px", fontWeight: "600" }}
+                  rules={{ required: "Email is required" }}
+                />
+                <Controller
+                  name="password"
+                  control={control}
+                  render={({ field }) => (
+                    <>
+                      <StyledInput
+                        {...field}
+                        icon={<Lock />}
+                        iconright={
+                          <Visibility
+                            onClick={() => setShowPassword(!showPassword)}
+                            style={{ cursor: "pointer" }}
+                          />
+                        }
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                      />
+                      {errors.password && (
+                        <span className={errorMessageClass}>{errors.password.message}</span>
+                      )}
+                    </>
+                  )}
+                  rules={{ required: "Password is required" }}
+                />
+                {isLoading ? (
+                  <div className="flex justify-center">
+                    <StyledLoader />
+                  </div>
+                ) : (
+                  <StyledButton variant="primary" width="100%" type="submit" disabled={isLoading}>
+                    Sign in
+                  </StyledButton>
+                )}
+                <button
+                  type="button"
+                  className="mb-8 cursor-pointer text-left text-sm font-normal text-[#2D9CDB]"
+                  onClick={() => setForgotShow(!forgotShow)}
                 >
                   Forgot Your Password?
-                </Typography>
-                <Close
-                  onClick={() => setForgotShow(!forgotShow)}
-                  style={{ cursor: "pointer" }}
-                />
-              </Box>
-              <Typography
-                sx={{
-                  marginBottom: 4,
-                  fontSize: "14px",
-                  fontWeight: "400",
-                  color: "primary.DimText",
-                }}
-              >
-                We will send you a reset link
-              </Typography>
-              <form onSubmit={handleSubmit(handleForgot)}>
-                <Stack spacing={4}>
-                  <Controller
-                    name="remail"
-                    control={control}
-                    render={({ field }) => (
-                      <>
-                        <StyledInput
-                          {...field}
-                          icon={<MailOutline />}
-                          placeholder={"Enter your email"}
-                        />
-                        {errors.remail && (
-                          <span style={errorMessageStyle}>
-                            {errors.remail.message}
-                          </span>
-                        )}
-                      </>
-                    )}
-                    rules={{ required: "Email is required" }}
-                  />
-                  <StyledButton variant={"primary"} width="100%" type="submit">
-                    Send
-                  </StyledButton>
-                </Stack>
+                </button>
               </form>
-            </Box>
+            </div>
+          ) : (
+            <div className="p-4">
+              <div className="flex items-center justify-between">
+                <h1 className="mb-1 text-2xl font-semibold text-foreground">
+                  Forgot Your Password?
+                </h1>
+                <Close onClick={() => setForgotShow(!forgotShow)} className="cursor-pointer" />
+              </div>
+              <p className="mb-8 text-sm font-normal text-[#828282]">We will send you a reset link</p>
+              <form onSubmit={handleSubmit(handleForgot)} className="flex flex-col gap-8">
+                <Controller
+                  name="remail"
+                  control={control}
+                  render={({ field }) => (
+                    <>
+                      <StyledInput
+                        {...field}
+                        icon={<MailOutline />}
+                        placeholder="Enter your email"
+                      />
+                      {errors.remail && (
+                        <span className={errorMessageClass}>{errors.remail.message}</span>
+                      )}
+                    </>
+                  )}
+                  rules={{ required: "Email is required" }}
+                />
+                <StyledButton variant="primary" width="100%" type="submit">
+                  Send
+                </StyledButton>
+              </form>
+            </div>
           )}
-        </Stack>
-      </Container>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 }
-
-const errorMessageStyle = {
-  color: "#D25B5B",
-};

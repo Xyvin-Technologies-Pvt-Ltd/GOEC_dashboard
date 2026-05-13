@@ -1,6 +1,6 @@
 import { Box, Dialog, Grid, Stack, Typography } from '@mui/material'
 import React from 'react'
-import { Transition } from '../../../../../utils/DialogAnimation';
+import { Transition } from '../../../../../ui/DialogAnimation';
 import { ReactComponent as Close } from "../../../../../assets/icons/close-icon-large.svg";
 import { Star } from '@mui/icons-material';
 

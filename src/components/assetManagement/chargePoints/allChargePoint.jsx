@@ -1,16 +1,16 @@
 import { Box, Stack, Typography } from '@mui/material'
 import React, { useState } from 'react'
-import StyledSearchField from '../../../ui/styledSearchField'
-import StyledTable from '../../../ui/styledTable'
+import StyledSearchField from '../../../ui/StyledSearchField'
+import StyledTable from '../../../ui/StyledTable'
 import { ReactComponent as ReloadIcon } from '../../../assets/icons/reload.svg'
 
 
 // import { AllChargePointsData } from '../../../assets/json/chargepoints'
 import LastSynced from '../../../layout/LastSynced'
 import { useNavigate } from 'react-router-dom'
-import { searchAndFilter } from '../../../utils/search'
-import { tableHeaderReplace } from '../../../utils/tableHeaderReplace'
-import { permissions } from '../../../core/routes/permissions'
+import { searchAndFilter } from '../../../components/common/search'
+import { tableHeaderReplace } from '../../../components/common/tableHeaderReplace'
+import { permissions } from '../../../routes/permissions'
 import { useAuthStore } from '../../../store'
 
 const tableHeader = [

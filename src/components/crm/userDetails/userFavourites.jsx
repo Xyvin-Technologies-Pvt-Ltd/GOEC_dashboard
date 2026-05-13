@@ -1,11 +1,11 @@
 import { Box } from "@mui/material";
 import React, { useState } from "react";
 import LastSynced from "../../../layout/LastSynced";
-import StyledTable from "../../../ui/styledTable";
+import StyledTable from "../../../ui/StyledTable";
 // import { favouritesData } from "../../../assets/json/crm";
 import {  useParams } from "react-router-dom";
 import { useUserFavourites } from "../../../hooks/queries/useUser";
-import { tableHeaderReplace } from "../../../utils/tableHeaderReplace";
+import { tableHeaderReplace } from "../../../components/common/tableHeaderReplace";
 
 const tableHeader = ["ChargeStation", "Address", "Longitude", "Latitude", "Owner"];
 

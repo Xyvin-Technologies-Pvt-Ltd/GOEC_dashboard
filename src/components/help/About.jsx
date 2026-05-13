@@ -1,12 +1,11 @@
 import { Typography } from "@mui/material";
-import styled from "styled-components";
 import React from "react";
-import StyledDivider from "../../ui/styledDivider";
+import StyledDivider from "../../ui/StyledDivider";
 
 function About() {
   return (
     <>
-      <Container>
+      <div className="mx-5 my-10 flex flex-col gap-5 bg-[#1c1d22] px-10 py-10">
         <Typography sx={{ color: "secondary.contrastText", fontWeight: "600", fontSize:"16px" }}>
           About the company
         </Typography>
@@ -45,18 +44,9 @@ function About() {
           tempus egestas. Venenatis neque dolor neque pulvinar sed. Est purus
           sed sit non ac et.
         </Typography>
-      </Container>
+      </div>
     </>
   );
 }
 
 export default About;
-
-export const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 40px 42px;
-  background: #1c1d22;
-  gap: 20px;
-  margin: 40px 20px;
-`;

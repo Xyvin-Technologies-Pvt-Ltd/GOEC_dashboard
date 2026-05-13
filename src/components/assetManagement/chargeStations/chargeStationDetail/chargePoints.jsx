@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { Box, Dialog, Stack, Typography } from '@mui/material'
-import StyledButton from '../../../../ui/styledButton'
-import StyledTable from '../../../../ui/styledTable'
+import StyledButton from '../../../../ui/StyledButton'
+import StyledTable from '../../../../ui/StyledTable'
 import AddChargePoint from '../../chargePoints/AddChargePoint'
 import LastSynced from '../../../../layout/LastSynced'
 import { useNavigate } from 'react-router-dom'
-import { Transition } from '../../../../utils/DialogAnimation'
+import { Transition } from '../../../../ui/DialogAnimation'
 import { ReactComponent as Close } from "../../../../assets/icons/close-icon-large.svg";
 import { toast } from 'react-toastify'
 import { useDeleteEvMachine } from '../../../../hooks/mutations/useEvMachineMutation';

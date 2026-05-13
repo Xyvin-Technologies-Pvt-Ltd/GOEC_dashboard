@@ -2,10 +2,9 @@ import { CalendarMonth, AccountBalanceWalletOutlined } from '@mui/icons-material
 import { Box, Grid, Stack, Typography } from '@mui/material'
 import { TimeIcon } from '@mui/x-date-pickers'
 import React, { useState } from 'react'
-import StyledButton from '../../../../ui/styledButton'
+import StyledButton from '../../../../ui/StyledButton'
 import AddTopup from './addTopup'
 import DeductWallet from './deductWallet'
-import moment from 'moment'
 
 export default function WalletInfo({data, onIsChange, isChange}) {
     const [topupOpen,setTopupOpen] = useState(false)

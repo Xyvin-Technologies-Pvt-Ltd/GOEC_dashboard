@@ -4,7 +4,7 @@ import {
   getChargingTariffListDropdown,
   getChargingTariffById,
   getChargingTariffTotalRate,
-} from "../../services/chargingTariffAPI";
+} from "../../api/chargingTariff.api";
 
 //* Get paginated charging tariff list
 export const useChargingTariffList = (pageNo, searchQuery) =>

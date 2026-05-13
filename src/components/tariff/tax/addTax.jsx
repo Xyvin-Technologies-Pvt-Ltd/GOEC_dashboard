@@ -1,12 +1,12 @@
 import { Grid, Typography, Container, Stack } from "@mui/material";
 import React, { useEffect, useMemo } from "react";
-import styled from "styled-components";
-import StyledButton from "../../../ui/styledButton";
-import StyledSwitch from "../../../ui/styledSwitch";
+import StyledButton from "../../../ui/StyledButton";
+import StyledSwitch from "../../../ui/StyledSwitch";
 import { Controller, useForm } from "react-hook-form";
 import { useCreateTax, useEditTax } from "../../../hooks/mutations/useTaxMutation";
 import { toast } from "react-toastify";
-import StyledInput from "../../../ui/styledInput";
+import { TableContainer } from "../../common/FilterPrimitives";
+import { FormField } from "../../forms";
 
 export default function AddTax({ action, data, onIsChange, isChange, setOpen }) {
   const createTaxMutation = useCreateTax();
@@ -22,7 +22,7 @@ export default function AddTax({ action, data, onIsChange, isChange, setOpen }) 
       : { status: true };
   }, [action, data]);
 
-  const { register, handleSubmit, control,reset } = useForm({ defaultValues });
+  const { handleSubmit, control, reset } = useForm({ defaultValues });
 
   useEffect(() => {
     if (action === "edit") {
@@ -56,12 +56,22 @@ export default function AddTax({ action, data, onIsChange, isChange, setOpen }) 
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={4}>
             <Grid item md={12}>
-              <Typography sx={{ marginBottom: 1 }}>Name</Typography>
-              <StyledInput placeholder={"Enter Name"} {...register("name")} />
+              <FormField
+                control={control}
+                name="name"
+                label="Name"
+                placeholder="Enter Name"
+                rules={{ required: "Name is required" }}
+              />
             </Grid>
             <Grid item md={12}>
-              <Typography sx={{ marginBottom: 1 }}>Percentage (per kWH)</Typography>
-              <StyledInput placeholder={"Enter Percentage"} {...register("percentage")} />
+              <FormField
+                control={control}
+                name="percentage"
+                label="Percentage (per kWH)"
+                placeholder="Enter Percentage"
+                rules={{ required: "Percentage is required" }}
+              />
             </Grid>
             <Grid sx={{ marginBottom: 1, marginTop: 3 }} item xs={12} md={12}>
               <Stack direction={"row"} sx={{ justifyContent: "space-between" }}>
@@ -104,11 +114,3 @@ export default function AddTax({ action, data, onIsChange, isChange, setOpen }) 
   );
 }
 
-//! STYLINGS
-
-// Styled table container
-export const TableContainer = styled.div`
-  background: #27292f; // Dark background for the table
-  overflow-x: auto; // Allows table to be scrollable horizontally
-  border-radius: 8px; // Rounded corners
-`;

@@ -22,7 +22,7 @@ import {
   updateAdmin,
   deleteAdmin,
   adminLogin,
-} from "../../services/userApi";
+} from "../../api/user.api";
 
 //* Create user
 export const useCreateUser = (options = {}) => {

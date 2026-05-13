@@ -2,9 +2,9 @@ import { CalendarMonth } from '@mui/icons-material'
 import { Box, Dialog, Modal, Typography } from '@mui/material'
 import { Stack } from '@mui/system'
 import React from 'react'
-import StyledCalender from '../../../../ui/StyledCalender'
+import StyledCalendar from '../../../../ui/StyledCalendar'
 import { useState } from 'react'
-import { Transition } from '../../../../utils/DialogAnimation'
+import { Transition } from '../../../../ui/DialogAnimation'
 
 export default function Analytics({data}) {
     const [open, setOpen] = useState(false)
@@ -17,7 +17,7 @@ export default function Analytics({data}) {
                 onClose={onClose}
                 TransitionComponent={Transition}
             >
-                <StyledCalender onClose={onClose} onDateChange={(e)=>{/*console.log(e);*/ }}/>
+                <StyledCalendar onClose={onClose} onDateChange={(e)=>{/*console.log(e);*/ }}/>
             </Dialog>
             <Stack direction={'row'} sx={{ borderBottom: '1px solid rgba(255, 255, 255, 0.20)', justifyContent: 'space-between', px: 3, py: 1 }}>
                 <Typography variant='h6' color={'secondary.contrastText'}>Analytics</Typography>

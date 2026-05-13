@@ -1,37 +1,47 @@
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Box,
-  IconButton,
-  Typography,
-} from '@mui/material';
-import StyledButton from './styledButton';
-import { Close } from '@mui/icons-material';
-import { Transition } from '../utils/DialogAnimation';
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-const ConfirmDialog = ({ open=false, onClose, title="Action", subtitle="Action Takes", buttonText = 'Confirm',confirmButtonHandle, ...props }) => {
-  return (
-    <Dialog open={open} maxWidth="sm" fullWidth TransitionComponent={Transition}>
-      <Box sx={{backgroundColor:'primary.main'}}>
-        <DialogTitle color={'secondary.contrastText'}>{title}</DialogTitle>
-        <Box position="absolute" top={0} right={0}>
-          <IconButton onClick={onClose && onClose}>
-            <Close />
-          </IconButton>
-        </Box>
-        <DialogContent>
-          <Typography color={"white"}>{subtitle}</Typography>
-        </DialogContent>
-        <DialogActions>
-          <StyledButton variant="secondary" style={{ width: '100px', height: '40px' }} onClick={onClose && onClose}>cancel</StyledButton>
-          <StyledButton variant="primary" style={{ width: '120px', height: '40px' }} onClick={()=>{confirmButtonHandle && confirmButtonHandle(); onClose && onClose()}}>{buttonText}</StyledButton>
-        </DialogActions>
-      </Box>
-    </Dialog>
-  );
-};
+const ConfirmDialog = ({
+  open = false,
+  onClose,
+  title = "Action",
+  subtitle = "Action Takes",
+  buttonText = "Confirm",
+  confirmButtonHandle,
+}) => (
+  <AlertDialog
+    open={open}
+    onOpenChange={(next) => {
+      if (!next) onClose?.();
+    }}
+  >
+    <AlertDialogContent className="border-border bg-[#27292f] text-foreground">
+      <AlertDialogHeader>
+        <AlertDialogTitle className="text-foreground">{title}</AlertDialogTitle>
+        <AlertDialogDescription className="text-muted-foreground">{subtitle}</AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel className="bg-secondary text-foreground">cancel</AlertDialogCancel>
+        <AlertDialogAction
+          className="bg-gradient-to-r from-[#ed5dcd] to-[#5f5dd7] text-white"
+          onClick={() => {
+            confirmButtonHandle?.();
+            onClose?.();
+          }}
+        >
+          {buttonText}
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
+);
 
 export default ConfirmDialog;

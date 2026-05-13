@@ -3,7 +3,7 @@ import {
   createWalletTransaction,
   editWalletTransaction,
   deleteWalletTransaction,
-} from "../../services/walletAPI";
+} from "../../api/wallet.api";
 
 //* Create wallet transaction
 export const useCreateWalletTransaction = (options = {}) => {

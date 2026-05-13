@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { Box } from "@mui/material";
 import RoleManagement from "../components/settings/roleManagement/roleManagement";
 import { useRolesList } from "../hooks/queries/useUser";
-import { tableHeaderReplace } from "../utils/tableHeaderReplace";
+import { tableHeaderReplace } from "../components/common/tableHeaderReplace";
 
 function RMSettings() {
   const [isChange, setIsChange] = useState(false);
@@ -26,7 +25,7 @@ function RMSettings() {
   );
 
   return (
-    <Box>
+    <div className="w-full">
       <RoleManagement
         headers={tableHeader}
         setPageNo={setPageNo}
@@ -36,7 +35,7 @@ function RMSettings() {
         isChange={isChange}
         loading={isLoading}
       />
-    </Box>
+    </div>
   );
 }
 

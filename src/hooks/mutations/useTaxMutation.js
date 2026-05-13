@@ -3,7 +3,7 @@ import {
   createTax,
   editTax,
   deleteTax,
-} from "../../services/taxAPI";
+} from "../../api/tax.api";
 
 //* Create tax
 export const useCreateTax = (options = {}) => {

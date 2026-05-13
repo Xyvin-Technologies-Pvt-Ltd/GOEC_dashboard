@@ -1,10 +1,10 @@
 import { Box } from "@mui/material";
 import React, { useState } from "react";
 import LastSynced from "../../../layout/LastSynced";
-import StyledTable from "../../../ui/styledTable";
+import StyledTable from "../../../ui/StyledTable";
 import { chargingTransactionData } from "../../../assets/json/crm";
 import { useParams } from "react-router-dom";
-import { tableHeaderReplace } from "../../../utils/tableHeaderReplace";
+import { tableHeaderReplace } from "../../../components/common/tableHeaderReplace";
 import { useChargingHistory } from "../../../hooks/queries/useOcpp";
 
 const tableHeader = [

@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 
-import { Box } from "@mui/material";
 import AdminManangement from "../components/settings/adminManagement/adminManangement";
 import { useAdminsList } from "../hooks/queries/useUser";
-import { tableHeaderReplace } from "../utils/tableHeaderReplace";
+import { tableHeaderReplace } from "../components/common/tableHeaderReplace";
 
 function AMSettings() {
   const [isChange, setIsChange] = useState(false);
@@ -20,7 +19,7 @@ function AMSettings() {
   );
 
   return (
-    <Box>
+    <div className="w-full">
       <AdminManangement
         headers={tableHeader}
         data={AllAdminData}
@@ -30,7 +29,7 @@ function AMSettings() {
         isChange={isChange}
         loading={isLoading}
       />
-    </Box>
+    </div>
   );
 }
 

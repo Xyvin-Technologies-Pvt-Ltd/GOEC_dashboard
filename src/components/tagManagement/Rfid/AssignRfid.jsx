@@ -1,4 +1,3 @@
-import styled from "styled-components";
 import {
   Box,
   Container,
@@ -10,8 +9,8 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
-import StyledSelectField from "../../../ui/styledSelectField";
-import StyledButton from "../../../ui/styledButton";
+import StyledSelectField from "../../../ui/StyledSelectField";
+import StyledButton from "../../../ui/StyledButton";
 import { ReactComponent as UserIcon } from "../../../assets/icons/Frame 42744.svg";
 import { ReactComponent as Refresh } from "../../../assets/icons/autorenew.svg";
 import StyledFooter from "../../../ui/StyledFooter";
@@ -19,12 +18,13 @@ import StyledPhoneNumber from "../../../ui/StyledPhoneNumber";
 import StyledList from "../../../ui/StyledList";
 import LastSynced from "../../../layout/LastSynced";
 import { useForm, Controller } from "react-hook-form";
-import StyledInput from "../../../ui/styledInput";
+import StyledInput from "../../../ui/StyledInput";
 import { useAddRfidTag, useRemoveRfidTag } from "../../../hooks/mutations/useUserMutation";
 import { useUserByEmailMobile } from "../../../hooks/queries/useUser";
 import { useRfidUnassignedList } from "../../../hooks/queries/useRfid";
 import { toast } from "react-toastify";
-import StyledDivider from "../../../ui/styledDivider";
+import StyledDivider from "../../../ui/StyledDivider";
+import { TableContainer } from "../../common/FilterPrimitives";
 
 const typeOption = [
   { value: "personal", label: "Personal" },
@@ -169,7 +169,7 @@ const AssignRfid = () => {
   return (
     <>
       <LastSynced heading="RFID Cards" lastSyncVisible={false} />
-      <TableContainer>
+      <TableContainer className="mx-4 my-5 bg-[#1c1d22]">
         <Container maxWidth="lg">
           <form onSubmit={handleSubmit(onSubmit)}>
             <Grid container spacing={2}>
@@ -343,15 +343,3 @@ const errorMessageStyle = {
 };
 
 export default AssignRfid;
-
-//! STYLINGS
-
-// Styled action cell
-
-// Styled table container
-export const TableContainer = styled.div`
-  background: #1c1d22; // Dark background for the table
-  overflow-x: auto; // Allows table to be scrollable horizontally
-  border-radius: 8px; // Rounded corners
-  margin: 20px 16px; // Margin for spacing, adjust as needed
-`;

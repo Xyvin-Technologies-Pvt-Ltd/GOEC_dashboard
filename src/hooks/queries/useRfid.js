@@ -4,7 +4,7 @@ import {
   getRfidById,
   getRfidBySNo,
   getRfidUnassignedList,
-} from "../../services/rfidAPI";
+} from "../../api/rfid.api";
 
 //* Get RFID list with filters
 export const useRfidList = (filters) =>

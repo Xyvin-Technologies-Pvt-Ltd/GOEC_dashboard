@@ -2,10 +2,10 @@ import { CalendarMonth } from '@mui/icons-material'
 import { Box, Stack, Typography } from '@mui/material'
 import { TimeIcon } from '@mui/x-date-pickers'
 import React from 'react'
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 export default function UserInfo({data}) {
-    const dateMoment = moment(data?.createdAt);
+    const dateMoment = dayjs(data?.createdAt);
     return (
         <Box sx={{ backgroundColor: 'secondary.main', borderRadius: '4px', p: 4 }}>
             <Stack spacing={2}>

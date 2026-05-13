@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Stack, Grid, Button, Dialog } from "@mui/material";
-import StyledDivider from "../../../../ui/styledDivider";
+import StyledDivider from "../../../../ui/StyledDivider";
 import { ReactComponent as Qr_evplug } from "../../../../assets/icons/material-symbols_qr-code.svg";
 import { ReactComponent as Mdi_unlocked } from "../../../../assets/icons/mdi_unlocked.svg"
 import { getConnectorIcon } from "../../../../utils/connectorIcons";
 import { Download } from "@mui/icons-material";
-import { Transition } from "../../../../utils/DialogAnimation";
+import { Transition } from "../../../../ui/DialogAnimation";
 
 
 const QRPopUp = ({ open, onClose, url, title, connectorId }) => {

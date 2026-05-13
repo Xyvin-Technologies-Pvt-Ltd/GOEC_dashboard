@@ -14,7 +14,7 @@ import {
   getRoles,
   getAdmins,
   getUserRegistationReport,
-} from "../../services/userApi";
+} from "../../api/user.api";
 
 //* Get users list
 export const useUsersList = () =>

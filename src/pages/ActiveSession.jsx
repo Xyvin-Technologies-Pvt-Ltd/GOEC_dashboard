@@ -1,36 +1,12 @@
 import React from "react";
 import ActiveSession from "../components/cpoSupport/activeSession/AllActiveSession";
 import NoActiveSession from "../components/cpoSupport/activeSession/NoActiveSession";
-import { DummyData } from "../assets/json/ActiveSessionsData";
 import { useActiveSession } from "../hooks/queries/useOcpp";
-import { tableHeaderReplace } from "../utils/tableHeaderReplace";
-
-function restructureData(dataArray) {
-
-  return dataArray.map((item) => ({
-    _id: item._id,
-    transactionId: item.transactionId,
-    username: item.username,
-    chargingStationName: item.chargingStationName,
-    startTime: item.startTime,
-    cpid: item.cpid,
-    connectorId: item.connectorId,
-    startSoc: item.startSoc,
-    currentSoc: item.currentSoc,
-    unitConsumed: item.unitConsumed,
-    duration: item.duration,
-    chargeSpeed: item.chargeSpeed,
-    lastMeterReceived: item.updatedAt,
-    transactionMode: item.transactionMode,
-    terminateSession: "Stop",
-  }));
-}
+import { tableHeaderReplace } from "../components/common/tableHeaderReplace";
 
 export default function ActiveSessionPage() {
-  // TanStack Query hook - automatically refetches every 5 seconds
-  const { data: activeSessionData, refetch } = useActiveSession();
+  const { data: activeSessionData, refetch, isLoading } = useActiveSession();
 
-  // Extract data with safe defaults
   const activeSession = activeSessionData?.result || [];
 
   const tableHeader = [
@@ -48,10 +24,7 @@ export default function ActiveSessionPage() {
     "Last Meter Value Received",
     "Transaction Mode",
     "Terminate Session",
-
   ];
-
-  // const restructuredData = restructureData(activeSession);
 
   const activeSessionTableData = tableHeaderReplace(
     activeSession,
@@ -71,11 +44,30 @@ export default function ActiveSessionPage() {
       "transactionMode",
       "terminateSession",
     ],
-    tableHeader
+    tableHeader,
   );
 
+  if (isLoading) {
+    return (
+      <ActiveSession
+        data={[]}
+        dataReload={refetch}
+        tableHeader={tableHeader}
+        isLoading
+      />
+    );
+  }
+
+  if (activeSession.length === 0) {
+    return <NoActiveSession />;
+  }
 
   return (
-    <>{activeSession.length > 0 ? <ActiveSession data={activeSessionTableData} dataReload={refetch} tableHeader={tableHeader} /> : <NoActiveSession />}</>
+    <ActiveSession
+      data={activeSessionTableData}
+      dataReload={refetch}
+      tableHeader={tableHeader}
+      isLoading={false}
+    />
   );
 }

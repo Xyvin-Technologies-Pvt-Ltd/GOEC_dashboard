@@ -1,6 +1,5 @@
-import { Box, Stack } from '@mui/material'
 import React, { useState } from 'react'
-import StyledTab from '../ui/styledTab'
+import StyledTab from '../ui/StyledTab'
 
 import AddVehicles from '../components/dataManagement/evVehicles/AddVehicles'
 import AllVehicles from '../components/dataManagement/evVehicles/AllVehicles'
@@ -29,13 +28,13 @@ export default function Vehicles() {
     setTogglePage(e.index);
   };
   return (
-    <Box>
-      <Stack direction={"row"} sx={{ backgroundColor: "secondary.main" }}>
+    <div className="w-full">
+      <div className="flex flex-row bg-secondary">
         <StyledTab
           activeIndex={togglePage}
           buttons={['All EV Vehicle', 'Add EV Vehicle']} onChanged={buttonChanged} />
-      </Stack>
+      </div>
       {togglePage === 0 ? <AllVehicles data={vehicleListData} setPageNo={setPageNo} totalCount={totalCount} setSearchQuery={setSearchQuery} updateData={init} /> : <AddVehicles formSubmited={() => { setTogglePage(0); init() }} />}
-    </Box>
+    </div>
   );
 }

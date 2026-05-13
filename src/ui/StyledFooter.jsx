@@ -1,32 +1,17 @@
-import React from 'react'
-import styled, { css } from 'styled-components';
+import React from "react";
+import { cn } from "@/lib/utils";
 
+const StyledFooter = ({ children, width, className }) => (
+  <div
+    className={cn(
+      "flex items-center justify-end rounded-b-md bg-[#1C1D22] p-5",
+      width != null ? "" : "max-w-[772px]",
+      className,
+    )}
+    style={width != null ? { width: `${width}%` } : undefined}
+  >
+    {children}
+  </div>
+);
 
-const FooterContainer = styled.div`
-display: flex;
-padding: 20px 20px 20px 20px;
-justify-content: flex-end;
-align-items: center;
-background: #1C1D22;
-border-bottom-left-radius: var(--borderRadius, 4px);
-border-bottom-right-radius: var(--borderRadius, 4px);
-// width for different button styles
-  ${(props) => props.width &&
-    css`
-      width:${props.width}%;
-    `}
-    ${(props) => !props.width &&
-    css`
-        width:772px;
-      `}
-`;
-
-const StyledFooter = ({children,width }) => {
-  return (
-    <FooterContainer width={width}>
-        {children}
-    </FooterContainer>
-  )
-}
-
-export default StyledFooter
+export default StyledFooter;

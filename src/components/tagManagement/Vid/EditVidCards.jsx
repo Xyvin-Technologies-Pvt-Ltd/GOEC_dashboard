@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import CommonLayout from "../../../layout/CommonLayout";
-import StyledInput from "../../../ui/styledInput";
+import StyledInput from "../../../ui/StyledInput";
 import { FormControlLabel, Grid, Switch, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CalendarInput from "../../../ui/CalendarInput";
 import StyledFooter from "../../../ui/StyledFooter";
-import StyledButton from "../../../ui/styledButton";
-import StyledSwitch from "../../../ui/styledSwitch";
+import StyledButton from "../../../ui/StyledButton";
+import StyledSwitch from "../../../ui/StyledSwitch";
 import { useForm, Controller } from "react-hook-form"
 
 const EditVidCards = ({existingData,Close,Save}) => {

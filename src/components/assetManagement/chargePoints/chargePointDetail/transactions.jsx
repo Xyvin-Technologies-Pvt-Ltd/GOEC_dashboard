@@ -1,18 +1,18 @@
 import React, { useState } from 'react'
 import { Box, Stack } from '@mui/material'
-import StyledSearchField from '../../../../ui/styledSearchField'
+import StyledSearchField from '../../../../ui/StyledSearchField'
 import { Tune, FileDownloadOutlined } from '@mui/icons-material'
-import StyledTable from '../../../../ui/styledTable'
+import StyledTable from '../../../../ui/StyledTable'
 import LastSynced from '../../../../layout/LastSynced'
-import { searchAndFilter } from '../../../../utils/search'
+import { searchAndFilter } from '../../../../components/common/search'
 import { useEffect } from 'react'
 import { useTransactionById } from '../../../../hooks/queries/useOcpp'
-import { tableHeaderReplace } from '../../../../utils/tableHeaderReplace'
+import { tableHeaderReplace } from '../../../../components/common/tableHeaderReplace'
 import TransactionDetails from './transaction/transactionDetails'
 import RightDrawer from '../../../../ui/RightDrawer'
 import Filter from './chargerLog/filter'
 import { exportExcelData } from '../../../../utils/excelExport'
-import StyledIconButton from '../../../../ui/stylediconButton'
+import StyledIconButton from '../../../../ui/StyledIconButton'
 
 const tableHeader = [
     'Transaction ID',

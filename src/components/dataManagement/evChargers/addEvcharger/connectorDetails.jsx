@@ -1,13 +1,13 @@
 
 import { Box, Dialog, Grid, Stack, Typography } from '@mui/material'
 import React from 'react'
-import StyledDivider from '../../../../ui/styledDivider'
-import StyledSelectField from '../../../../ui/styledSelectField'
-import StyledInput from '../../../../ui/styledInput'
+import StyledDivider from '../../../../ui/StyledDivider'
+import StyledSelectField from '../../../../ui/StyledSelectField'
+import StyledInput from '../../../../ui/StyledInput'
 import { ReactComponent as Close } from "../../../../assets/icons/close-icon-large.svg";
-import StyledButton from '../../../../ui/styledButton'
+import StyledButton from '../../../../ui/StyledButton'
 import { Controller, useForm } from 'react-hook-form'
-import { Transition } from '../../../../utils/DialogAnimation'
+import { Transition } from '../../../../ui/DialogAnimation'
 
 let compactable_ports = [
     { label: "CCS", value: "CCS" },

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteReview } from "../../services/reviewApi";
+import { deleteReview } from "../../api/review.api";
 
 //* Delete review
 export const useDeleteReview = (options = {}) => {

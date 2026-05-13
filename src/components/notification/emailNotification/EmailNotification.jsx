@@ -1,14 +1,14 @@
 import { Box, Stack, Typography } from "@mui/material";
 import React, { useRef, useState } from "react";
-import StyledSelectField from "../../../ui/styledSelectField";
+import StyledSelectField from "../../../ui/StyledSelectField";
 import AsyncSelect from "react-select/async";
-import InputField from "../../../ui/styledInput";
-import StyledButton from "../../../ui/styledButton";
+import InputField from "../../../ui/StyledInput";
+import StyledButton from "../../../ui/StyledButton";
 import ProgressBar from "../../../ui/ProgressBar";
 import { Controller, useForm } from "react-hook-form";
 import { useUserSuggestionList } from "../../../hooks/queries/useUser";
-import FileUpload from "../../../utils/FileUpload";
-import StyledTextArea from "../../../ui/styledTextArea";
+import FileUpload from "../../../components/common/FileUpload";
+import StyledTextArea from "../../../ui/StyledTextArea";
 import { toast } from "react-toastify";
 import { useSendBulkMail } from "../../../hooks/mutations/useNotificationMutation";
 

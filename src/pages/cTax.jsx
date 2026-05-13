@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Box } from "@mui/material";
 import Tax from "../components/tariff/tax/Tax";
 import { useTaxList } from "../hooks/queries/useTax";
 
@@ -30,8 +29,8 @@ export default function CTax() {
   
 
   return (
-    <Box>
+    <div className="w-full">
       <Tax data={taxListData} setPageNo={setPageNo} totalCount={totalCount} headers={headers} onIsChange={setIsChange} isChange={isChange} updateData={getTaxData} setSearchQuery={setSearchQuery}/>
-    </Box>
+    </div>
   );
 }

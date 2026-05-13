@@ -1,6 +1,6 @@
 import { Stack, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import StyledSwitch from '../../../../../ui/styledSwitch';
+import StyledSwitch from '../../../../../ui/StyledSwitch';
 import { toast } from 'react-toastify';
 import { useChangeConfiguration } from '../../../../../hooks/mutations/useOcppMutation';
 

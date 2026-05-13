@@ -1,14 +1,14 @@
 import { Box, Dialog, Grid, Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import StyledDivider from "../../../../../ui/styledDivider";
-import StyledSelectField from "../../../../../ui/styledSelectField";
+import StyledDivider from "../../../../../ui/StyledDivider";
+import StyledSelectField from "../../../../../ui/StyledSelectField";
 import { ReactComponent as Close } from "../../../../../assets/icons/close-icon-large.svg";
-import StyledButton from "../../../../../ui/styledButton";
+import StyledButton from "../../../../../ui/StyledButton";
 
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Transition } from "../../../../../utils/DialogAnimation";
+import { Transition } from "../../../../../ui/DialogAnimation";
 import { useChargingTariffDropdown } from "../../../../../hooks/queries/useChargingTariff";
 import { useChangeEvTariff } from "../../../../../hooks/mutations/useEvMachineMutation";
 

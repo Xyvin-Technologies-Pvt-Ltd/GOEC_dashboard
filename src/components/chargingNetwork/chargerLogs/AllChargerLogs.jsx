@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import LastSynced from "../../../layout/LastSynced";
-import StyledTable from "../../../ui/styledTable";
+import StyledTable from "../../../ui/StyledTable";
 import { Box } from "@mui/material";
-import { tableHeaderReplace } from '../../../utils/tableHeaderReplace';
-import StyledSearchField from '../../../ui/styledSearchField';
+import { tableHeaderReplace } from '../../../components/common/tableHeaderReplace';
+import StyledSearchField from '../../../ui/StyledSearchField';
 import RightDrawer from '../../../ui/RightDrawer';
 import Filter from '../filter';
-import { searchAndFilter } from '../../../utils/search';
+import { searchAndFilter } from '../../../components/common/search';
 import { useState } from 'react';
 import Indicator from '../../assetManagement/chargePoints/chargePointDetail/indicator';
 

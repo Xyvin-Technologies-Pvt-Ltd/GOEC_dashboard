@@ -1,29 +1,23 @@
 import React from "react";
-import { Container, Typography, Box, Button } from "@mui/material";
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import { useNavigate } from 'react-router-dom';
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export default function NotFoundPage() {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    navigate('/');
+    navigate("/");
   };
 
   return (
-    <Container maxWidth="md" style={{ textAlign: 'center', marginTop: '50px' }}>
-      <Box my={5}>
-        <ErrorOutlineIcon style={{ fontSize: 80, color: 'red' }} />
-        <Typography variant="h3" gutterBottom>
-          404: Page Not Found
-        </Typography>
-        <Typography variant="subtitle1" style={{ marginBottom: '20px' }}>
-          Oops! The page you're looking for doesn't exist.
-        </Typography>
-        <Button variant="contained" color="primary" onClick={handleBack}>
-          Go Back Home
-        </Button>
-      </Box>
-    </Container>
+    <div className="mx-auto mt-12 max-w-3xl px-4 text-center">
+      <div className="my-12 flex flex-col items-center gap-4">
+        <ErrorOutlineIcon style={{ fontSize: 80, color: "red" }} />
+        <h1 className="text-3xl font-bold text-foreground">404: Page Not Found</h1>
+        <p className="text-muted-foreground">Oops! The page you're looking for doesn't exist.</p>
+        <Button onClick={handleBack}>Go Back Home</Button>
+      </div>
+    </div>
   );
 }

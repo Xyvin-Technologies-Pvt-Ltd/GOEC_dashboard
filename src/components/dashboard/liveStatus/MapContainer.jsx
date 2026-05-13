@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { GoogleMap, InfoWindow, Marker, useJsApiLoader } from '@react-google-maps/api';
-import operationalIconUrl from '../../../assets/icons/MapIcons/blueGoec.svg';
-import nonOperationalIconUrl from '../../../assets/icons/MapIcons/greyGoec.svg';
-import busyOperationalIconUrl from '../../../assets/icons/MapIcons/orangeGoec.svg';
-import faultOperationalIconUrl from '../../../assets/icons/MapIcons/redGoec.svg';
+import operationalIconUrl from '../../../assets/icons/MapIcons/blueGoec.svg?url';
+import nonOperationalIconUrl from '../../../assets/icons/MapIcons/greyGoec.svg?url';
+import busyOperationalIconUrl from '../../../assets/icons/MapIcons/orangeGoec.svg?url';
+import faultOperationalIconUrl from '../../../assets/icons/MapIcons/redGoec.svg?url';
 import { Box, Grid, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 

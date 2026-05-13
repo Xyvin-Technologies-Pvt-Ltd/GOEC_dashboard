@@ -1,18 +1,18 @@
 import React, { useState } from "react";
-import StyledTable from "../../../ui/styledTable";
+import StyledTable from "../../../ui/StyledTable";
 import LastSynced from "../../../layout/LastSynced";
 import { Box, Dialog, Stack, Typography } from "@mui/material";
-import { tableHeaderReplace } from "../../../utils/tableHeaderReplace";
+import { tableHeaderReplace } from "../../../components/common/tableHeaderReplace";
 import { useNavigate } from "react-router-dom";
 import AddEvCharger from "./AddEvCharger";
 import { ReactComponent as Close } from "../../../assets/icons/close-icon-large.svg";
-import ConfirmDialog from "../../../ui/confirmDialog";
+import ConfirmDialog from "../../../ui/ConfirmDialog";
 import { toast } from "react-toastify";
 import { useDeleteEvModel } from "../../../hooks/mutations/useEvMachineMutation";
-import { searchAndFilter } from "../../../utils/search";
-import StyledSearchField from "../../../ui/styledSearchField";
-import { Transition } from "../../../utils/DialogAnimation";
-import { permissions } from "../../../core/routes/permissions";
+import { searchAndFilter } from "../../../components/common/search";
+import StyledSearchField from "../../../ui/StyledSearchField";
+import { Transition } from "../../../ui/DialogAnimation";
+import { permissions } from "../../../routes/permissions";
 import { useAuthStore } from "../../../store";
 
 const tableHeader = [

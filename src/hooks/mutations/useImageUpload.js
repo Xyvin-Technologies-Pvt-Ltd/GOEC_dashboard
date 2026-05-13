@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { imageUploadAPI } from "../../services/imageAPI";
+import { imageUploadAPI } from "../../api/image.api";
 
 //* Upload image
 export const useImageUpload = (options = {}) => {

@@ -1,18 +1,18 @@
 import React, { useState } from "react";
 import { Box, Modal, Stack, Typography } from "@mui/material";
-import StyledTable from "../../../ui/styledTable";
+import StyledTable from "../../../ui/StyledTable";
 import LastSynced from "../../../layout/LastSynced";
-import StyledDivider from "../../../ui/styledDivider";
+import StyledDivider from "../../../ui/StyledDivider";
 import { ReactComponent as Close } from "../../../assets/icons/close-circle.svg";
 import { toast } from "react-toastify";
 
 import AddTax from "./addTax";
-import StyledButton from "../../../ui/styledButton";
-import StyledSearchField from "../../../ui/styledSearchField";
-import { tableHeaderReplace } from "../../../utils/tableHeaderReplace";
+import StyledButton from "../../../ui/StyledButton";
+import StyledSearchField from "../../../ui/StyledSearchField";
+import { tableHeaderReplace } from "../../../components/common/tableHeaderReplace";
 import { useDeleteTax } from "../../../hooks/mutations/useTaxMutation";
 import { useAuthStore } from "../../../store";
-import { permissions } from "../../../core/routes/permissions";
+import { permissions } from "../../../routes/permissions";
 function Tax({ data, headers, onIsChange, isChange, updateData, setPageNo, totalCount, setSearchQuery }) {
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState("add");

@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 import Select from "react-select";
 
-const SelectContainer = styled.div`
-  position: relative;
-  width: 100%; /* Adjust width as needed */
-`;
-const StyledSelectField = ({ options, value, placeholder,
-  onChange, onInputChange,
-  isMulti = false, isSearchable = true, isLoading = false,
-  height, ...props }) => {
-
-  const [valueOptions, setValueOption] = useState({})
+const StyledSelectField = ({
+  options,
+  value,
+  placeholder,
+  onChange,
+  onInputChange,
+  isMulti = false,
+  isSearchable = true,
+  isLoading = false,
+  height,
+  ...props
+}) => {
+  const [valueOptions, setValueOption] = useState({});
 
   const customStyles = {
     control: (provided, state) => ({
@@ -25,25 +27,21 @@ const StyledSelectField = ({ options, value, placeholder,
       boxShadow: state.isFocused ? "0 0 0 2px #fff" : "none",
       cursor: "pointer",
       height: height && height,
-      overflow: 'scroll'
-      // fontSize:'12px',
-
+      overflow: "scroll",
     }),
-    input: base => ({
+    input: (base) => ({
       ...base,
-      color: "#fff"
+      color: "#fff",
     }),
     indicatorSeparator: (provided) => ({
       ...provided,
-      display: "none", // Remove the separator
+      display: "none",
     }),
     option: (provided, state) => ({
       ...provided,
       backgroundColor: state.isFocused ? "#242424" : " #39383D",
       color: state.isFocused ? "#fff" : "#B5B8C5",
       cursor: "pointer",
-      // fontSize:'12px'
-      // Add a :active pseudo-class for selected option
       ":active": {
         backgroundColor: "#242424",
       },
@@ -55,28 +53,31 @@ const StyledSelectField = ({ options, value, placeholder,
     }),
     singleValue: (provided) => ({
       ...provided,
-      color: "#F7F8FC", // Set the text color for the selected value
-    })
+      color: "#F7F8FC",
+    }),
   };
 
-   const customTheme = (theme) => ({
+  const customTheme = (theme) => ({
     ...theme,
     colors: {
       ...theme.colors,
       primary: "var(--inner, #39383D)",
     },
   });
-  var selectedIndex = -1;
-  var multiSelected = [];
+
   useEffect(() => {
-    selectedIndex = -1;
-    multiSelected = [];
+    let selectedIndex = -1;
+    const multiSelected = [];
     if (options) {
-      for (var i = 0; i < options.length && value; i++) {
+      for (let i = 0; i < options.length && value; i++) {
         if (isMulti) {
           for (let index = 0; index < value.length; index++) {
-            if (options[i].value === value[index] || options[i].label === value[index] || options[i].value === value[index].value) {
-              multiSelected.push(options[i])
+            if (
+              options[i].value === value[index] ||
+              options[i].label === value[index] ||
+              options[i].value === value[index].value
+            ) {
+              multiSelected.push(options[i]);
             }
           }
         } else {
@@ -88,20 +89,17 @@ const StyledSelectField = ({ options, value, placeholder,
       }
     }
     if (isMulti) {
-      setValueOption({ value: options && (isMulti && multiSelected) })
-      // valueOptions.defaultValue = options && (isMulti && multiSelected)
+      setValueOption({ value: options && isMulti && multiSelected });
+    } else {
+      setValueOption({ value: options && !isMulti && options[selectedIndex] });
     }
-    else {
-      setValueOption({ value: options && (!isMulti && options[selectedIndex]) })
-      // valueOptions.value = options && (!isMulti && options[selectedIndex])
+    if (!value) {
+      setValueOption({ value: "" });
     }
-    if(!value){
-      setValueOption({ value: "" })
-    }
-  }, [value,options])
+  }, [value, options, isMulti]);
 
   return (
-    <SelectContainer>
+    <div className="relative w-full">
       <Select
         placeholder={placeholder}
         options={options}
@@ -115,7 +113,7 @@ const StyledSelectField = ({ options, value, placeholder,
         {...props}
         {...valueOptions}
       />
-    </SelectContainer>
+    </div>
   );
 };
 

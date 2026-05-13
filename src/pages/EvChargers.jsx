@@ -1,6 +1,5 @@
-import { Box, Stack } from '@mui/material'
 import React, { useEffect, useState } from 'react'
-import StyledTab from '../ui/styledTab'
+import StyledTab from '../ui/StyledTab'
 import AllEvChargers from '../components/dataManagement/evChargers/AllEvChargers';
 import AddEvCharger from '../components/dataManagement/evChargers/AddEvCharger';
 import { useEvModelList } from '../hooks/queries/useEvMachine';
@@ -40,12 +39,12 @@ export default function EvChargers() {
   };
 
   return (
-    <Box>
-      <Stack direction={"row"} sx={{ backgroundColor: "secondary.main" }}>
+    <div className="w-full">
+      <div className="flex flex-row bg-secondary">
         <StyledTab
           buttons={['All EV chargers', 'Add EV charger']} onChanged={buttonChanged} activeIndex={togglePage} />
-      </Stack>
+      </div>
       {togglePage === 0 ? <AllEvChargers data={evModelListData} setPageNo={setPageNo} totalCount={totalCount} updateData={refetch} setSearchQuery={setSearchQuery}/> : <AddEvCharger formSubmitted={() => { refetch(); setTogglePage(0) }} />}
-    </Box>
+    </div>
   );
 }

@@ -1,11 +1,11 @@
 import React from "react";
 import CommonLayout from "../../../layout/CommonLayout";
-import StyledInput from "../../../ui/styledInput";
+import StyledInput from "../../../ui/StyledInput";
 import { Box, Grid, Stack, Typography } from "@mui/material";
 import CalendarInput from "../../../ui/CalendarInput";
 import StyledFooter from "../../../ui/StyledFooter";
-import StyledButton from "../../../ui/styledButton";
-import StyledSwitch from "../../../ui/styledSwitch";
+import StyledButton from "../../../ui/StyledButton";
+import StyledSwitch from "../../../ui/StyledSwitch";
 import { useForm, Controller } from "react-hook-form";
 import { useCreateRfid, useEditRfid } from "../../../hooks/mutations/useRfidMutation";
 import { toast } from "react-toastify";

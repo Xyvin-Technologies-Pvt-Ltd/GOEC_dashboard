@@ -1,9 +1,9 @@
 import { Box, Container, Grid, Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import InputField from "../../../ui/styledInput";
-import StyledSelectField from "../../../ui/styledSelectField";
-import StyledButton from "../../../ui/styledButton";
-import FileUpload from "../../../utils/FileUpload";
+import InputField from "../../../ui/StyledInput";
+import StyledSelectField from "../../../ui/StyledSelectField";
+import StyledButton from "../../../ui/StyledButton";
+import FileUpload from "../../../components/common/FileUpload";
 
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";

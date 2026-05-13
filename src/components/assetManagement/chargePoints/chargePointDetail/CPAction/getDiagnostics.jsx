@@ -1,8 +1,8 @@
 import { Box, Stack, Typography } from "@mui/material";
 import React from "react";
-import StyledInput from "../../../../../ui/styledInput";
-import StyledDivider from "../../../../../ui/styledDivider";
-import StyledButton from "../../../../../ui/styledButton";
+import StyledInput from "../../../../../ui/StyledInput";
+import StyledDivider from "../../../../../ui/StyledDivider";
+import StyledButton from "../../../../../ui/StyledButton";
 import { useForm, Controller } from "react-hook-form";
 import { useGetDiagnostics } from "../../../../../hooks/mutations/useOcppMutation";
 import { toast } from "react-toastify";

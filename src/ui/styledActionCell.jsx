@@ -1,51 +1,39 @@
-// ActionCell.jsx
-import React, { useState } from 'react';
-import { IconButton, Menu, MenuItem } from "@mui/material";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { useState } from "react";
+import { MoreVertical } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const StyledActionCell = ({ actions, onCliked }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const [open, setOpen] = useState(false);
 
   return (
-    <>
-      <IconButton
-        aria-label="more"
-        aria-controls="action-menu"
-        aria-haspopup="true"
-        onClick={handleClick}
-        style={{ color: "#fff" }}
-      >
-        <MoreVertIcon />
-      </IconButton>
-      <Menu
-        id="action-menu"
-        anchorEl={anchorEl}
-        keepMounted
-        open={open}
-        onClose={handleClose}
-        sx={{
-          "& .MuiPaper-root": {
-            bgcolor: "black",
-            color: "white",
-            boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.5)",
-          },
-        }}
-      >
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button type="button" variant="ghost" size="icon" className="text-white hover:bg-white/10">
+          <MoreVertical className="size-5" />
+          <span className="sr-only">Open actions</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-[8rem] border-border bg-black text-white">
         {actions.map((item, index) => (
-          <MenuItem key={index} onClick={() => { onCliked({ index: index, action: item }); handleClose(); }}>{item}</MenuItem>
-        ))
-        }
-      </Menu>
-    </>
+          <DropdownMenuItem
+            key={index}
+            className="cursor-pointer focus:bg-zinc-800 focus:text-white"
+            onClick={() => {
+              onCliked?.({ index, action: item });
+              setOpen(false);
+            }}
+          >
+            {item}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

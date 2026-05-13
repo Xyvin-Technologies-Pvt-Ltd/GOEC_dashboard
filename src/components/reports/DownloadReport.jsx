@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 import { Stack } from "@mui/material";
-import StyledSelectField from "../../ui/styledSelectField";
-import StyledButton from "../../ui/styledButton";
+import StyledSelectField from "../../ui/StyledSelectField";
+import StyledButton from "../../ui/StyledButton";
 import LastSynced from "../../layout/LastSynced";
 import { useForm, Controller } from "react-hook-form";
 import CalendarInput from "../../ui/CalendarInput";
-import StyledInput from "../../ui/styledInput";
+import StyledInput from "../../ui/StyledInput";
 import { useChargingStationDropdown, useChargingPointsForStations } from "../../hooks/queries/useChargingStation";
 import { fetchReport } from "../../hooks/queries/useReportApi";
 import { generateExcel } from "../../utils/excelReport";
-import moment from "moment";
+import dayjs from "dayjs";
+import { FormContainer, Heading, Label } from "../common/FilterPrimitives";
 // report service wrappers are provided by hooks/useReportApi
 
 export default function DownloadReport() {
@@ -73,14 +73,14 @@ export default function DownloadReport() {
   };
 
   const handleDateChangeInParent = (date) => {
-    const formattedDate = moment(date).format("YYYY-MM-DD");
+    const formattedDate = dayjs(date).format("YYYY-MM-DD");
     setValue("startDate", formattedDate);
     clearErrors("startDate");
   };
   const startDate = watch("startDate", "");
 
   const handleEndDateChangeInParent = (date) => {
-    const formattedDate = moment(date).format("YYYY-MM-DD");
+    const formattedDate = dayjs(date).format("YYYY-MM-DD");
     setValue("endDate", formattedDate);
     clearErrors("endDate");
   };
@@ -135,7 +135,7 @@ export default function DownloadReport() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <LastSynced heading="Reports" />
 
-        <TableContainer>
+        <div className="mx-4 my-5 flex items-center justify-center overflow-x-auto rounded-lg">
           <Stack direction={"column"} spacing={2}>
             <FormContainer>
               <Heading variant="h1">Download Report</Heading>
@@ -264,56 +264,11 @@ export default function DownloadReport() {
               </StyledButton>
             </FormContainer>
           </Stack>
-        </TableContainer>
+        </div>
       </form>
     </>
   );
 }
-
-export const TableContainer = styled.div`
-  overflow-x: auto;
-  border-radius: 8px;
-  margin: 20px 16px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-export const FormContainer = styled.div`
-  display: inline-flex;
-  padding: 30px 20px;
-  flex-direction: column;
-  align-items: center;
-  gap: 17px;
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-  border-radius: 4px;
-  background: #1c1d22;
-`;
-
-export const Heading = styled.h1`
-  color: var(--Grey, #b5b8c5);
-  text-align: center;
-  font-family: Inter;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  letter-spacing: 0.3px;
-`;
-
-export const Label = styled.label`
-  color: var(--white, #f7f8fc);
-  text-align: start;
-  width: 100%;
-  height: 16px;
-  font-family: Inter;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  letter-spacing: 0.3px;
-  text-transform: capitalize;
-`;
 
 const errorMessageStyle = {
   color: "red",

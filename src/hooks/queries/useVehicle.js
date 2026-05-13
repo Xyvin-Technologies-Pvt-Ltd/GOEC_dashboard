@@ -6,7 +6,7 @@ import {
   getBrand,
   getBrandDropdown,
   getBrandById,
-} from "../../services/vehicleAPI";
+} from "../../api/vehicle.api";
 
 //* Get vehicle list
 export const useVehicleList = () =>

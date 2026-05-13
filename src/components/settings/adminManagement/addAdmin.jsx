@@ -1,17 +1,17 @@
 import { Grid, Typography, Container, Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-import StyledSelectField from "../../../ui/styledSelectField";
-import StyledButton from "../../../ui/styledButton";
-import InputField from "../../../ui/styledInput";
+import StyledSelectField from "../../../ui/StyledSelectField";
+import StyledButton from "../../../ui/StyledButton";
+import InputField from "../../../ui/StyledInput";
 import StyledPhoneNumber from "../../../ui/StyledPhoneNumber";
-import StyledSwitch from "../../../ui/styledSwitch";
+import StyledSwitch from "../../../ui/StyledSwitch";
 import { Controller, useForm } from "react-hook-form";
-import StyledInput from "../../../ui/styledInput";
+import StyledInput from "../../../ui/StyledInput";
 import { Phone, Try } from "@mui/icons-material";
 import { useRolesList } from "../../../hooks/queries/useUser";
 import { useCreateAdmin, useUpdateAdmin } from "../../../hooks/mutations/useUserMutation";
 import { toast } from "react-toastify";
+import { TableContainer } from "../../common/FilterPrimitives";
 
 export default function AddAdmin({ setIsChange, isChange, setAction, action, data,onClose, ...props }) {
 
@@ -70,7 +70,7 @@ export default function AddAdmin({ setIsChange, isChange, setAction, action, dat
   // No need for useEffect/init, roles are fetched via hook
 
   return (
-    <TableContainer>
+    <TableContainer className="max-w-[500px]">
       <Container fixed>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={1}>
@@ -170,12 +170,3 @@ export default function AddAdmin({ setIsChange, isChange, setAction, action, dat
   );
 }
 
-//! STYLINGS
-
-// Styled table container
-export const TableContainer = styled.div`
-  background: #27292f; // Dark background for the table
-  overflow-x: auto; // Allows table to be scrollable horizontally
-  border-radius: 8px; // Rounded corners
-  max-width: 500px;
-`;

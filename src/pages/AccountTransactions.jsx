@@ -1,4 +1,3 @@
-import { Box } from '@mui/material'
 import React, { useState } from 'react'
 import AccountTrans from '../components/accounts/accountTransaction/AccountTrans'
 import { useTransactionList } from '../hooks/queries/useTransaction'
@@ -22,9 +21,9 @@ function AccountTransactions() {
   }
 
   return (
-    <Box>
+    <div className="w-full">
       {transactData && <AccountTrans data={transactData} setPageNo={setPageNo} totalCount={totalCount} setSearchQuery={setSearchQuery} updateData={getTaxData} />}
-    </Box>
+    </div>
   )
 }
 

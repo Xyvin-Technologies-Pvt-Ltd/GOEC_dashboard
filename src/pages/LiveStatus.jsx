@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import MapContainer from "../components/dashboard/liveStatus/MapContainer";
-import { Box, IconButton, Stack } from "@mui/material";
+import { IconButton, Stack } from "@mui/material";
 import { Map, TableRowsRounded } from "@mui/icons-material";
 import TableContainer from "../components/dashboard/liveStatus/tableContainer";
 import LastSynced from "../layout/LastSynced";
@@ -35,7 +35,7 @@ export default function LiveStatus() {
   }
 
   return (
-    <><LastSynced heading={'Live Status'} reloadHandle={init} /><Box sx={{ p: 2 }}>
+    <><LastSynced heading={'Live Status'} reloadHandle={init} /><div className="p-2">
       <Stack justifyContent={"end"} direction={"row"} spacing={2} mb={2}>
         <IconButton onClick={iconClickHandle} sx={{ border: '1px solid #fff6', borderRadius: '4px', backgroundColor: mapViewActive && 'secondary.button' }}>
           <Map sx={{ color: mapViewActive && '#fff' }} />
@@ -46,6 +46,6 @@ export default function LiveStatus() {
       </Stack>
       {mapViewActive ? <MapContainer chargingStations={chargingStations} /> :
         <TableContainer data={chargingStations} />}
-    </Box></>
+    </div></>
   );
 }

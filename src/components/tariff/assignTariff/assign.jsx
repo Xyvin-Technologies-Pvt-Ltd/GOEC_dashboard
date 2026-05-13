@@ -1,23 +1,24 @@
 import { Grid, Typography, Container, Stack, Box } from "@mui/material";
 import React, { useState } from "react";
-import styled from "styled-components";
-import StyledButton from "../../../ui/styledButton";
-import StyledSelectField from "../../../ui/styledSelectField";
-import TableCell from "@mui/material/TableCell";
+import StyledButton from "../../../ui/StyledButton";
+import StyledSelectField from "../../../ui/StyledSelectField";
 import { toast } from "react-toastify";
 import { useChargingTariffList } from "../../../hooks/queries/useChargingTariff";
 import { useChangeEvTariff } from "../../../hooks/mutations/useEvMachineMutation";
 import { useUserAssignUnassignTariff } from "../../../hooks/mutations/useUserMutation";
 
+const cellTh =
+  "border-0 border-b border-white/20 py-2 text-left text-xs font-medium text-[#f7f8fc]";
+const cellTd =
+  "border-0 border-b border-white/20 py-2 text-right text-xs font-medium text-[#f7f8fc]";
+
 export default function Assign({ tab, data, onClose, user }) {
   const [selectedtarrif, setSelectedTarrif] = useState();
   const [pageNo, setPageNo] = useState(1);
 
-  // Use TanStack Query hook for charging tariff list
   const { data: tariffListData = {} } = useChargingTariffList(pageNo, "");
   const tarrifList = tariffListData.result?.map((dt) => ({ label: dt.name, value: dt._id })) ?? [];
 
-  // Use TanStack Query mutation hooks
   const changeEVTariffMutation = useChangeEvTariff({
     onSuccess: () => {
       toast.success("Successfully assigned", { position: "top-right" });
@@ -40,7 +41,6 @@ export default function Assign({ tab, data, onClose, user }) {
     },
   });
 
-
   const assignTarrif = () => {
     if (!selectedtarrif) return;
     const dt = { chargingTariff: selectedtarrif.value };
@@ -58,6 +58,7 @@ export default function Assign({ tab, data, onClose, user }) {
       userTariffMutation.mutate({ id: user._id, data: {} });
     }
   };
+
   return (
     <Box>
       <Container fixed>
@@ -71,21 +72,25 @@ export default function Assign({ tab, data, onClose, user }) {
         >
           Current Tariff
         </Typography>
-        <Table>
-          <td colSpan={2} align="center">
-            <Typography
-              sx={{
-                color: "secondary.contrastText",
-                fontWeight: "600",
-                fontSize: 12,
-              }}
-            >
-              Assigned Charging Tariff
-            </Typography>
-          </td>
+        <table className="w-[70%] bg-[#1c1d22] p-2.5 text-xs text-white/50 [&_tbody_tr]:border-b [&_tbody_tr]:border-white/20 [&_tbody_tr:last-child]:border-b-0">
+          <thead>
+            <tr>
+              <td colSpan={2} align="center">
+                <Typography
+                  sx={{
+                    color: "secondary.contrastText",
+                    fontWeight: "600",
+                    fontSize: 12,
+                  }}
+                >
+                  Assigned Charging Tariff
+                </Typography>
+              </td>
+            </tr>
+          </thead>
           <tbody>
             <tr>
-              <StyledTableCell component="th" scope="row">
+              <th scope="row" className={cellTh}>
                 <Typography
                   sx={{
                     color: "secondary.contrastText",
@@ -95,15 +100,21 @@ export default function Assign({ tab, data, onClose, user }) {
                 >
                   Tariff name
                 </Typography>
-              </StyledTableCell>
-              <StyledTableCell align="right">
-                {tab === "personal" ? (data ? data.name : '-') : (data && data.chargingTariffDetail ? data.chargingTariffDetail.name : '-')}
-              </StyledTableCell>
+              </th>
+              <td className={cellTd}>
+                {tab === "personal"
+                  ? data
+                    ? data.name
+                    : "-"
+                  : data && data.chargingTariffDetail
+                    ? data.chargingTariffDetail.name
+                    : "-"}
+              </td>
             </tr>
             {tab === "location" && (
               <>
                 <tr>
-                  <StyledTableCell component="th" scope="row">
+                  <th scope="row" className={cellTh}>
                     <Typography
                       sx={{
                         color: "secondary.contrastText",
@@ -113,13 +124,13 @@ export default function Assign({ tab, data, onClose, user }) {
                     >
                       Location
                     </Typography>
-                  </StyledTableCell>
-                  <StyledTableCell align="right">
-                    {data && data.chargingTariffDetail ? data.chargingTariffDetail.location : '-'}
-                    </StyledTableCell>
+                  </th>
+                  <td className={cellTd}>
+                    {data && data.chargingTariffDetail ? data.chargingTariffDetail.location : "-"}
+                  </td>
                 </tr>
                 <tr>
-                  <StyledTableCell component="th" scope="row">
+                  <th scope="row" className={cellTh}>
                     <Typography
                       sx={{
                         color: "secondary.contrastText",
@@ -129,14 +140,14 @@ export default function Assign({ tab, data, onClose, user }) {
                     >
                       CPID
                     </Typography>
-                  </StyledTableCell>
-                  <StyledTableCell align="right">{data ? data.CPID : '-'}</StyledTableCell>
+                  </th>
+                  <td className={cellTd}>{data ? data.CPID : "-"}</td>
                 </tr>
               </>
             )}
             {tab === "personal" && (
               <tr>
-                <StyledTableCell component="th" scope="row">
+                <th scope="row" className={cellTh}>
                   <Typography
                     sx={{
                       color: "secondary.contrastText",
@@ -146,14 +157,12 @@ export default function Assign({ tab, data, onClose, user }) {
                   >
                     Name
                   </Typography>
-                </StyledTableCell>
-                <StyledTableCell align="right">
-                  {user ? user.name : '-'}
-                </StyledTableCell>
+                </th>
+                <td className={cellTd}>{user ? user.name : "-"}</td>
               </tr>
             )}
             <tr>
-              <StyledTableCell component="th" scope="row">
+              <th scope="row" className={cellTh}>
                 <Typography
                   sx={{
                     color: "secondary.contrastText",
@@ -163,13 +172,19 @@ export default function Assign({ tab, data, onClose, user }) {
                 >
                   Value
                 </Typography>
-              </StyledTableCell>
-              <StyledTableCell align="right">
-                {tab === "personal" ? (data ? data.value : '-') : (data && data.chargingTariffDetail ? data.chargingTariffDetail.value : '-')}
-                </StyledTableCell>
+              </th>
+              <td className={cellTd}>
+                {tab === "personal"
+                  ? data
+                    ? data.value
+                    : "-"
+                  : data && data.chargingTariffDetail
+                    ? data.chargingTariffDetail.value
+                    : "-"}
+              </td>
             </tr>
             <tr>
-              <StyledTableCell component="th" scope="row">
+              <th scope="row" className={cellTh}>
                 <Typography
                   sx={{
                     color: "secondary.contrastText",
@@ -179,13 +194,19 @@ export default function Assign({ tab, data, onClose, user }) {
                 >
                   Tax %
                 </Typography>
-              </StyledTableCell>
-              <StyledTableCell align="right">
-                {tab === "personal" ? (data && data.taxDetails ? data.taxDetails.percentage : '-') : (data && data.chargingTariffDetail ? data.chargingTariffDetail.tax_percentage : '-')}
-                </StyledTableCell>
+              </th>
+              <td className={cellTd}>
+                {tab === "personal"
+                  ? data && data.taxDetails
+                    ? data.taxDetails.percentage
+                    : "-"
+                  : data && data.chargingTariffDetail
+                    ? data.chargingTariffDetail.tax_percentage
+                    : "-"}
+              </td>
             </tr>
             <tr>
-              <StyledTableCell component="th" scope="row">
+              <th scope="row" className={cellTh}>
                 <Typography
                   sx={{
                     color: "secondary.contrastText",
@@ -195,10 +216,16 @@ export default function Assign({ tab, data, onClose, user }) {
                 >
                   Service Fee
                 </Typography>
-              </StyledTableCell>
-              <StyledTableCell align="right">
-                {tab === "personal" ? (data ? data.serviceAmount : '-') : (data && data.chargingTariffDetail ? data.chargingTariffDetail.serviceAmount : '-')}
-                </StyledTableCell>
+              </th>
+              <td className={cellTd}>
+                {tab === "personal"
+                  ? data
+                    ? data.serviceAmount
+                    : "-"
+                  : data && data.chargingTariffDetail
+                    ? data.chargingTariffDetail.serviceAmount
+                    : "-"}
+              </td>
             </tr>
           </tbody>
           <tfoot>
@@ -210,13 +237,19 @@ export default function Assign({ tab, data, onClose, user }) {
               </td>
             </tr>
           </tfoot>
-        </Table>
+        </table>
         <Grid container spacing={4}>
           <Grid item md={12}>
-            <Typography sx={{ marginBottom: 1, marginTop: 2, color: 'secondary.contrastText' }}>
+            <Typography sx={{ marginBottom: 1, marginTop: 2, color: "secondary.contrastText" }}>
               Assign Tariff
             </Typography>
-            <StyledSelectField placeholder={"Select Tariff"} value={selectedtarrif} options={tarrifList} maxMenuHeight={100} onChange={(e) => setSelectedTarrif(e)} />
+            <StyledSelectField
+              placeholder={"Select Tariff"}
+              value={selectedtarrif}
+              options={tarrifList}
+              maxMenuHeight={100}
+              onChange={(e) => setSelectedTarrif(e)}
+            />
           </Grid>
           <Grid
             item
@@ -242,35 +275,3 @@ export default function Assign({ tab, data, onClose, user }) {
     </Box>
   );
 }
-
-//! STYLINGS
-
-// Styled table container
-
-
-export const StyledTableCell = styled(TableCell)`
-  && {
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 500;
-    color: #f7f8fc;
-    border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  }
-`;
-
-export const Table = styled.table`
-  background: #1c1d22;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 12px;
-  width: 70%;
-  padding: 10px;
-
-  tbody tr {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  tbody tr:last-child {
-    border-bottom: none;
-  }
-`;

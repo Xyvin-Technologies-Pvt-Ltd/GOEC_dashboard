@@ -4,7 +4,7 @@ import {
   createManyRfid,
   editRfid,
   deleteRfid,
-} from "../../services/rfidAPI";
+} from "../../api/rfid.api";
 
 //* Create RFID
 export const useCreateRfid = (options = {}) => {

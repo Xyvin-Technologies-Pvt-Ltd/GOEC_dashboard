@@ -5,19 +5,19 @@ import OwnerDetail from './chargeStationDetail/ownerDetail'
 import Analytics from './chargeStationDetail/analytics'
 import { Stack } from '@mui/system'
 import { ArrowBackIosNew } from '@mui/icons-material'
-import StyledTab from '../../../ui/styledTab'
+import StyledTab from '../../../ui/StyledTab'
 import ChargePoints from './chargeStationDetail/chargePoints'
 import Reviews from './chargeStationDetail/reviews'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useChargingStationById } from '../../../hooks/queries/useChargingStation'
 import { useDeleteReview } from '../../../hooks/mutations/useReviewMutation'
-import StyledBackdropLoader from '../../../ui/styledBackdropLoader'
-import ConfirmDialog from '../../../ui/confirmDialog'
+import StyledBackdropLoader from '../../../ui/StyledBackdropLoader'
+import ConfirmDialog from '../../../ui/ConfirmDialog'
 
 export default function ChargeStationDetail() {
     const { id } = useParams();
     const [toggleOption, setToggleoption] = useState(0)
-    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+    const [ConfirmDialogOpen, setConfirmDialogOpen] = useState(false)
     const [selectedReview, setSelectedReview] = useState(false)
     const [errorMsg, setErrorMsg] = useState();
     const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -54,7 +54,7 @@ export default function ChargeStationDetail() {
                 autoHideDuration={2000}
                 onClose={() => { setSnackbarOpen(false) }}
             >{errorMsg}</Snackbar>
-            <ConfirmDialog title='Delete Review' subtitle='Do you want to delete review?' open={confirmDialogOpen} onClose={() => { setConfirmDialogOpen(false) }} confirmButtonHandle={reviewDelete} />
+            <ConfirmDialog title='Delete Review' subtitle='Do you want to delete review?' open={ConfirmDialogOpen} onClose={() => { setConfirmDialogOpen(false) }} confirmButtonHandle={reviewDelete} />
             <Stack direction={'row'} sx={{ backgroundColor: 'secondary.main', p: 3 }} spacing={2}>
                 <ArrowBackIosNew sx={{ cursor: 'pointer' }} onClick={() => { navigate(-1) }} />
                 <Typography variant='h6' color={'secondary.contrastText'}>Charge Station Details</Typography></Stack>

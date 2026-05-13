@@ -3,7 +3,7 @@ import {
   getReviewBySation,
   userReviews,
   getFeedbackReport,
-} from "../../services/reviewApi";
+} from "../../api/review.api";
 
 //* Get review by station
 export const useReviewByStation = (id, enabled = true) =>

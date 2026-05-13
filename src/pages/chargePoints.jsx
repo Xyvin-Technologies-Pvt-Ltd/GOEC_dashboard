@@ -1,12 +1,12 @@
-import { Box, Dialog, Stack, Typography } from '@mui/material'
+import { Dialog, Stack, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
-import StyledTab from '../ui/styledTab'
+import StyledTab from '../ui/StyledTab'
 import AllChargePoint from '../components/assetManagement/chargePoints/allChargePoint';
 import AddChargePoint from '../components/assetManagement/chargePoints/AddChargePoint';
-import ConfirmDialog from '../ui/confirmDialog';
+import ConfirmDialog from '../ui/ConfirmDialog';
 import { ReactComponent as Close } from "../assets/icons/close-icon-large.svg";
 import { toast } from 'react-toastify';
-import { Transition } from '../utils/DialogAnimation';
+import { Transition } from '../ui/DialogAnimation';
 import { useEvMachineList } from '../hooks/queries/useEvMachine';
 import { useDeleteEvMachine } from '../hooks/mutations/useEvMachineMutation';
 export default function ChargingPoints() {
@@ -60,7 +60,7 @@ export default function ChargingPoints() {
     setTogglePage(e.index)
   }
   return (
-    <Box>
+    <div className="w-full">
       <ConfirmDialog
         open={dialogOpen}
         title={"Confirm Delete"}
@@ -85,6 +85,6 @@ export default function ChargingPoints() {
         editData={(data) => { setSelectedData(data); setEditDialogOpen(true) }} 
         reloadData={refetch}/> : 
         <AddChargePoint formsubmitted={() => { refetch(); setTogglePage(0); }} />}
-    </Box>
+    </div>
   )
 }

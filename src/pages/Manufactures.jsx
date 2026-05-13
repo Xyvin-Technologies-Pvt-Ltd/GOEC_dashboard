@@ -1,6 +1,5 @@
-import { Box, Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import StyledTab from "../ui/styledTab";
+import StyledTab from "../ui/StyledTab";
 import OEM from "../components/dataManagement/manufacturers/OEM";
 import Vehicles from "../components/dataManagement/manufacturers/Vehicle";
 import { useOemList } from "../hooks/queries/useEvMachine";
@@ -61,11 +60,11 @@ export default function Manufactures() {
     setTogglePage(e.index);
   };
   return (
-    <Box>
-      <Stack direction={"row"} sx={{ backgroundColor: "secondary.main" }}>
+    <div className="w-full">
+      <div className="flex flex-row bg-secondary">
         <StyledTab buttons={["OEM", "Brand"]} onChanged={buttonChanged} />
-      </Stack>
+      </div>
       {togglePage === 0 ? oemListData && <OEM data={oemListData} setPageNo={setPageNo} totalCount={totalCount} setSearchQuery={setSearchQuery} updateData={refetchOem} /> : brandListData && <Vehicles data={brandListData} setPageNo1={setPageNo1} totalCount1={totalCount1} setSearchQuery1={setSearchQuery1} updateData={refetchBrand} />}
-    </Box>
+    </div>
   );
 }

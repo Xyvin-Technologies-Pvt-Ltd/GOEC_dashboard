@@ -1,13 +1,13 @@
 import { Box, Dialog, Stack, Typography } from "@mui/material";
 import React, { useEffect } from "react";
-import StyledInput from "../../../../ui/styledInput";
-import StyledWarning from "../../../../ui/styledWarning";
+import StyledInput from "../../../../ui/StyledInput";
+import StyledWarning from "../../../../ui/StyledWarning";
 import { ReactComponent as Close } from "../../../../assets/icons/close-icon-large.svg";
 import { ErrorOutlineOutlined, WarehouseOutlined, Warning } from "@mui/icons-material";
-import StyledDivider from "../../../../ui/styledDivider";
-import StyledButton from "../../../../ui/styledButton";
+import StyledDivider from "../../../../ui/StyledDivider";
+import StyledButton from "../../../../ui/StyledButton";
 import { useForm, Controller } from "react-hook-form";
-import { Transition } from "../../../../utils/DialogAnimation";
+import { Transition } from "../../../../ui/DialogAnimation";
 import { useAddToWallet } from "../../../../hooks/mutations/useUserMutation";
 import { toast } from "react-toastify";
 

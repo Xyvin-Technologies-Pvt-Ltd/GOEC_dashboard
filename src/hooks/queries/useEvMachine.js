@@ -10,7 +10,7 @@ import {
   getEvModelById,
   getChargerTarrifDetail,
   getReportForChargePoint,
-} from "../../services/evMachineAPI";
+} from "../../api/evMachine.api";
 
 //* Get EV machine list with filters
 export const useEvMachineList = (filters) =>

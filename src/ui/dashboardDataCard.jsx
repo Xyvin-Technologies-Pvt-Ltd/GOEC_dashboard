@@ -1,47 +1,16 @@
-import { Stack, Typography } from '@mui/material'
-import { Box } from '@mui/system'
-import React from 'react'
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
-export default function DashboardDataCard({title,subTitle,value}) {
-    return (
-        <Stack direction={"column"} sx={{backgroundColor:'secondary.main',borderRadius:'4px',p:2}} >
-            <Typography
-                variant="caption"
-                sx={{
-                    color: "primary.DimText",
-                    fontSize: "14px",
-                    fontWeight: "400",
-                }}
-            >
-                {title}
-            </Typography>
-            <Typography
-                variant="caption"
-                sx={{
-                    color: "primary.DimText",
-                    fontSize: "14px",
-                    fontWeight: "400",
-                }}
-            >
-                {subTitle}
-            </Typography>
-            <Box sx={{ height: "91 px" }}>
-                <Box
-                    direction={"column"}
-                    spacing={"5px"}
-                    sx={{
-                        mt: 2,
-                        borderLeft: "3px solid ",
-                        borderImage:
-                            "linear-gradient(100deg, #ED5DCD -2.24%, rgba(95, 93, 215, 0.71) 98.06%) 10",
-                        borderRadius: 8,
-                        pl: 2,
-                        py: 0,
-                    }}
-                >
-                    <Typography variant="h5">{value}</Typography>
-                </Box>
-            </Box>
-        </Stack>
-    )
+export default function DashboardDataCard({ title, subTitle, value, className }) {
+  return (
+    <Card className={cn("rounded-md border-border bg-secondary", className)}>
+      <CardContent className="flex flex-col gap-1 p-4">
+        <p className="text-sm font-normal text-muted-foreground">{title}</p>
+        {subTitle ? <p className="text-sm font-normal text-muted-foreground">{subTitle}</p> : null}
+        <div className="mt-2 border-l-[3px] border-transparent pl-2 [border-image:linear-gradient(100deg,#ED5DCD_-2.24%,rgba(95,93,215,0.71)_98.06%)_10]">
+          <p className="text-2xl font-semibold text-foreground">{value}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }

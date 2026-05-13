@@ -1,20 +1,20 @@
 import {
   getWalletReport,
   getAccountTransactionReport,
-} from "../../services/walletAPI";
+} from "../../api/wallet.api";
 import {
   getUserRegistationReport,
-} from "../../services/userApi";
+} from "../../api/user.api";
 import {
   getFeedbackReport,
-} from "../../services/reviewApi";
+} from "../../api/review.api";
 import {
   getChargingSummaryReport,
   getAlarmReport,
-} from "../../services/ocppAPI";
+} from "../../api/ocpp.api";
 import {
   getReportForChargePoint,
-} from "../../services/evMachineAPI";
+} from "../../api/evMachine.api";
 
 /**
  * Fetch report based on report type and data

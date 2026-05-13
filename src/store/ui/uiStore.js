@@ -74,7 +74,7 @@ export const useUIStore = create((set) => ({
   setLoading: (isLoading) => set({ isLoading }),
 
   // Confirmation dialog
-  confirmDialog: {
+  ConfirmDialog: {
     open: false,
     title: '',
     message: '',
@@ -83,7 +83,7 @@ export const useUIStore = create((set) => ({
   },
   openConfirmDialog: (title, message, onConfirm, onCancel) =>
     set({
-      confirmDialog: {
+      ConfirmDialog: {
         open: true,
         title,
         message,
@@ -93,7 +93,7 @@ export const useUIStore = create((set) => ({
     }),
   closeConfirmDialog: () =>
     set({
-      confirmDialog: {
+      ConfirmDialog: {
         open: false,
         title: '',
         message: '',

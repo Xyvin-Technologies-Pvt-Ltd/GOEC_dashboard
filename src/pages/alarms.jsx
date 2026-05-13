@@ -1,6 +1,5 @@
-import { Box } from '@mui/material'
 import React, { useState } from 'react'
-import StyledTab from '../ui/styledTab'
+import StyledTab from '../ui/StyledTab'
 import AlarmsList from '../components/dashboard/alarms/alarmsList'
 import AlarmSummary from '../components/dashboard/alarms/alarmSummary'
 import { useAlarms, useAlarmSummary } from '../hooks/queries/useOcpp'
@@ -30,11 +29,11 @@ export default function Alarms() {
   }
 
   return (
-    <Box>
+    <div className="w-full">
       <StyledTab buttons={['Alarms', 'Alarm Summary']} onChanged={tabOnChange} />
-      <Box>
+      <div>
         {tabIndex === 0 ? <AlarmsList data={alarmList} dataReload={refetchAlarms} setPageNo={setPageNo} totalCount={totalCount} setSearchQuery={setSearchQuery} /> : (summaryData && <AlarmSummary data={summaryData} dataReload={refetchAlarmSummary} />)}
-      </Box>
-    </Box>
+      </div>
+    </div>
   )
 }

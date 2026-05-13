@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Container, Grid, Typography, Stack, Button } from "@mui/material";
-import StyledDivider from "../../../../ui/styledDivider";
+import StyledDivider from "../../../../ui/StyledDivider";
 
 export default function ChargePointDetailsAction({buttonClickHandle}) {
   const buttonStyle = { 
@@ -25,7 +25,7 @@ export default function ChargePointDetailsAction({buttonClickHandle}) {
       </Stack>
       <StyledDivider />
 
-      <Stack sx={{ justifyContent: 'center',px:1,py:4,px:2 }} spacing={3}>
+      <Stack sx={{ justifyContent: "center", px: 2, py: 4 }} spacing={3}>
         <Button sx={{backgroundColor: "#6C3333",...buttonStyle}} onClick={()=>{buttonClickHandle('hard')}} >
           <Typography
             sx={{ textAlign: 'center', color: "white", fontWeight: "500", fontSize: "14px" }}

@@ -4,7 +4,7 @@ import {
   editChargingTariff,
   deleteChargingTariff,
   defaultChargingTariff,
-} from "../../services/chargingTariffAPI";
+} from "../../api/chargingTariff.api";
 
 //* Create charging tariff
 export const useCreateChargingTariff = (options = {}) => {

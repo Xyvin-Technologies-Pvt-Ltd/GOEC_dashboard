@@ -1,6 +1,6 @@
 import React from 'react'
-import StyledTable from '../../../ui/styledTable'
-import { tableHeaderReplace } from '../../../utils/tableHeaderReplace'
+import StyledTable from '../../../ui/StyledTable'
+import { tableHeaderReplace } from '../../../components/common/tableHeaderReplace'
 
 const tableHeader = [
     'Charge Station',

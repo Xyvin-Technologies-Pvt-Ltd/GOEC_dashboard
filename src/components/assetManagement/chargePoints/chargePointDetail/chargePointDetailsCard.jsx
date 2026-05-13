@@ -2,10 +2,10 @@ import React from "react";
 import { Box, Typography, Stack } from "@mui/material";
 import { ReactComponent as Station } from "../../../../assets/icons/station.svg";
 import { ReactComponent as ContentCopy } from "../../../../assets/icons/content_copy.svg";
-import StyledDivider from "../../../../ui/styledDivider";
-import StyledInput from "../../../../ui/styledInput";
+import StyledDivider from "../../../../ui/StyledDivider";
+import StyledInput from "../../../../ui/StyledInput";
 import { toast } from "react-toastify";
-import moment from "moment";
+import dayjs from "dayjs";
 export default function ChargePointDetailsCard({ data }) {
   const station = data?.chargingStationDetails?.[0];
   const model = data?.evModelDetails?.[0];
@@ -277,7 +277,7 @@ export default function ChargePointDetailsCard({ data }) {
             }}
           >
             {data?.createdAt
-              ? moment(data.createdAt).format("DD-MM-YYYY")
+              ? dayjs(data.createdAt).format("DD-MM-YYYY")
               : "—"}
           </Typography>
         </Stack>

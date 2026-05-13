@@ -1,45 +1,41 @@
-import { Button, ButtonGroup, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
-export default function StyledTab({ buttons,activeIndex=0, onChanged, ...props }) {
+export default function StyledTab({ buttons, activeIndex = 0, onChanged, className, ...props }) {
   const [activeInd, setActiveInd] = useState(activeIndex);
   useEffect(() => {
-    setActiveInd(activeIndex)
-  }, [activeIndex])
-  
+    setActiveInd(activeIndex);
+  }, [activeIndex]);
+
   return (
-    <Stack direction={"row"} sx={{ backgroundColor: "secondary.main", justifyContent:{xs:'center',md:'flex-start'},pl:2 }} {...props}>
-        {buttons.map((item, ind) => {
-          let isActive = ind === activeInd;
-          return (
-            <Button
-              key={ind}
-              sx={{
-                backgroundColor: isActive && "secondary.button",
-                color: isActive
-                  ? "primary.contrastText"
-                  : "secondary.contrastText",
-                border: "none",
-                borderBottom: isActive && "2px solid #fff",
-                borderRadius: 0,
-                height: "60px",
-                "&:hover": {
-                  border: "none",
-                  backgroundColor: "rgba(255,255,255, 0.1)",
-                  borderBottom: isActive && "2px solid #fff",
-                },
-              }}
-              onClick={() => {
-                setActiveInd(ind);
-                if (onChanged) {
-                  onChanged({ index: ind, value: item });
-                }
-              }}
-            >
-              {item}
-            </Button>
-          );
-        })}
-    </Stack>
+    <div
+      className={cn(
+        "flex flex-row justify-center bg-[#1c1d22] pl-2 md:justify-start",
+        className,
+      )}
+      {...props}
+    >
+      {buttons.map((item, ind) => {
+        const isActive = ind === activeInd;
+        return (
+          <button
+            key={ind}
+            type="button"
+            className={cn(
+              "h-[60px] border-0 border-b-2 border-transparent px-4 text-sm font-medium transition-colors",
+              isActive
+                ? "border-b-white bg-[#4a4458] text-[#f7f8fc]"
+                : "text-[#b5b8c5] hover:bg-white/10",
+            )}
+            onClick={() => {
+              setActiveInd(ind);
+              onChanged?.({ index: ind, value: item });
+            }}
+          >
+            {item}
+          </button>
+        );
+      })}
+    </div>
   );
 }

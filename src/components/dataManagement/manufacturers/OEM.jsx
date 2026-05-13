@@ -1,16 +1,16 @@
 import React, { useState } from 'react'
-import StyledTable from "../../../ui/styledTable";
+import StyledTable from "../../../ui/StyledTable";
 import LastSynced from "../../../layout/LastSynced";
 import { Box } from "@mui/material";
-import StyledSearchField from '../../../ui/styledSearchField';
-import StyledButton from '../../../ui/styledButton';
+import StyledSearchField from '../../../ui/StyledSearchField';
+import StyledButton from '../../../ui/StyledButton';
 import { toast } from "react-toastify";
 import AddOEM from './addOEM/AddOEM';
-import { tableHeaderReplace } from '../../../utils/tableHeaderReplace';
-import ConfirmDialog from '../../../ui/confirmDialog';
+import { tableHeaderReplace } from '../../../components/common/tableHeaderReplace';
+import ConfirmDialog from '../../../ui/ConfirmDialog';
 import { useDeleteOem } from '../../../hooks/mutations/useEvMachineMutation';
 import { useAuthStore } from '../../../store';
-import { permissions } from '../../../core/routes/permissions';
+import { permissions } from '../../../routes/permissions';
 
 
 const tableHeader = [

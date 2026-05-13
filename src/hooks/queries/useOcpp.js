@@ -17,7 +17,7 @@ import {
   getAlarmReport,
   getInvoice,
   getChargingHistory,
-} from "../../services/ocppAPI";
+} from "../../api/ocpp.api";
 
 //* Get all OCPP logs with filters
 export const useOcppLogs = (filters) =>

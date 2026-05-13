@@ -1,4 +1,3 @@
-import styled from "styled-components";
 import {
   Alert,
   Container,
@@ -9,22 +8,26 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
-import StyledSelectField from "../../../ui/styledSelectField";
-import StyledCheckButton from "../../../ui/styledCheckButton";
-import StyledSwitch from "../../../ui/styledSwitch";
-import StyledButton from "../../../ui/styledButton";
-import FileUpload from "../../../utils/FileUpload";
+import StyledSelectField from "../../../ui/StyledSelectField";
+import StyledCheckButton from "../../../ui/StyledCheckButton";
+import StyledSwitch from "../../../ui/StyledSwitch";
+import StyledButton from "../../../ui/StyledButton";
+import FileUpload from "../../../components/common/FileUpload";
 import { ReactComponent as ClockOutline } from "../../../assets/icons/ClockOutline.svg";
 import { ReactComponent as Calendar } from "../../../assets/icons/calendar.svg";
 import { ReactComponent as Phone } from "../../../assets/icons/Phone.svg";
 import { ReactComponent as SMS } from "../../../assets/icons/sms.svg";
 import { useForm, Controller } from "react-hook-form";
-import StyledInput from "../../../ui/styledInput";
+import StyledInput from "../../../ui/StyledInput";
 import CalendarInput from "../../../ui/CalendarInput";
 import { categoryDropdownData, vendorDropdownData } from "../../../assets/json/chargestations";
 import { Country, State, City } from "country-state-city";
 import { useCreateChargingStation, useEditChargingStation } from "../../../hooks/mutations/useChargingStationMutation";
 import { useImageUpload } from "../../../hooks/mutations/useImageUpload";
+
+const errorMessageStyle = {
+  color: "red",
+};
 
 const AddChargingStation = ({ data = {}, formSubmited, editStatus = false, ...props }) => {
   const [amenities, setAmenities] = useState(editStatus ? data['amenities'] : []);
@@ -809,20 +812,3 @@ const AddChargingStation = ({ data = {}, formSubmited, editStatus = false, ...pr
 };
 
 export default AddChargingStation;
-
-//! STYLINGS
-
-// Styled action cell
-
-// Styled table container
-export const TableContainer = styled.div`
-  background: #27292f; // Dark background for the table
-  overflow-x: auto; // Allows table to be scrollable horizontally
-  border-radius: 8px; // Rounded corners
-  margin: 20px 0; // Margin for spacing, adjust as needed
-`;
-
-const errorMessageStyle = {
-  color: "red",
-  // margin: '1px 0',
-};

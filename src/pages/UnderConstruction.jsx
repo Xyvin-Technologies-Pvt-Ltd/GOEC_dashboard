@@ -1,21 +1,17 @@
 import React from "react";
-import { Container, Typography, Box, CircularProgress } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 
 export default function UnderConstruction() {
   return (
-    <Container maxWidth="sm" style={{ textAlign: 'center', marginTop: '50px' }}>
-      <Box my={5}>
-        <Typography variant="h3" gutterBottom>
-          Site Under Construction
-        </Typography>
-        <Typography variant="subtitle1">
-          We're working hard to improve our website and we'll ready to launch after
-        </Typography>
-        <CircularProgress color="warning" style={{ margin: '20px 0' }} />
-        <Typography variant="body1">
-          Thank you for your patience!
-        </Typography>
-      </Box>
-    </Container>
+    <div className="mx-auto mt-12 max-w-md px-4 text-center">
+      <div className="my-12 flex flex-col items-center gap-4">
+        <h1 className="text-3xl font-bold text-foreground">Site Under Construction</h1>
+        <p className="text-muted-foreground">
+          We're working hard to improve our website and we'll be ready to launch soon.
+        </p>
+        <CircularProgress color="warning" style={{ margin: "20px 0" }} />
+        <p className="text-foreground">Thank you for your patience!</p>
+      </div>
+    </div>
   );
 }

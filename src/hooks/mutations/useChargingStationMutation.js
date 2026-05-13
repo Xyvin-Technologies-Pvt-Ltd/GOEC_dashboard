@@ -4,7 +4,7 @@ import {
   editChargingStation,
   deleteChargingStation,
   updateChargingStationByList,
-} from "../../services/stationAPI";
+} from "../../api/station.api";
 
 //* Create charging station
 export const useCreateChargingStation = (options = {}) => {

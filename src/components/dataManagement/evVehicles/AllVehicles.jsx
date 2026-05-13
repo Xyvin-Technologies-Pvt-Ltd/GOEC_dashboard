@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import StyledTable from "../../../ui/styledTable";
+import StyledTable from "../../../ui/StyledTable";
 import LastSynced from "../../../layout/LastSynced";
 import { Box, Dialog, Stack, Typography } from "@mui/material";
-import StyledSearchField from "../../../ui/styledSearchField";
-import { tableHeaderReplace } from "../../../utils/tableHeaderReplace";
+import StyledSearchField from "../../../ui/StyledSearchField";
+import { tableHeaderReplace } from "../../../components/common/tableHeaderReplace";
 import { useDeleteVehicle } from "../../../hooks/mutations/useVehicleMutation";
 import { toast } from "react-toastify";
 import AddVehicles from "./AddVehicles";
 import { ReactComponent as Close } from "../../../assets/icons/close-icon-large.svg";
-import { Transition } from "../../../utils/DialogAnimation";
+import { Transition } from "../../../ui/DialogAnimation";
 import { useAuthStore } from "../../../store";
-import { permissions } from "../../../core/routes/permissions";
+import { permissions } from "../../../routes/permissions";
 
 const tableHeader = [
   "Company Name",

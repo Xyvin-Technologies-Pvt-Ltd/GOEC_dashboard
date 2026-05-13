@@ -1,8 +1,8 @@
 import LastSynced from "../../layout/LastSynced.jsx";
-import StyledTable from "../../ui/styledTable.jsx";
+import StyledTable from "../../ui/StyledTable.jsx";
 import { Box } from "@mui/material";
-import { tableHeaderReplace } from "../../utils/tableHeaderReplace.jsx";
-import StyledSearchField from "../../ui/styledSearchField";
+import { tableHeaderReplace } from "../../components/common/tableHeaderReplace";
+import StyledSearchField from "../../ui/StyledSearchField";
 
 const tableHeader = ["Label", "Date", "level", "message", "Unique ID"];
 

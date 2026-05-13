@@ -1,12 +1,29 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
 import { Stack, Box, Grid } from "@mui/material";
-import StyledSelectField from "../../../../ui/styledSelectField";
-import StyledButton from "../../../../ui/styledButton";
+import StyledSelectField from "../../../../ui/StyledSelectField";
+import StyledButton from "../../../../ui/StyledButton";
 import { useForm, Controller } from "react-hook-form";
-import StyledInput from "../../../../ui/styledInput";
+import StyledInput from "../../../../ui/StyledInput";
 import CalendarInput from "../../../../ui/CalendarInput";
 import { useListOfChargingStation } from "../../../../hooks/queries/useChargingStation";
+
+const modalStyle = {
+  top: "50%",
+  maxwidth: "auto",
+  boxShadow: 2,
+  p: 4,
+  color: "#fff",
+  outline: "none",
+  height: "100%",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: "50vh",
+};
+
+const errorMessageStyle = {
+  color: "red",
+};
 
 export default function Filter({ onSubmited }) {
   const {
@@ -200,69 +217,4 @@ export default function Filter({ onSubmited }) {
   );
 }
 
-export const FormContainer = styled.div`
-  display: inline-flex;
-  padding: 30px 20px;
-  flex-direction: column;
-  align-items: center;
-  gap: 17px;
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-  border-radius: 4px;
-  background: #1c1d22;
-`;
-
-export const Heading = styled.h1`
-  color: var(--Grey, #b5b8c5);
-  text-align: center;
-  font-family: Inter;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  letter-spacing: 0.3px;
-`;
-
-export const Label = styled.label`
-  color: var(--white, #f7f8fc);
-  text-align: start;
-  width: 100%;
-  height: 16px;
-  font-family: Inter;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  letter-spacing: 0.3px;
-  text-transform: capitalize;
-`;
-
-// Modal style
-const modalStyle = {
-  //position: "absolute",
-  top: "50%",
-  // left: "50%",
-  // transform: "translate(-50%, -50%)",
-  maxwidth: "auto", // Adjust width to fit your content or screen
-  boxShadow: 2,
-  p: 4,
-  color: "#fff", // White text for better visibility on dark background
-  outline: "none", // Remove the focus ring
-  height: "100%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  minHeight: "50vh",
-};
-
-// Styled table container
-export const TableContainer = styled.div`
-  background: #27292f; // Dark background for the table
-  overflow-x: auto; // Allows table to be scrollable horizontally
-  border-radius: 8px; // Rounded corners
-  margin: 20px 0; // Margin for spacing, adjust as needed
-`;
-
-const errorMessageStyle = {
-  color: "red",
-  // margin: '1px 0',
-};
+export { FormContainer, Heading, Label, TableContainer } from "../../../common/FilterPrimitives";

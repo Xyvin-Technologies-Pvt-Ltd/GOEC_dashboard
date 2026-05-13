@@ -1,7 +1,7 @@
 import { Button, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
-import StyledInput from "../../../../../ui/styledInput";
-import StyledButton from "../../../../../ui/styledButton";
+import StyledInput from "../../../../../ui/StyledInput";
+import StyledButton from "../../../../../ui/StyledButton";
 import { toast } from "react-toastify";
 import { useChangeConfiguration } from "../../../../../hooks/mutations/useOcppMutation";
 

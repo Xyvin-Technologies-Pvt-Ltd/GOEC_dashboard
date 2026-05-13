@@ -1,8 +1,8 @@
 import { Box, Stack, Typography } from "@mui/material";
 import React from "react";
-import StyledSelectField from "../../../../../ui/styledSelectField";
-import StyledDivider from "../../../../../ui/styledDivider";
-import StyledButton from "../../../../../ui/styledButton";
+import StyledSelectField from "../../../../../ui/StyledSelectField";
+import StyledDivider from "../../../../../ui/StyledDivider";
+import StyledButton from "../../../../../ui/StyledButton";
 import { useForm, Controller } from "react-hook-form";
 import { useSendLocalList } from "../../../../../hooks/mutations/useOcppMutation";
 import { toast } from "react-toastify";

@@ -1,12 +1,12 @@
 import { Box } from '@mui/material'
 import React, { useState } from 'react'
-import StyledTable from '../../../ui/styledTable'
+import StyledTable from '../../../ui/StyledTable'
 import LastSynced from '../../../layout/LastSynced'
 import { useNavigate } from 'react-router-dom'
-import StyledSearchField from '../../../ui/styledSearchField'
-import { searchAndFilter } from '../../../utils/search'
-import { tableHeaderReplace } from '../../../utils/tableHeaderReplace'
-import { permissions } from '../../../core/routes/permissions'
+import StyledSearchField from '../../../ui/StyledSearchField'
+import { searchAndFilter } from '../../../components/common/search'
+import { tableHeaderReplace } from '../../../components/common/tableHeaderReplace'
+import { permissions } from '../../../routes/permissions'
 import { useAuthStore } from '../../../store'
 
 

@@ -1,43 +1,26 @@
-import React from 'react'
-import styled from 'styled-components';
-import { ReactComponent as SearchIcon } from '../assets/icons/Icon.svg'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Search } from "lucide-react";
 
-const SearchContainer = styled.div`
-  position: relative;
-  width: 100%;
-  min-width:300px;
-  height: 50px;
-  padding-left : 10px;
-  background-color:#2b2930;
-  border-radius: 5px;
-`;
-
-const SearchInput = styled.input`
-  // padding: 8px 32px 8px 8px; /* Adjust padding to accommodate the icon */
-  margin-left: 8px;
-  height: 100%;
-  border: none;
-  outline: none;
-  width: 80%;
-  background-color:#2b2930;
-  color:#CAC4D0;
-`;
-
-const SearchIcondiv = styled.div`
-  position: absolute;
-  top: 50%;
-  right: 10px;
-  transform: translateY(-45%);
-  cursor: pointer;
-`;
-
-
-const StyledSearchField = ({ placeholder, onChange, onSearch, ...props }) => {
-    return (
-      <SearchContainer {...props}>
-        <SearchInput type="text" placeholder={placeholder} onChange={onChange} />
-        <SearchIcondiv onClick={onSearch}><SearchIcon/></SearchIcondiv>
-      </SearchContainer>
-    );
-  };
-export default StyledSearchField
+export default function StyledSearchField({ placeholder, onChange, className, ...props }) {
+  return (
+    <div
+      className={cn(
+        "relative flex w-full min-w-[200px] items-center gap-2 rounded-md border border-white/20 bg-secondary py-2 pl-2 pr-4 md:min-w-[250px]",
+        className,
+      )}
+    >
+      <span className="flex size-6 items-center justify-center text-[#87898e]">
+        <Search className="size-5" />
+      </span>
+      <input
+        type="search"
+        autoComplete="off"
+        placeholder={placeholder}
+        className="mr-2 w-full border-0 bg-transparent font-sans text-xs text-white outline-none placeholder:text-[#b5b8c5] focus:ring-0"
+        onChange={onChange}
+        {...props}
+      />
+    </div>
+  );
+}

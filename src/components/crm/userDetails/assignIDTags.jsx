@@ -1,6 +1,6 @@
 import { Box } from '@mui/material'
 import React, { useState } from 'react'
-import StyledTab from '../../../ui/styledTab'
+import StyledTab from '../../../ui/StyledTab'
 import RFID from './assignIDTags/RFID'
 import VID from './assignIDTags/VID'
 

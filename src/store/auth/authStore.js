@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { jwtDecode } from 'jwt-decode';
-import { adminLogin } from '../../services/userApi';
+import { adminLogin } from '../../api/user.api';
+import { normalizePermissions } from './normalizePermissions';
 
 export const useAuthStore = create((set, get) => ({
   // State
@@ -26,12 +27,15 @@ export const useAuthStore = create((set, get) => ({
       const token = localStorage.getItem('token');
       if (token) {
         const decoded = jwtDecode(token);
+        const rawPerms =
+          decoded.permissions || decoded.userId?.role?.permissions || [];
+        const mergedPerms = normalizePermissions(rawPerms);
         set({
           user: decoded.userId || decoded.user || decoded,
           token: token,
           isAuthenticated: true,
           isLoading: false,
-          permissions: decoded.permissions || decoded.userId?.role?.permissions || [],
+          permissions: mergedPerms,
           role: decoded.role || decoded.userId?.role || null,
         });
       } else {
@@ -57,12 +61,15 @@ export const useAuthStore = create((set, get) => ({
       localStorage.setItem('token', token);
       
       const decoded = jwtDecode(token);
+      const rawPermsLogin =
+        decoded.permissions || decoded.userId?.role?.permissions || [];
+      const mergedPermsLogin = normalizePermissions(rawPermsLogin);
       set({
         user: decoded.userId || decoded.user || decoded,
         token: token,
         isAuthenticated: true,
         isLoading: false,
-        permissions: decoded.permissions || decoded.userId?.role?.permissions || [],
+        permissions: mergedPermsLogin,
         role: decoded.role || decoded.userId?.role || null,
         error: null,
       });

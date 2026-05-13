@@ -1,35 +1,11 @@
 import React from "react";
-import styled from "styled-components";
+import { cn } from "@/lib/utils";
 
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const TextField = styled.h1`
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 400;
-  color: #EB5757;
-`;
-
-const IconContainer = styled.div`
-  display: flex;
-  width: 19px;
-  height: 19px;
-  justify-content: center;
-  align-items: center;
-  flex-shrink: 0;
-`;
-
-const StyledWarning = ({ icon, value }) => {
-  return (
-    <Container>
-      {icon && <IconContainer>{icon}</IconContainer>}
-      <TextField>{value}</TextField>
-    </Container>
-  );
-};
+const StyledWarning = ({ icon, value, className }) => (
+  <div className={cn("flex items-center gap-2", className)}>
+    {icon && <span className="flex size-[19px] shrink-0 items-center justify-center">{icon}</span>}
+    <h1 className="text-sm font-normal text-[#EB5757]">{value}</h1>
+  </div>
+);
 
 export default StyledWarning;

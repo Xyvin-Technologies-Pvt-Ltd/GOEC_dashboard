@@ -1,45 +1,44 @@
-import styled from "styled-components";
-// Define a styled component for the status chip
+import { cn } from "@/lib/utils";
 
+function statusBackground($status) {
+  const status = $status ? String($status).toUpperCase() : "UNAVAILABLE";
+  if (["ACTIVE", "ONLINE", "ASSIGNED", "SUCCESS", "AVAILABLE", "YES"].includes(status)) {
+    return "rgba(24, 73, 45, 1)";
+  }
+  if (["OFFLINE", "FAULTED"].includes(status)) {
+    return "#c0392b";
+  }
+  if (status === "CHARGING") {
+    return "#b0a702";
+  }
+  if (status === "INACTIVE") {
+    return "#3e3c3c";
+  }
+  if (status === "PREPARING") {
+    return "#115982";
+  }
+  if (status === "FINISHING") {
+    return "#5C185A";
+  }
+  if (["UNAVAILABLE", "DISCONNECTED", "NO"].includes(status)) {
+    return "#B5B8C533";
+  }
+  if (["UNASSIGNED", "PENDING"].includes(status)) {
+    return "#65572B";
+  }
+  return "#444";
+}
 
-const StyledStatusChip = styled.span`
-  padding: 4px 8px;
-  border-radius: 15px; // Adjust as needed for the chip look
-  color: white;
-  text-transform: uppercase;
-  font-weight: 500;
-  text-align: center;
-  display: inline-block;
-  justify-Content: center;
-  align-item: center;
-  min-width: 20px; // Set a minimum width for uniformity
-
-  // Dynamically set the background color based on the status
-  background-color: ${(props) => {
-    // Normalize the status to uppercase for case-insensitive comparison
-    const status = props.$status ? String(props.$status).toUpperCase() : 'UNAVAILABLE';
-
-    if (["ACTIVE", "ONLINE", "ASSIGNED", "SUCCESS", "AVAILABLE", "YES"].includes(status)) {
-      return "rgba(24, 73, 45, 1)"; // Green for active or successful statuses
-    } else if (["OFFLINE", "FAULTED"].includes(status)) {
-      return "#c0392b"; // Red for offline
-    } else if (status === "CHARGING") {
-      return "#b0a702"; // Yellow for Charging
-    } else if (status === "INACTIVE") {
-      return "#3e3c3c"; // White for inactive
-    } else if (status === "PREPARING") {
-      return "#115982"; // blue for preparing
-    } else if (status === "FINISHING") {
-      return "#5C185A"; // purple for finishing
-    } else if (["UNAVAILABLE", "DISCONNECTED", "NO"].includes(status)) {
-      return "#B5B8C533"; // grey for unavailable or disconnected
-    } else if (["UNASSIGNED", "PENDING"].includes(status)) {
-      return "#65572B"; // Brown for unassigned or pending statuses
-    }
-    // Add a default background color if needed
-    return "defaultColor";
-  }};
-`;
-
+const StyledStatusChip = ({ $status, children, className }) => (
+  <span
+    className={cn(
+      "inline-block min-w-[20px] rounded-[15px] px-2 py-1 text-center text-xs font-medium uppercase text-white",
+      className,
+    )}
+    style={{ backgroundColor: statusBackground($status) }}
+  >
+    {children}
+  </span>
+);
 
 export default StyledStatusChip;

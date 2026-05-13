@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Stack, Typography, Modal, Button } from "@mui/material";
-import StyledButton from "../../../../../ui/styledButton";
+import StyledButton from "../../../../../ui/StyledButton";
 
 export default function ConfigCP({ label, value, ...props }) {
   const [openModal, setOpenModal] = useState(false);

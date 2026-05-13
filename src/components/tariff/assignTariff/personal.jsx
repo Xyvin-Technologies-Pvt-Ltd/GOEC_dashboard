@@ -1,13 +1,13 @@
 import { Grid, Typography, Container, Stack, Modal, Box, Dialog } from "@mui/material";
 import React, { useState } from "react";
 import LastSynced from "../../../layout/LastSynced";
-import StyledSelectField from "../../../ui/styledSelectField";
-import InputField from "../../../ui/styledInput";
-import StyledButton from "../../../ui/styledButton";
+import StyledSelectField from "../../../ui/StyledSelectField";
+import InputField from "../../../ui/StyledInput";
+import StyledButton from "../../../ui/StyledButton";
 import { ReactComponent as Phone } from "../../../assets/icons/Phone.svg";
-import StyledWarning from "../../../ui/styledWarning";
+import StyledWarning from "../../../ui/StyledWarning";
 import { ReactComponent as Warn } from "../../../assets/icons/textWarn.svg";
-import StyledDivider from "../../../ui/styledDivider";
+import StyledDivider from "../../../ui/StyledDivider";
 import Assign from "./assign";
 import { ReactComponent as UserIcon } from '../../../assets/icons/Frame 42744.svg'
 import { ReactComponent as Refresh } from '../../../assets/icons/autorenew.svg'

@@ -1,17 +1,17 @@
 import React, { useState } from 'react'
 import { Box, Dialog } from '@mui/material'
-import StyledTable from '../../../ui/styledTable'
-import StyledButton from '../../../ui/styledButton'
+import StyledTable from '../../../ui/StyledTable'
+import StyledButton from '../../../ui/StyledButton'
 import LastSynced from '../../../layout/LastSynced'
 import AddRfidCard from '../Rfid/AddRfidCard'
 import AddBulkRfidCard from './AddBulkRfidCard'
-import { tableHeaderReplace } from '../../../utils/tableHeaderReplace'
-import { Transition } from '../../../utils/DialogAnimation'
-import ConfirmDialog from '../../../ui/confirmDialog'
+import { tableHeaderReplace } from '../../../components/common/tableHeaderReplace'
+import { Transition } from '../../../ui/DialogAnimation'
+import ConfirmDialog from '../../../ui/ConfirmDialog'
 import { useDeleteRfid } from '../../../hooks/mutations/useRfidMutation'
 import { toast } from 'react-toastify'
 import { useAuthStore } from '../../../store'
-import { permissions } from '../../../core/routes/permissions'
+import { permissions } from '../../../routes/permissions'
 
 
 

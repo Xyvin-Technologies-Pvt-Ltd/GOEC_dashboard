@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Box, Drawer, useMediaQuery } from "@mui/material";
-import { NavItem } from "../ui/Navitem";
+import { NavItem } from "../ui/NavItem";
 import { siderbarListItems } from "../assets/json/sidebar";
 import { useAuthStore } from "../store";
 import { useNavigate } from "react-router-dom";
@@ -28,14 +28,15 @@ const Sidebar = ({ open, onClose, ...props }) => {
         .filter((item) => (item.sub ? item.sub.length > 0 : true));
       setFilteredItems(updatedItems);
 
-      navigate(
-        window.location.pathname === "" ||
-          window.location.pathname === "/dashboard"
-          ? updatedItems[0].extendable
-            ? `/${updatedItems[0].sub[0]?.href}`
-            : `/${updatedItems[0].href}`
-          : `${window.location.pathname}`
-      );
+      const pathWhenDashboard =
+        updatedItems[0]?.extendable
+          ? `/${updatedItems[0].sub[0]?.href}`
+          : `/${updatedItems[0]?.href}`;
+      const nextPath =
+        window.location.pathname === "" || window.location.pathname === "/dashboard"
+          ? pathWhenDashboard
+          : `${window.location.pathname}`;
+      navigate(nextPath);
       // Check if the active index is still valid after filtering
       if (activeIndex >= updatedItems.length) {
         setActiveIndex(-1);

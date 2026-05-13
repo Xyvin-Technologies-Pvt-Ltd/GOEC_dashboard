@@ -1,39 +1,36 @@
-import * as React from 'react';
-import Drawer from '@mui/material/Drawer';
-import { Stack, Typography } from '@mui/material';
-import { ReactComponent as OutlineIcon } from '../assets/icons/AdjustmentsOutline.svg'
-import { Close } from '@mui/icons-material';
-import StyledIconButton from './stylediconButton';
+import * as React from "react";
+import { ReactComponent as OutlineIcon } from "../assets/icons/AdjustmentsOutline.svg";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
-export default function RightDrawer({ children }) {
-  const [state, setState] = React.useState(false);
-  const anchor = 'right';
+export default function RightDrawer({ children, title = "Filter" }) {
+  const [open, setOpen] = React.useState(false);
 
   return (
-    <div style={{ display: 'inline-flex' }}>
-      <React.Fragment key={anchor}>
-        <StyledIconButton onClick={() => setState(true)} 
-        style={{ color: '#fff', border: 'none', backgroundColor: 'secondary.contrastText' }} 
-        icon={<OutlineIcon style={{ color: 'secondary.contrastText' }} />} />
-        <Drawer
-          anchor={anchor}
-          open={state}
-          onClose={() => setState(false)}
-          PaperProps={{
-            sx: {
-              backgroundColor: 'primary.main'
-            }
-          }}
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="rounded bg-[#322f3b] text-foreground hover:bg-[#322f3b]/90"
+          aria-label="Open filters"
         >
-          <Stack direction={'row'} sx={{ p: 2, backgroundColor: 'secondary.main', justifyContent: 'space-between' }}>
-            <Typography variant='h6' color={'secondary.contrastText'}>Filter</Typography>
-            <Close sx={{ cursor: 'pointer', color: 'secondary.contrastText' }} onClick={() => { setState(false) }} />
-          </Stack>
-          {children}
-          {/* <FilterNetwork /> */}
-        </Drawer>
-      </React.Fragment>
-
-    </div>
+          <OutlineIcon className="text-foreground" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent className="border-border bg-[#27292f] text-foreground">
+        <SheetHeader className="border-b border-white/10 bg-[#1c1d22] p-4 text-left">
+          <SheetTitle className="text-[#b5b8c5]">{title}</SheetTitle>
+        </SheetHeader>
+        <div className="p-2">{children}</div>
+      </SheetContent>
+    </Sheet>
   );
 }

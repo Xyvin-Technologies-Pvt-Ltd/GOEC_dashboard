@@ -1,8 +1,8 @@
 import { Box, Grid, Stack, Typography } from '@mui/material'
 import React from 'react'
-import StyledInput from '../../../../ui/styledInput'
-import StyledButton from '../../../../ui/styledButton'
-import StyledSelectField from '../../../../ui/styledSelectField'
+import StyledInput from '../../../../ui/StyledInput'
+import StyledButton from '../../../../ui/StyledButton'
+import StyledSelectField from '../../../../ui/StyledSelectField'
 import { AccountCircle, Autorenew } from '@mui/icons-material'
 
 const UserNameComponent = ({isuser=false}) => {

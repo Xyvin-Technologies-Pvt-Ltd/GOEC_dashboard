@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import StyledInput from './styledInput'
+import StyledInput from './StyledInput'
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { ReactComponent as CalendarIcon } from '../assets/icons/calendar_month.svg'

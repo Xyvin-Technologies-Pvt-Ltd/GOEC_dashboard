@@ -1,6 +1,5 @@
-import { Box, Stack } from "@mui/material";
 import React, { useState } from "react";
-import StyledTab from "../ui/styledTab";
+import StyledTab from "../ui/StyledTab";
 import Personal from "../components/tariff/assignTariff/personal";
 import Location from "../components/tariff/assignTariff/location";
 import { useChargingStationDropdown } from "../hooks/queries/useChargingStation";
@@ -14,14 +13,14 @@ export default function ATariff() {
   };
 
   return (
-    <Box>
-      <Stack direction={"row"} sx={{ backgroundColor: "secondary.main" }}>
+    <div className="w-full">
+      <div className="flex flex-row bg-secondary">
         <StyledTab
           buttons={["Location", "Personal"]}
           onChanged={buttonChanged}
         />
-      </Stack>
+      </div>
       {togglePage === 0 ? <Location location={locationList} /> : <Personal location={locationList} />}
-    </Box>
+    </div>
   );
 }

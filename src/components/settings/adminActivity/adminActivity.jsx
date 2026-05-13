@@ -1,7 +1,7 @@
 import React from "react";
 import LastSynced from "../../../layout/LastSynced";
 import { Box } from "@mui/material";
-import StyledTable from "../../../ui/styledTable";
+import StyledTable from "../../../ui/StyledTable";
 
 export default function AdminActivity({ data, headers, setPageNo, totalCount  }) {
   return (

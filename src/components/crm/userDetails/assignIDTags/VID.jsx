@@ -1,10 +1,10 @@
 import { Box, Dialog } from '@mui/material';
 import React, { useState } from 'react'
 import LastSynced from '../../../../layout/LastSynced';
-import StyledTable from '../../../../ui/styledTable';
+import StyledTable from '../../../../ui/StyledTable';
 import { VIDData } from '../../../../assets/json/crm';
 import AssignVID from './assignVID';
-import { Transition } from '../../../../utils/DialogAnimation';
+import { Transition } from '../../../../ui/DialogAnimation';
 
 const tableHeader = [
     'RFID tag',

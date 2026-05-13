@@ -1,17 +1,17 @@
 import React from "react";
 import LastSynced from "../../../layout/LastSynced";
 import { Box, Dialog, Modal, Stack, Typography } from "@mui/material";
-import StyledTable from "../../../ui/styledTable";
-import StyledButton from "../../../ui/styledButton";
+import StyledTable from "../../../ui/StyledTable";
+import StyledButton from "../../../ui/StyledButton";
 import { useState } from "react";
-import StyledDivider from "../../../ui/styledDivider";
+import StyledDivider from "../../../ui/StyledDivider";
 import AddRole from "./addRole";
 import { ReactComponent as Close } from "../../../assets/icons/close-circle.svg";
 import { toast } from "react-toastify";
 import { useDeleteRole } from "../../../hooks/mutations/useUserMutation";
-import { Transition } from "../../../utils/DialogAnimation";
+import { Transition } from "../../../ui/DialogAnimation";
 import { useAuthStore } from "../../../store";
-import { permissions } from "../../../core/routes/permissions";
+import { permissions } from "../../../routes/permissions";
 
 export default function RoleManagement({ headers, data, setIsChange, isChange, setPageNo, totalCount }) {
   const [open, setOpen] = useState(false);

@@ -1,22 +1,19 @@
-import { Skeleton } from '@mui/material'
-import { Box } from '@mui/system'
-import React from 'react'
-import { TableCell } from './styledTable'
+import React from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TableCell as UiTableCell } from "@/components/ui/table";
 
 export default function TableSkeleton({ tableHeader }) {
-    return (
-        [...Array(5)].map((dt, ind) => (
-            <tr key={ind} style={{padding:0}}>
-                {tableHeader.map((_data, index) => (
-                    <TableCell
-                        key={index}
-                        
-                    >
-                        <Skeleton sx={{ bgcolor: 'grey.900' }} animation="pulse" variant="rounded" width={'100%'} height={20} />
-                    </TableCell>
-                ))
-                }
-            </tr>
-        ))
-    )
+  return (
+    <>
+      {[...Array(5)].map((_, ind) => (
+        <tr key={ind} className="border-b border-[#333]">
+          {tableHeader.map((_data, index) => (
+            <UiTableCell key={index} className="py-3">
+              <Skeleton className="h-5 w-full bg-zinc-800" />
+            </UiTableCell>
+          ))}
+        </tr>
+      ))}
+    </>
+  );
 }

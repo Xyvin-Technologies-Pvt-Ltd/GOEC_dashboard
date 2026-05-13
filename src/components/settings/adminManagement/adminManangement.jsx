@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import LastSynced from "../../../layout/LastSynced";
 import { Box, Modal, Stack, Typography } from "@mui/material";
-import StyledButton from "../../../ui/styledButton";
-import StyledTable from "../../../ui/styledTable";
-import StyledDivider from "../../../ui/styledDivider";
+import StyledButton from "../../../ui/StyledButton";
+import StyledTable from "../../../ui/StyledTable";
+import StyledDivider from "../../../ui/StyledDivider";
 import AddAdmin from "./addAdmin";
 import { ReactComponent as Close } from "../../../assets/icons/close-circle.svg";
 import { toast } from "react-toastify";
 import { useDeleteAdmin } from "../../../hooks/mutations/useUserMutation";
 import { useAuthStore } from "../../../store";
-import { permissions } from "../../../core/routes/permissions";
+import { permissions } from "../../../routes/permissions";
 
 export default function AdminManangement({ data, headers, setIsChange, isChange, setPageNo, totalCount }) {
   const [open, setOpen] = useState(false);

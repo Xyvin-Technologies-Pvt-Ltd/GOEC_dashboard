@@ -1,13 +1,13 @@
 import { Grid, Typography, Container, Stack } from "@mui/material";
 import React, { useMemo, useState } from "react";
-import styled from "styled-components";
-import StyledSelectField from "../../../ui/styledSelectField";
-import StyledButton from "../../../ui/styledButton";
-import InputField from "../../../ui/styledInput";
+import StyledSelectField from "../../../ui/StyledSelectField";
+import StyledButton from "../../../ui/StyledButton";
+import InputField from "../../../ui/StyledInput";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useCreateChargingTariff, useEditChargingTariff } from "../../../hooks/mutations/useChargingTariffMutation";
 import { useTaxDropdown } from "../../../hooks/queries/useTax";
+import { TableContainer } from "../../common/FilterPrimitives";
 
 export default function AddTariff({ action, data, onIsChange, isChange, updateData, setOpen }) {
   // Use TanStack Query hook for tax dropdown
@@ -139,15 +139,6 @@ export default function AddTariff({ action, data, onIsChange, isChange, updateDa
     </TableContainer>
   );
 }
-
-//! STYLINGS
-
-// Styled table container
-export const TableContainer = styled.div`
-  background: #27292f; // Dark background for the table
-  overflow-x: auto; // Allows table to be scrollable horizontally
-  border-radius: 8px; // Rounded corners
-`;
 
 const errorMessageStyle = {
   color: "red",

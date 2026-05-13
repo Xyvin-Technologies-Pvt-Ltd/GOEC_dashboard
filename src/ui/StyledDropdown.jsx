@@ -1,10 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import styled, { css } from "styled-components";
-import { ReactComponent as OutlineIcon } from "../../src/assets/icons/AdjustmentsOutline.svg";
-import { Typography } from "@mui/material";
-import StyledSelectField from "./styledSelectField";
+import { cn } from "@/lib/utils";
+import { ReactComponent as OutlineIcon } from "../../assets/icons/AdjustmentsOutline.svg";
 
-const StyledDropdown = ({ height, width, component,alignRight }) => {
+const StyledDropdown = ({ height, width, component, alignRight }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -20,70 +18,36 @@ const StyledDropdown = ({ height, width, component,alignRight }) => {
 
   useEffect(() => {
     document.addEventListener("click", handleClickOutside);
-
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
 
   return (
-    <DropdownContainer ref={dropdownRef}>
-      <DropdownTrigger onClick={handleTriggerClick}>
+    <div ref={dropdownRef} className="relative inline-block">
+      <button
+        type="button"
+        aria-expanded={isOpen}
+        className="flex cursor-pointer items-center justify-center gap-2.5 rounded border border-black/20 bg-[#322f3b] px-5 py-4"
+        onClick={handleTriggerClick}
+      >
         <OutlineIcon />
-      </DropdownTrigger>
-      <DropdownContent isOpen={isOpen} width={width} height={height} alignRight={alignRight}>
-        <DropdownItem>{component}</DropdownItem>
-      </DropdownContent>
-    </DropdownContainer>
+      </button>
+      <div
+        className={cn(
+          "absolute z-10 min-h-[200px] min-w-[200px] bg-[#322f3b] p-3 shadow-lg",
+          isOpen ? "block" : "hidden",
+          alignRight ? "right-0" : "left-0",
+        )}
+        style={{
+          width: width ? `${width}px` : undefined,
+          height: height ? `${height}px` : undefined,
+        }}
+      >
+        {component}
+      </div>
+    </div>
   );
 };
 
 export default StyledDropdown;
-
-const DropdownContainer = styled.div`
-  position: relative;
-  display: inline-block;
-`;
-
-const DropdownTrigger = styled.div`
-  cursor: pointer;
-  display: flex;
-  // height: 50px;
-  padding: 15px 20px;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  border-radius: var(--borderRadius, 4px);
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  background: var(--Secondary, #322f3b);
-`;
-
-const DropdownContent = styled.div`
-  display: ${(props) => (props.isOpen ? "block" : "none")};
-  position: absolute;
-  background-color: #322f3b;
-  min-width: 200px;
-  min-height: 200px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-  // Adjust the left position for right-aligned dropdown
-  left: ${(props) => (props.alignRight ? 'auto' : '0')};
-  right: ${(props) => (props.alignRight ? '0' : 'auto')};
-
-  // for width
-  ${(props) =>
-    props.width &&
-    css`
-      width: ${props.width}px!important;
-    `}
-  // for height
-   ${(props) =>
-    props.height &&
-    css`
-      height: ${props.height}px!important;
-    `}
-`;
-
-const DropdownItem = styled.div`
-  padding: 12px;
-`;

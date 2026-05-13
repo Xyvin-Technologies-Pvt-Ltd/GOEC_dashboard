@@ -6,10 +6,10 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
-import InputField from "../../../ui/styledInput";
-import StyledSelectField from "../../../ui/styledSelectField";
-import StyledInput from "../../../ui/styledInput";
-import StyledButton from "../../../ui/styledButton";
+import InputField from "../../../ui/StyledInput";
+import StyledSelectField from "../../../ui/StyledSelectField";
+import StyledInput from "../../../ui/StyledInput";
+import StyledButton from "../../../ui/StyledButton";
 import { Add } from "@mui/icons-material";
 import ConnectorDetails from "./addEvcharger/connectorDetails";
 import { Controller, useForm } from "react-hook-form";

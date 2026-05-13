@@ -11,7 +11,7 @@ import {
   getDiagonostics,
   changeConfiguration,
   sendMail,
-} from "../../services/ocppAPI";
+} from "../../api/ocpp.api";
 
 //* Remote start transaction
 export const useRemoteStart = (options = {}) => {

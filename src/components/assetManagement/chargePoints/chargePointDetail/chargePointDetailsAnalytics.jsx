@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Box, Typography, Stack, Dialog } from "@mui/material";
 import { CalendarMonth } from "@mui/icons-material";
-import StyledCalender from "../../../../ui/StyledCalender";
-import { Transition } from "../../../../utils/DialogAnimation";
+import StyledCalendar from "../../../../ui/StyledCalendar";
+import { Transition } from "../../../../ui/DialogAnimation";
 
 export default function ChargePointDetailsAnalytics({ data }) {
   const [open, setOpen] = useState(false)
@@ -14,7 +14,7 @@ export default function ChargePointDetailsAnalytics({ data }) {
         onClose={onClose}
         TransitionComponent={Transition}
       >
-        <StyledCalender onClose={onClose} onDateChange={(e) => { /*console.log(e);*/ }} />
+        <StyledCalendar onClose={onClose} onDateChange={(e) => { /*console.log(e);*/ }} />
       </Dialog>
       <Stack
         direction={"row"}

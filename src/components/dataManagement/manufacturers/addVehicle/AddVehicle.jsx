@@ -1,15 +1,15 @@
 import { Box, Dialog, Grid, Stack, Typography } from "@mui/material";
 import React, { useEffect } from "react";
-import StyledDivider from "../../../../ui/styledDivider";
-import StyledInput from "../../../../ui/styledInput";
+import StyledDivider from "../../../../ui/StyledDivider";
+import StyledInput from "../../../../ui/StyledInput";
 import { ReactComponent as Close } from "../../../../assets/icons/close-icon-large.svg";
-import StyledButton from "../../../../ui/styledButton";
+import StyledButton from "../../../../ui/StyledButton";
 
 import { Controller, useForm } from "react-hook-form";
 import { useCreateBrand, useEditBrand } from "../../../../hooks/mutations/useVehicleMutation";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Transition } from "../../../../utils/DialogAnimation";
+import { Transition } from "../../../../ui/DialogAnimation";
 
 export default function AddVehicle({ open, onClose, editStatus = false, editData = {} }) {
   const { handleSubmit, setValue, reset, formState: { errors }, control } = useForm();

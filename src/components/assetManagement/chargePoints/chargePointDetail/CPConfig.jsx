@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { Box, Grid, Stack, Typography } from "@mui/material";
 import { ReactComponent as ReloadIcon } from "../../../../assets/icons/reload.svg";
-import StyledSelectField from "../../../../ui/styledSelectField";
-import StyledButton from "../../../../ui/styledButton";
+import StyledSelectField from "../../../../ui/StyledSelectField";
+import StyledButton from "../../../../ui/StyledButton";
 import ConfigElement from "./CPConfig/configElement";
 import ConfigSwitch from "./CPConfig/configSwitch";
 import ConfigMeter from "./CPConfig/configMeter";
 import ConfigCP from "./CPConfig/configCP";
 import { toast } from "react-toastify";
 import { useConfiguration } from "../../../../hooks/queries/useOcpp";
-import StyledBackdropLoader from "../../../../ui/styledBackdropLoader";
+import StyledBackdropLoader from "../../../../ui/StyledBackdropLoader";
 import ReactTimeAgo from "react-time-ago";
 
 const configurationList = [

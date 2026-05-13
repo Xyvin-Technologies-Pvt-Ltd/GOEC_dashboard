@@ -13,7 +13,7 @@ import {
   editEvModel,
   deleteEvModel,
   changeEVTarrif,
-} from "../../services/evMachineAPI";
+} from "../../api/evMachine.api";
 
 //* Create EV machine
 export const useCreateEvMachine = (options = {}) => {

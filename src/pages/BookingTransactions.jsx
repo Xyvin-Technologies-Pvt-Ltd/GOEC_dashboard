@@ -1,12 +1,11 @@
-import { Box } from '@mui/material'
 import React from 'react'
 import BookingTrans from '../components/chargingNetwork/bookingTransactions/BookingTrans'
 
 function BookingTransactions() {
   return (
-    <Box>
+    <div className="w-full">
       <BookingTrans />
-    </Box>
+    </div>
   )
 }
 

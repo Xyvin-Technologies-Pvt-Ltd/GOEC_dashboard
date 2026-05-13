@@ -1,8 +1,7 @@
 import { Grid, Typography, Container, Stack, Box, Switch, FormControlLabel } from "@mui/material";
-import styled from "styled-components";
-import StyledButton from "../../../ui/styledButton";
-import InputField from "../../../ui/styledInput";
-import StyledTab from "../../../ui/styledTab";
+import StyledButton from "../../../ui/StyledButton";
+import InputField from "../../../ui/StyledInput";
+import StyledTab from "../../../ui/StyledTab";
 import LocationalAccess from "./locationalAccess";
 import FunctionalAccess from "./functionalAccess";
 import { useForm, Controller, FormProvider } from "react-hook-form";
@@ -10,6 +9,7 @@ import { useCreateRole, useUpdateRole } from "../../../hooks/mutations/useUserMu
 import { toast } from "react-toastify";
 import { PinkSwitch } from "../../../ui/PinkSwitch";
 import { useEffect } from "react";
+import { TableContainer } from "../../common/FilterPrimitives";
 
 export default function AddRole({ setIsChange, isChange, action, data,onClose, ...props }) {
   const methods = useForm({
@@ -163,11 +163,3 @@ export default function AddRole({ setIsChange, isChange, action, data,onClose, .
   );
 }
 
-//! STYLINGS
-
-// Styled table container
-export const TableContainer = styled.div`
-  background: #27292f; // Dark background for the table
-  overflow-x: auto; // Allows table to be scrollable horizontally
-  border-radius: 8px; // Rounded corners
-`;

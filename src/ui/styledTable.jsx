@@ -1,16 +1,20 @@
-import styled from "styled-components";
-import React, { useEffect, useState } from "react";
-import StyledPagination from "./styledPagination";
-import StyledStopButton from "./styledStopButton";
-import StyledActionCell from "./styledActionCell";
-import StyledStatusChip from "./styledStatusChip";
-import StyledPayloadTableCell from "./styledPayloadTableCell";
-import TableSkeleton from "./tableSkeleton";
-import { Typography } from "@mui/material";
-import { useRemoteStopTransaction } from "../hooks/mutations/useOcppMutation";
-import { toast } from "react-toastify";
-import moment from "moment";
-// StyledTable component
+import React, { useMemo, useState } from "react";
+import EmptyState from "@/components/common/EmptyState";
+import StyledPagination from "./StyledPagination";
+import StyledActionCell from "./StyledActionCell";
+import StyledStatusChip from "./StyledStatusChip";
+import StyledPayloadTableCell from "./StyledPayloadTableCell";
+import TableSkeleton from "./TableSkeleton";
+import RemoteSessionStopButton from "./RemoteSessionStopButton";
+import {
+  Table as UiTable,
+  TableBody as UiTableBody,
+  TableCell as UiTableCell,
+  TableHead as UiTableHead,
+  TableHeader as UiTableHeader,
+  TableRow as UiTableRow,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 const StyledTable = ({
   headers,
@@ -20,79 +24,74 @@ const StyledTable = ({
   actions = ["Edit", "View", "Delete"],
   setPageNo,
   totalCount,
+  isLoading = false,
+  onRemoteStopSuccess,
 }) => {
   const [page, setPage] = useState(0);
-  const [firstopen, setFirstOpen] = useState(true);
-  const [isChange, setIsChange] = useState(false);
-
-  // TanStack Query mutation hook
-  const { mutate: stopTransaction, isPending: isStopping } = useRemoteStopTransaction({
-    onSuccess: () => {
-      toast.success("Session terminated successfully");
-      setIsChange(!isChange);
-    },
-    onError: (error) => {
-      toast.error(error.response?.data?.error || "Failed to terminate session");
-      setIsChange(!isChange);
-    },
-  });
-
-  useEffect(() => {
-    if (data.length > 0) {
-      setFirstOpen(false);
-    }
-  }, [data, isChange]);
-
-  setTimeout(() => {
-    setFirstOpen(false);
-  }, 5000);
-
   const rowsPerPage = 10;
-
   const pageCount =
-    Math.ceil(totalCount / rowsPerPage) > 0 ? Math.ceil(totalCount / rowsPerPage) : 1;
+    Math.ceil((totalCount || 1) / rowsPerPage) > 0
+      ? Math.ceil((totalCount || 1) / rowsPerPage)
+      : 1;
+
+  const payloadMeta = useMemo(() => {
+    const payloadIdx = headers.findIndex((h) => h.toLowerCase() === "payload data");
+    const commandHeader = payloadIdx > 0 ? headers[payloadIdx - 1] : null;
+    return { commandHeader };
+  }, [headers]);
 
   const handleChangePage = (newPage) => {
-    setPage(newPage); // Assuming newPage is 1-indexed
-    setPageNo(newPage + 1);
+    setPage(newPage);
+    setPageNo?.(newPage + 1);
   };
 
-  const handleStopClick = (session) => {
-    const transactionId = session["OCPP Txn ID"] ? session["OCPP Txn ID"] : null;
-    const payload = {
-      transactionId: transactionId,
-    };
-
-    stopTransaction({ cpid: session.CPID, data: payload });
-  };
-  let prevHeader = null;
+  const showSkeleton = isLoading;
+  const isEmpty = !data?.length;
 
   return (
-    <TableContainer>
-      <Table>
-        <TableHeader>
-          <tr>
+    <div className="my-4 overflow-x-auto rounded-lg bg-[#121212]">
+      <UiTable>
+        <UiTableHeader>
+          <UiTableRow className="border-border hover:bg-transparent">
             {headers.map((header) => (
-              <HeaderCell key={header}>{header}</HeaderCell>
+              <UiTableHead
+                key={header}
+                className="whitespace-nowrap text-[#b5b8c5] first-letter:uppercase"
+              >
+                {header}
+              </UiTableHead>
             ))}
-            {showActionCell && <HeaderCell></HeaderCell>}
-          </tr>
-        </TableHeader>
+            {showActionCell && <UiTableHead className="w-[52px]" />}
+          </UiTableRow>
+        </UiTableHeader>
 
-        <TableBody>
-          {firstopen ? (
-            <TableSkeleton tableHeader={headers} />
-          ) : data.length === 0 ? (
-            <TableCell colSpan={headers.length}>
-              <Typography color={"#deb500"} sx={{ textAlign: "center" }}>
-                No Data
-              </Typography>
-            </TableCell>
+        <UiTableBody>
+          {showSkeleton ? (
+            <TableSkeleton tableHeader={[...headers, ...(showActionCell ? [""] : [])]} />
+          ) : isEmpty ? (
+            <UiTableRow>
+              <UiTableCell
+                colSpan={headers.length + (showActionCell ? 1 : 0)}
+                className="p-0"
+              >
+                <EmptyState
+                  title="No data"
+                  description="Try another page, search, or refresh."
+                  className="py-8 text-muted-foreground"
+                />
+              </UiTableCell>
+            </UiTableRow>
           ) : (
             data.map((row, rowIndex) => {
               const sourceData = row.source;
+              const commandForPayload = payloadMeta.commandHeader
+                ? row[payloadMeta.commandHeader]
+                : null;
               return (
-                <tr key={rowIndex}>
+                <UiTableRow
+                  key={rowIndex}
+                  className="border-[#333] odd:bg-transparent even:bg-[#242424]"
+                >
                   {headers.map((header, cellIndex) => {
                     const isStatusColumn = header.toLowerCase() === "status";
                     const isPayload = header.toLowerCase() === "payload data";
@@ -100,159 +99,83 @@ const StyledTable = ({
                     const isPublished = header.toLowerCase() === "published";
                     const isConnectionStatus = header.toLowerCase() === "connector status";
                     const isCommand = header.toLowerCase() === "command";
-                    const isDateColumn =
-                      header.toLowerCase() === "date" ||
-                      header.toLowerCase() === "created on" ||
-                      header.toLowerCase() === "last updated";
-                    const command = prevHeader;
-                    prevHeader = header;
+
+                    const cellTextClass = cn(
+                      "font-sans text-xs leading-[150%]",
+                      cellIndex === 0 && "cursor-pointer text-[#2D9CDB]",
+                      header.toLowerCase() === "message" && "text-red-500",
+                      sourceData === "CMS" &&
+                        (isCommand || isPayload) &&
+                        "text-[#EB5757]",
+                      sourceData === "CP" && (isCommand || isPayload) && "text-[#219653]",
+                      !cellIndex &&
+                        !(
+                          sourceData === "CMS" ||
+                          sourceData === "CP" ||
+                          header.toLowerCase() === "message"
+                        ) &&
+                        "text-[#b5b8c5]",
+                      !cellIndex &&
+                        (sourceData === "CMS" || sourceData === "CP") &&
+                        !isCommand &&
+                        !isPayload &&
+                        "text-[#b5b8c5]",
+                    );
 
                     return (
-                      <TableCell
+                      <UiTableCell
                         key={`${rowIndex}-${header}`}
-                        $isfirstcolumn={cellIndex === 0}
-                        $isMessage={header.toLowerCase() === "message"}
-                        $sourceData={sourceData}
-                        $isPayload={isPayload}
-                        $isCommand={isCommand}
+                        className={cellTextClass}
                         onClick={() => {
-                          if (
-                            showActionCell &&
-                            cellIndex === 0 &&
-                            actions.includes("View")
-                          ) {
-                            onActionClick({ action: "View", data: row });
+                          if (showActionCell && cellIndex === 0 && actions.includes("View")) {
+                            onActionClick?.({ action: "View", data: row });
                           }
                         }}
                       >
-                        {/* Render cell content based on header */}
                         {isStatusColumn ? (
                           <StyledStatusChip $status={row[header]}>{row[header]}</StyledStatusChip>
                         ) : isTerminateSession ? (
-                          <StyledStopButton onClick={() => handleStopClick(row)}>
-                            Stop
-                          </StyledStopButton>
+                          <RemoteSessionStopButton
+                            session={row}
+                            onSuccess={onRemoteStopSuccess}
+                          />
                         ) : isPayload ? (
                           <StyledPayloadTableCell
                             value={row[header]}
-                            command={row[command]}
+                            command={commandForPayload}
                             sourceData={sourceData}
                           />
                         ) : isPublished || isConnectionStatus ? (
                           <StyledStatusChip $status={row[header]}>{row[header]}</StyledStatusChip>
-                          // ) : isDateColumn ? (
-                          //   moment(row[header]).format("DD-MM-YYYY")
                         ) : row[header] || row[header] === "" ? (
                           row[header]
                         ) : (
                           "_"
                         )}
-                      </TableCell>
+                      </UiTableCell>
                     );
                   })}
 
-                  {/* Render action cell if required */}
                   {showActionCell && (
-                    <td>
+                    <UiTableCell>
                       <StyledActionCell
                         actions={actions}
-                        id={row.id} // Assuming your row data has an 'id' property
+                        id={row.id}
                         onCliked={(e) => {
-                          onActionClick && onActionClick({ data: row, ...e });
+                          onActionClick?.({ data: row, ...e });
                         }}
                       />
-                    </td>
+                    </UiTableCell>
                   )}
-                </tr>
+                </UiTableRow>
               );
             })
           )}
-        </TableBody>
-      </Table>
+        </UiTableBody>
+      </UiTable>
       <StyledPagination page={page} pageCount={pageCount} onChange={handleChangePage} />
-    </TableContainer>
+    </div>
   );
 };
 
 export default StyledTable;
-
-//! STYLINGS
-
-// Styled table container
-export const TableContainer = styled.div`
-  background: #121212; // Dark background for the table
-  overflow-x: scroll; // Allows table to be scrollable horizontally
-  border-radius: 8px; // Rounded corners
-  margin: 16px 0; // Margin for spacing, adjust as needed
-`;
-
-// Styled table
-export const Table = styled.table`
-  width: 100%; // Full-width table
-  border-collapse: collapse; // Collapses table borders
-  color: #fff; // White text color
-`;
-
-// Styled table header
-export const TableHeader = styled.thead`
-  background: #1e1e1e; // Slightly lighter dark background for header
-  text-align: left;
-  padding: 10px 10px;
-`;
-
-// Styled table header cell
-export const HeaderCell = styled.th`
-  color: var(--greyish, #b5b8c5);
-  font-family: Inter;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  letter-spacing: 0.2px;
-  white-space: nowrap; // Prevent text wrapping
-  overflow: hidden; // Hide overflowed content
-  text-overflow: ellipsis; // Show ellipsis for overflowed content
-  min-width: 100px; // Minimum width for each header cell, adjust as needed
-  // Optionally, if using flexbox in your table:
-  flex-grow: 1; // Allows the cell to grow to fit available space
-  padding: 20px 90px 20px 10px;
-  &::first-letter {
-    text-transform: uppercase;
-  }
-`;
-
-// Styled table body
-export const TableBody = styled.tbody`
-  tr {
-    border-bottom: 1px solid #333; // Border color for row separation
-
-    &:nth-child(even) {
-      background: #242424; // Alternating row background
-    }
-  }
-`;
-
-// Styled table cell
-export const TableCell = styled.td`
-  padding: 16px; // Padding inside cells, adjust as needed
-  font-family: Inter;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 150%; /* 18px */
-  cursor: ${(props) => (props.$isfirstcolumn ? "pointer" : "default")};
-  color: ${(props) =>
-    props.$isfirstcolumn
-      ? "#2D9CDB" // Blue text color for the first column
-      : props.$isMessage
-        ? "red" // Red text color for the "Message" column
-        : props.$sourceData === "CMS"
-          ? props.$isCommand || props.$isPayload
-            ? "#EB5757" // Change color to red for isCommand and isPayload if sourceData is 'cms'
-            : "rgba(181, 184, 197, 1)" // Default text color for other columns
-          : props.$sourceData === "CP"
-            ? props.$isCommand || props.$isPayload
-              ? "#219653" // Change color to green for isCommand and isPayload if sourceData is 'cp'
-              : "rgba(181, 184, 197, 1)" // Default text color for other columns
-            : "rgba(181, 184, 197, 1)"}; // Default text color for other columns
-`;

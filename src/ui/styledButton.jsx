@@ -1,151 +1,76 @@
-import styled, { css } from "styled-components";
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
-const StyledButton = styled.button`
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-  font-family: "Inter", "sans-serif";
-  cursor: pointer;
-  // font-size: 16px;
-  // font-weight: 600;
-  font-style: normal;
-  gap: 16px;
-  display: flex;
-  width:100%;
-  justify-content: center;
-  align-items: center;
-  transition: background-color 0.3s, box-shadow 0.3s;
+/** Maps legacy StyledButton API to shadcn Button + Tailwind. */
+const StyledButton = React.forwardRef(
+  (
+    {
+      variant = "primary",
+      width,
+      height,
+      fontSize,
+      p,
+      pt,
+      pr,
+      pb,
+      pl,
+      m,
+      mt,
+      mr,
+      mb,
+      ml,
+      className,
+      style,
+      children,
+      ...props
+    },
+    ref,
+  ) => {
+    const toCssLen = (v) => (typeof v === "number" ? `${v}px` : v);
 
-  // font size for different button styles
-  ${(props) =>
-    props.fontSize &&
-    css`
-      font-size: ${props.fontSize}px;
-    `}
-  ${(props) =>
-    !props.fontSize &&
-    css`
-      font-size: 16px;
-    `}
-    
-  // width for different button styles
-  ${(props) =>
-    props.width &&
-    css`
-      width: ${props.width}px;
-    `}
-    ${(props) =>
-    !props.width &&
-    css`
-      width: 482px;
-    `}
+    const paddingStyle = {};
+    if (p != null) paddingStyle.padding = toCssLen(p);
+    if (pt != null) paddingStyle.paddingTop = toCssLen(pt);
+    if (pr != null) paddingStyle.paddingRight = toCssLen(pr);
+    if (pb != null) paddingStyle.paddingBottom = toCssLen(pb);
+    if (pl != null) paddingStyle.paddingLeft = toCssLen(pl);
 
-    // height for different button styles
-  ${(props) =>
-    props.height &&
-    css`
-      height: ${props.height}px;
-    `}
-     
-  // padding for different button styles
+    const marginStyle = {};
+    if (m != null) marginStyle.margin = toCssLen(m);
+    if (mt != null) marginStyle.marginTop = toCssLen(mt);
+    if (mr != null) marginStyle.marginRight = toCssLen(mr);
+    if (mb != null) marginStyle.marginBottom = toCssLen(mb);
+    if (ml != null) marginStyle.marginLeft = toCssLen(ml);
 
-  ${(props) => {
-    if (props.p) {
-      return css`
-        padding: ${props.p}px;
-      `;
-    } else if (props.pt) {
-      return css`
-        padding-top: ${props.pt}px;
-      `;
-    } else if (props.pr) {
-      return css`
-        padding-right: ${props.pr}px;
-      `;
-    } else if (props.pb) {
-      return css`
-        padding-bottom: ${props.pb}px;
-      `;
-    } else if (props.pl) {
-      return css`
-        padding-left: ${props.pl}px;
-      `;
-    } else {
-      return css`
-        padding: 15px 20px;
-      `;
+    const sizeStyle = {};
+    if (width != null) sizeStyle.width = toCssLen(width);
+    else {
+      sizeStyle.width = "100%";
+      sizeStyle.maxWidth = "482px";
     }
-  }}
+    if (height != null) sizeStyle.height = toCssLen(height);
+    if (fontSize != null) sizeStyle.fontSize = toCssLen(fontSize);
 
-// margin for different button styles
+    const shadcnVariant = variant === "primary" ? "gradient" : "secondary";
 
-${(props) => {
-    if (props.m) {
-      return css`
-        margin: ${props.m}px;
-      `;
-    } else if (props.mt) {
-      return css`
-        margin-top: ${props.mt}px;
-      `;
-    } else if (props.mr) {
-      return css`
-        margin-right: ${props.mr}px;
-      `;
-    } else if (props.mb) {
-      return css`
-        margin-bottom: ${props.mb}px;
-      `;
-    } else if (props.ml) {
-      return css`
-        margin-left: ${props.ml}px;
-      `;
-    } else {
-      return css`
-        margin: 0px 0px;
-      `;
-    }
-  }}
-
-  // Variants for different button styles
-  ${(props) =>
-    props.variant === "primary" &&
-    css`
-      background-image: linear-gradient(
-        100deg,
-        #ed5dcd -2.24%,
-        rgba(95, 93, 215, 0.71) 98.06%
-      );
-      color: white;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-    `}
-
-  ${(props) =>
-    props.variant === "secondary" &&
-    css`
-      background-color: #333;
-      color: white;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-    `}
-
-  &:hover {
-    box-shadow: 0 6px 12px rgba(152, 149, 149, 0.35);
-  }
-
-  ${(props) =>
-    props.variant === "gray" &&
-    css`
-      background-color: #39383d;
-      color: white;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-    `}
-
-  &:hover {
-    box-shadow: 0 6px 12px rgba(152, 149, 149, 0.35);
-  }
-
-  &:focus {
-    outline: none;
-  }
-`;
+    return (
+      <Button
+        ref={ref}
+        variant={shadcnVariant}
+        className={cn(
+          variant === "secondary" && "bg-[#333] text-white shadow-md hover:bg-[#444]",
+          variant === "gray" && "bg-[#39383d] text-white shadow-md hover:bg-[#39383d]/90",
+          className,
+        )}
+        style={{ ...sizeStyle, ...paddingStyle, ...marginStyle, ...style }}
+        {...props}
+      >
+        {children}
+      </Button>
+    );
+  },
+);
+StyledButton.displayName = "StyledButton";
 
 export default StyledButton;

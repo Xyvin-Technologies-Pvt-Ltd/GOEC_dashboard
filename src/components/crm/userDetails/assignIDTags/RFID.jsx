@@ -1,14 +1,14 @@
 import { Box, Dialog } from "@mui/material";
 import React, { useState } from "react";
 import LastSynced from "../../../../layout/LastSynced";
-import StyledTable from "../../../../ui/styledTable";
+import StyledTable from "../../../../ui/StyledTable";
 import { RFIDData } from "../../../../assets/json/crm";
 import AssignRFID from "./assignRFID";
-import { Transition } from "../../../../utils/DialogAnimation";
+import { Transition } from "../../../../ui/DialogAnimation";
 import { useUserRfidList } from "../../../../hooks/queries/useUser";
 import { useRemoveRfidTag } from "../../../../hooks/mutations/useUserMutation";
 import { useParams } from "react-router-dom";
-import { tableHeaderReplace } from "../../../../utils/tableHeaderReplace";
+import { tableHeaderReplace } from "../../../../components/common/tableHeaderReplace";
 import { toast } from "react-toastify";
 
 

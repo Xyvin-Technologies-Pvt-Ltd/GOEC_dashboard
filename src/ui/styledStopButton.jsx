@@ -1,30 +1,19 @@
-// Styled Stop button
-import styled from "styled-components";
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
-const StyledStopButton = styled.button`
-  display: inline-flex;
-  padding: 10px 20px;
-  align-items: flex-start;
-  gap: 10px;
-  background-color: #663131; // Red background color for stop button
-  border: none; // No border
-  border-radius: 4px; // Rounded corners
-  cursor: pointer; // Pointer cursor on hover
-  margin-left: auto; // Align to the right
-  &:hover {
-    background-color: #a8322c; // Slightly darker red on hover
-  }
-
-  //Typography
-  color: var(--grayscale-white, #fff);
-  text-align: center;
-  font-family: Inter;
-  font-size: 11px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-`;
+const StyledStopButton = React.forwardRef(({ className, children, ...props }, ref) => (
+  <button
+    ref={ref}
+    type="button"
+    className={cn(
+      "ml-auto inline-flex cursor-pointer items-start gap-2.5 rounded border-0 bg-[#663131] px-5 py-2.5 text-center font-sans text-[11px] font-medium uppercase tracking-wide text-white hover:bg-[#a8322c]",
+      className,
+    )}
+    {...props}
+  >
+    {children}
+  </button>
+));
+StyledStopButton.displayName = "StyledStopButton";
 
 export default StyledStopButton;

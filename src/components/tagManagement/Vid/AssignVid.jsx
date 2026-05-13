@@ -1,4 +1,3 @@
-import styled from "styled-components";
 import {
     Box,
     ButtonBase,
@@ -13,9 +12,9 @@ import {
     Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import InputField from "../../../ui/styledInput";
-import StyledSelectField from "../../../ui/styledSelectField";
-import StyledButton from "../../../ui/styledButton";
+import InputField from "../../../ui/StyledInput";
+import StyledSelectField from "../../../ui/StyledSelectField";
+import StyledButton from "../../../ui/StyledButton";
 import { ReactComponent as UserIcon } from '../../../assets/icons/Frame 42744.svg'
 import { ReactComponent as Refresh } from '../../../assets/icons/autorenew.svg'
 import StyledFooter from "../../../ui/StyledFooter";
@@ -24,7 +23,8 @@ import StyledList from "../../../ui/StyledList";
 import LastSynced from '../../../layout/LastSynced'
 import StyledDropdown from "../../../ui/StyledDropdown";
 import { useForm, Controller } from 'react-hook-form';
-import StyledInput from "../../../ui/styledInput";
+import StyledInput from "../../../ui/StyledInput";
+import { TableContainer } from "../../common/FilterPrimitives";
 
 const listdata = [
     { title: 'VID Tag', value: '04238ECAF10F90' },
@@ -67,7 +67,7 @@ const AssignVid = () => {
     return (
         <>
             <LastSynced heading="VID Cards" />
-            <TableContainer>
+            <TableContainer className="mx-4 my-5 bg-[#1c1d22]">
                 <Container maxWidth="lg">
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <Grid container>
@@ -215,16 +215,4 @@ const errorMessageStyle = {
     margin: '10px 0',
   };
 
-export default AssignVid
-
-//! STYLINGS
-
-// Styled action cell
-
-// Styled table container
-export const TableContainer = styled.div`
-  background: #1C1D22; // Dark background for the table
-  overflow-x: auto; // Allows table to be scrollable horizontally
-  border-radius: 8px; // Rounded corners
-  margin: 20px 16px; // Margin for spacing, adjust as needed
-`;
+export default AssignVid;

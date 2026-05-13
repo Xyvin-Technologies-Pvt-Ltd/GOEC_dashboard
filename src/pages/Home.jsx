@@ -1,5 +1,5 @@
 import React from "react";
-import StyledTable from "../ui/styledTable.jsx";
+import StyledTable from "../ui/StyledTable.jsx";
 import { DummyData } from "../assets/json/TableData";
 
 import DashboardLayout from '../layout/dashboardLayout.jsx'

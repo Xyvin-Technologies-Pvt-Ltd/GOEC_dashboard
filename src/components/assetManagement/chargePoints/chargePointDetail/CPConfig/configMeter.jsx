@@ -1,7 +1,7 @@
 import { Box, Grid, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
-import StyledButton from "../../../../../ui/styledButton";
-import StyledSelectField from "../../../../../ui/styledSelectField";
+import StyledButton from "../../../../../ui/StyledButton";
+import StyledSelectField from "../../../../../ui/StyledSelectField";
 import { Clear } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import { useChangeConfiguration } from "../../../../../hooks/mutations/useOcppMutation";

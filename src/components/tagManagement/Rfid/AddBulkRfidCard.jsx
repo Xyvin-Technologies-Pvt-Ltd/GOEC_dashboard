@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import CommonLayout from "../../../layout/CommonLayout";
 import { Grid, List, ListItem, Typography } from "@mui/material";
 import StyledFooter from "../../../ui/StyledFooter";
-import StyledButton from "../../../ui/styledButton";
+import StyledButton from "../../../ui/StyledButton";
 import { ReactComponent as ArrowDown } from "../../../assets/icons/arrow-down.svg";
 import UploadFile from "../../../ui/UploadFile";
 import ProgressBar from "../../../ui/ProgressBar";
 import { useForm } from 'react-hook-form';
-import { excelToJSONConvert, exportRFIDSampleFile } from "../../../utils/excelExport";
+import { exportRFIDSampleFile } from "../../../utils/excelExport";
 import { toast } from "react-toastify";
-import XLSX from 'sheetjs-style';
+import * as XLSX from 'xlsx';
 import { useCreateManyRfid } from "../../../hooks/mutations/useRfidMutation";
 
 const AddBulkRfidCard = ({ Close, Save }) => {
