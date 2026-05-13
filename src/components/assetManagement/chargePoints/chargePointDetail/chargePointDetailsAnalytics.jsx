@@ -74,7 +74,7 @@ export default function ChargePointDetailsAnalytics({ data }) {
                   py: 0,
                 }}
               >
-                <Typography variant="h5">{data && data.numTransactions}</Typography>
+                <Typography variant="h5">{data?.numTransactions ?? "—"}</Typography>
               </Box>
             </Box>
           </Stack>
@@ -114,7 +114,11 @@ export default function ChargePointDetailsAnalytics({ data }) {
                   py: 0,
                 }}
               >
-                <Typography variant="h5">{data && data.totalAmountReceived.toFixed(2)}</Typography>
+                <Typography variant="h5">
+                  {data?.totalAmountReceived != null
+                    ? Number(data.totalAmountReceived).toFixed(2)
+                    : "—"}
+                </Typography>
               </Box>
             </Box>
           </Stack>
@@ -156,7 +160,11 @@ export default function ChargePointDetailsAnalytics({ data }) {
                   py: 0,
                 }}
               >
-                <Typography variant="h5">{data && data.totalEnergyUsed/1000}</Typography>
+                <Typography variant="h5">
+                  {data?.totalEnergyUsed != null
+                    ? data.totalEnergyUsed / 1000
+                    : "—"}
+                </Typography>
               </Box>
             </Box>
           </Stack>
