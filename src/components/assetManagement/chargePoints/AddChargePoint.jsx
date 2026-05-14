@@ -24,9 +24,47 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
   const createMutation = useCreateEvMachine();
   const editMutation = useEditEvMachine();
 
+  const getOemRefOnModel = (modelItem) =>
+    modelItem?.oem ?? modelItem?.OEM ?? modelItem?.oem_id ?? null;
+
+  const modelBelongsToOem = (modelItem, oemSelection) => {
+    if (!oemSelection) return false;
+    const selectedId = oemSelection.value;
+    const selectedLabel = oemSelection.label;
+    const oemRef = getOemRefOnModel(modelItem);
+    if (oemRef == null || oemRef === "") return false;
+    if (typeof oemRef === "object" && oemRef !== null) {
+      const refId = oemRef._id ?? oemRef.id;
+      const refName = oemRef.name ?? oemRef.label;
+      return (
+        (refId != null && String(refId) === String(selectedId)) ||
+        (refName != null && refName === selectedLabel)
+      );
+    }
+    return (
+      String(oemRef) === String(selectedId) ||
+      oemRef === selectedLabel
+    );
+  };
+
   const stationList = stationListData || [];
   const OEMList = oemListData || [];
   const modelList = modelListData || [];
+
+  const buildModelOptionsForOem = (oemSelection) => {
+    if (!modelList.length || !oemSelection) return [];
+    const hasOemLinkage = modelList.some((m) => {
+      const r = getOemRefOnModel(m);
+      return r != null && r !== "";
+    });
+    const source = hasOemLinkage
+      ? modelList.filter((dt) => modelBelongsToOem(dt, oemSelection))
+      : modelList;
+    return source.map((dt) => ({
+      label: dt.model_name ?? dt.label,
+      value: dt.value,
+    }));
+  };
   const editConfigurationUrl =
     chargepointData?.configuration_url != null &&
     String(chargepointData.configuration_url).trim() !== ""
@@ -119,15 +157,6 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
     setValue("published", event.target.checked);
   };
 
-  useEffect(() => {
-    // Update model options when OEM list or model data changes
-    if (editStatus && modelList && OEMList.length > 0) {
-      const oemLabel = chargepointData["OEM"];
-      const modelOptions = modelList.filter((dt) => dt.label === oemLabel);
-      setModelOptions(modelOptions);
-    }
-  }, [modelList, OEMList, editStatus]);
-
   const getListId = (list, value) => {
     for (let index = 0; index < list.length; index++) {
       if (list[index].label == value) {
@@ -135,6 +164,17 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
       }
     }
   }
+
+  useEffect(() => {
+    if (!editStatus || !modelList?.length || !OEMList.length || !chargepointData) return;
+    const oemName = chargepointData["OEM"];
+    const oemSelection =
+      OEMList.find((o) => o.label === oemName) ?? {
+        label: oemName,
+        value: getListId(OEMList, oemName),
+      };
+    setModelOptions(buildModelOptionsForOem(oemSelection));
+  }, [modelList, OEMList, editStatus, chargepointData]);
 
   const handleDateChangeInParent = (date) => {
     setValue("commissionedDate", date);
@@ -217,17 +257,9 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
                 <>
                   <StyledSelectField options={OEMList} {...field} placeholder="select OEM"
                     onChange={(e) => {
-                      setValue("chargePointOEM", e)
-                      let list = []
-                      modelList.map((dt) => {
-                        if (dt.oem === e.label) {
-                          list.push({
-                            label: dt.model_name,
-                            value: dt._id
-                          })
-                        }
-                      })
-                      setModelOptions(list)
+                      setValue("chargePointOEM", e);
+                      setValue("model", null);
+                      setModelOptions(buildModelOptionsForOem(e));
                     }} />
                   {errors.chargePointOEM && (
                     <span style={errorMessageStyle}>

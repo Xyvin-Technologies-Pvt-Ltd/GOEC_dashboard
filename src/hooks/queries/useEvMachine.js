@@ -6,7 +6,6 @@ import {
   getOemDropdown,
   getOemById,
   getEvModel,
-  getEvModelDropdown,
   getEvModelById,
   getChargerTarrifDetail,
   getReportForChargePoint,
@@ -64,15 +63,17 @@ export const useEvModelList = (filters) =>
     placeholderData: keepPreviousData,
   });
 
-//* Get EV model dropdown
+//* EV models for forms: `/evModel/list/dropdown` often omits `oem`, breaking OEM→model filtering on Add Charge Point.
 export const useEvModelDropdown = () =>
   useQuery({
     queryKey: ["evModelDropdown"],
-    queryFn: getEvModelDropdown,
+    queryFn: () => getEvModel({ pageNo: 1 }),
     select: (res) =>
       res?.result?.map((item) => ({
-        label: item.name,
+        label: item.model_name ?? item.name,
         value: item._id,
+        model_name: item.model_name ?? item.name,
+        oem: item.oem ?? item.OEM ?? item.oem_id,
       })) ?? [],
   });
 
