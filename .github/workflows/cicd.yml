@@ -1,4 +1,4 @@
-name: Deploy GOEC Dashboard (PRODUCTION)
+name: Deploy GOEC Dashboard (PRODUCTION-(nepal-server)
 
 on:
   push:
