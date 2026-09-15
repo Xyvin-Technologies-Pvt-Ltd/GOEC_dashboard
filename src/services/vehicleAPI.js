@@ -1,4 +1,4 @@
-import { VEHICLE_INSTANCES } from "./axiosInstances";
+import { IMAGE_UPLOAD_URL, VEHICLE_INSTANCES } from "./axiosInstances";
 
 export async function createVehicle(data) {
   try {
@@ -118,9 +118,11 @@ export async function getBrandById(Id) {
   }
 }
 
-export async function vehicleImageUpload(data) {
+export async function vehicleImageUpload(file) {
   try {
-    const response = await VEHICLE_INSTANCES.post(`image/upload`,data);
+    const form = new FormData();
+    form.append("image", file);
+    const response = await IMAGE_UPLOAD_URL.post(`image/upload`, form);
     return response.data;
   } catch (error) {
     throw error;
