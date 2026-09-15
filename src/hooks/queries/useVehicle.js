@@ -46,7 +46,7 @@ export const useBrandDropdown = () =>
     queryFn: getBrandDropdown,
     select: (res) =>
       res?.result?.map((item) => ({
-        label: item.name,
+        label: item.brandName ?? item.name,
         value: item._id,
       })) ?? [],
   });

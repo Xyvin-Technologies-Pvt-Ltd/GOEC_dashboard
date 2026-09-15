@@ -19,7 +19,7 @@ export const useTaxDropdown = () =>
     queryKey: ["taxDropdown"],
     queryFn: getTaxListDropdown,
     select: (res) =>
-      res?.result?.map((item) => ({
+      (res?.taxs ?? res?.result ?? [])?.map((item) => ({
         label: item.name,
         value: item._id,
       })) ?? [],
