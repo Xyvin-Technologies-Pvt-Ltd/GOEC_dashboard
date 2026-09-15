@@ -8,7 +8,7 @@ import ConfigSwitch from "./CPConfig/configSwitch";
 import ConfigMeter from "./CPConfig/configMeter";
 import ConfigCP from "./CPConfig/configCP";
 import { toast } from "react-toastify";
-import { getConfiguration } from "../../../../services/ocppAPI";
+import { useConfiguration } from "../../../../hooks/queries/useOcpp";
 import StyledBackdropLoader from "../../../../ui/styledBackdropLoader";
 import ReactTimeAgo from "react-time-ago";
 
@@ -152,6 +152,8 @@ const switchToKeyMap = {
 export default function CPConfig() {
   const [loading, setLoading] = useState(false);
   const [configurationData, setConfigurationData] = useState([]);
+  const [configParams, setConfigParams] = useState({});
+  const [fetchConfig, setFetchConfig] = useState(false);
   const [date, setDate] = useState(new Date());
   const [rotate, setRotate] = useState(0);
   const [startRotate, setStartRotate] = useState(false);
@@ -167,20 +169,33 @@ export default function CPConfig() {
   }, 10);
 
   const handleConfiguration = async (data = {}) => {
-    try {
-      setLoading(true);
-      const cpid = sessionStorage.getItem("cpid");
-      const res = await getConfiguration(cpid, data);
-      setConfigurationData(res.data.configurationKey);
+    // Use hook-driven fetching: set params and toggle fetch flag; effect will handle the request
+    setLoading(true);
+    setConfigParams(data);
+    setFetchConfig(true);
+  };
+
+  const cpid = sessionStorage.getItem("cpid");
+  const { data: configResp, error: configError, refetch: refetchConfig } = useConfiguration(cpid, configParams, fetchConfig && !!cpid);
+
+  // when configResp arrives, update local state
+  React.useEffect(() => {
+    if (configResp) {
+      setConfigurationData(configResp.data?.configurationKey || []);
       setLoading(false);
-    } catch (error) {
-      const errorToastId = toast.error(error.response.data.error, {
-        position: "top-right",
-      });
+      setFetchConfig(false);
+    }
+  }, [configResp]);
+
+  React.useEffect(() => {
+    if (configError) {
+      const errMsg = configError?.response?.data?.error || configError?.message || "Failed to fetch configuration";
+      const errorToastId = toast.error(errMsg, { position: "top-right" });
       toast.update(errorToastId);
       setLoading(false);
+      setFetchConfig(false);
     }
-  };
+  }, [configError]);
 
   const finalConfigList = Object.keys(labelToKeyMap)
     .filter(

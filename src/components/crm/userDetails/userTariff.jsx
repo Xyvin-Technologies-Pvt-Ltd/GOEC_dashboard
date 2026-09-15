@@ -1,10 +1,10 @@
 import { Box, Grid, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import LastSynced from "../../../layout/LastSynced";
 import TariffCard from "./userTariff/tariffCard";
 import AssignTariff from "./userTariff/assignTariff";
 import { useLocation, useParams } from "react-router-dom";
-import { userchargingTariff } from "../../../services/userApi";
+import { useUserChargingTariff } from "../../../hooks/queries/useUser";
 
 const tariffData = [
   {
@@ -44,17 +44,11 @@ const tariffData = [
 export default function UserTariff() {
   const [open, setOpen] = useState(false);
   const { id } = useParams();
-  const [tariff, setTariff] = useState();
   const [isChange, setIsChange] = useState(false);
 
-  const getData = async () => {
-    const res = await userchargingTariff(id);
-    setTariff(res.result);
-  };
+  const { data: tariffData } = useUserChargingTariff(id);
+  const tariff = tariffData?.result;
 
-  useEffect(() => {
-    getData();
-  }, [id, isChange]);
   return (
     <Box>
       <AssignTariff

@@ -9,7 +9,8 @@ import StyledSwitch from "../../../ui/styledSwitch";
 import { Controller, useForm } from "react-hook-form";
 import StyledInput from "../../../ui/styledInput";
 import { Phone, Try } from "@mui/icons-material";
-import { createAdmin, getRoles, updateAdmin } from "../../../services/userApi";
+import { useRolesList } from "../../../hooks/queries/useUser";
+import { useCreateAdmin, useUpdateAdmin } from "../../../hooks/mutations/useUserMutation";
 import { toast } from "react-toastify";
 
 export default function AddAdmin({ setIsChange, isChange, setAction, action, data,onClose, ...props }) {
@@ -28,40 +29,45 @@ export default function AddAdmin({ setIsChange, isChange, setAction, action, dat
         }
       : {};
 
-  const [roles, setRoles] = useState([]);
   const { register, handleSubmit, control, reset } = useForm(formOptions);
-
+  const { data: rolesData, isLoading: rolesLoading } = useRolesList();
+  const createAdminMutation = useCreateAdmin({
+    onSuccess: () => {
+      props.onSuccess();
+      setIsChange(!isChange);
+    },
+    onError: () => {
+      toast.error("Failed to add admin");
+    },
+  });
+  const updateAdminMutation = useUpdateAdmin({
+    onSuccess: () => {
+      props.onSuccess();
+      setIsChange(!isChange);
+      setAction("add");
+      reset();
+    },
+    onError: () => {
+      toast.error("Failed to update admin");
+    },
+  });
 
   const [loading, setLoading] = useState(false);
   const onSubmit = async (formData) => {
     setLoading(true);
     let fData = { ...formData, role: formData.role.value };
-
-    try {
-      if (action === "add") {
-        await createAdmin(fData);
-      } else if (action === "edit") {
-        await updateAdmin(data._id, fData);
-        setAction("add");
-        reset();
-      }
-      props.onSuccess();
-      setIsChange(!isChange);
-    } catch (error) {
-      toast.error("Failed to add role");
-    }finally {
-      setLoading(false); // Stop loading regardless of the outcome
+    if (action === "add") {
+      createAdminMutation.mutate(fData, {
+        onSettled: () => setLoading(false),
+      });
+    } else if (action === "edit") {
+      updateAdminMutation.mutate({ id: data._id, data: fData }, {
+        onSettled: () => setLoading(false),
+      });
     }
   };
 
-  const init = async () => {
-    let roles1 = await getRoles();
-    setRoles(roles1.result);
-  };
-
-  useEffect(() => {
-    init();
-  }, []);
+  // No need for useEffect/init, roles are fetched via hook
 
   return (
     <TableContainer>
@@ -108,10 +114,13 @@ export default function AddAdmin({ setIsChange, isChange, setAction, action, dat
                     <StyledSelectField
                       {...field}
                       placeholder="Role"
-                      options={roles.map((e) => ({
-                        label: e.roleName,
-                        value: e._id,
-                      }))}
+                      options={
+                        rolesData?.result?.map((e) => ({
+                          label: e.roleName,
+                          value: e._id,
+                        })) || []
+                      }
+                      loading={rolesLoading}
                     />
                   </>
                 )}
@@ -149,8 +158,8 @@ export default function AddAdmin({ setIsChange, isChange, setAction, action, dat
                   Cancel
                 </StyledButton>
                 <StyledButton variant={"primary"} width="160" type="submit"
-                  disabled={loading}>
-                   {loading ? "Saving..." : "Save"}
+                  disabled={loading || createAdminMutation.isLoading || updateAdminMutation.isLoading}>
+                   {(loading || createAdminMutation.isLoading || updateAdminMutation.isLoading) ? "Saving..." : "Save"}
                 </StyledButton>
               </Stack>
             </Grid>

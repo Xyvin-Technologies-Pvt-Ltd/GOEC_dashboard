@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Box } from "@mui/material";
 import LastSynced from "../../layout/LastSynced";
 import StyledTable from "../../ui/styledTable";
 import { customerListData } from "../../assets/json/crm";
 import { useNavigate } from "react-router-dom";
-import { getUsersListforAdmin } from "../../services/userApi";
+import { useUsersListForAdmin } from "../../hooks/queries/useUser";
 import { tableHeaderReplace } from "../../utils/tableHeaderReplace";
 import StyledSearchField from "../../ui/styledSearchField";
 import { searchAndFilter } from "../../utils/search";
@@ -23,26 +23,21 @@ function restructureData(dataArray) {
 }
 
 export default function CustomerLists() {
-  const [userListData, setUserListData] = useState([]);
   const [pageNo, setPageNo] = useState(1);
-  const [totalCount, setTotalCount] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-  
-  const getTariffData = (filter={pageNo}) => {
-    if(searchQuery){
-      filter.searchQuery = searchQuery;
-    }
-    getUsersListforAdmin(filter).then((res) => {
-      if (res.status) {
-        setUserListData(res.result);
-        setTotalCount(res.totalCount);
-      }
-    });
-  };
 
-  useEffect(() => {
-    getTariffData();
-  }, [pageNo, searchQuery]);
+  const filter = { pageNo };
+  if(searchQuery){
+    filter.searchQuery = searchQuery;
+  }
+
+  const { data: usersData, refetch: refetchUsers } = useUsersListForAdmin(filter);
+  const userListData = usersData?.result || [];
+  const totalCount = usersData?.totalCount || 0;
+
+  const getTariffData = () => {
+    refetchUsers();
+  };
 
   const navigate = useNavigate();
 

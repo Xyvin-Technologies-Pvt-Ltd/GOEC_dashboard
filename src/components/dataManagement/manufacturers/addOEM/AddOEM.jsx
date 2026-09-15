@@ -5,13 +5,15 @@ import StyledInput from "../../../../ui/styledInput";
 import { ReactComponent as Close } from "../../../../assets/icons/close-icon-large.svg";
 import StyledButton from "../../../../ui/styledButton";
 import { Controller, useForm } from "react-hook-form";
-import { createOem, editOem } from "../../../../services/evMachineAPI";
+import { useCreateOem, useEditOem } from "../../../../hooks/mutations/useEvMachineMutation";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Transition } from "../../../../utils/DialogAnimation";
 
 export default function AddOEM({ open, onClose, editStatus = false, editData = {} }) {
   const { handleSubmit, setValue, reset, formState: { errors }, control } = useForm();
+  const createMutation = useCreateOem();
+  const editMutation = useEditOem();
   useEffect(() => {
     setValue("name", editStatus ? editData["Company Name"] : '')
   }, [editData, editStatus, setValue])
@@ -26,26 +28,30 @@ export default function AddOEM({ open, onClose, editStatus = false, editData = {
   };
 
   const createOEM = (data) => {
-    createOem(data).then((res) => {
-      if (res.status) {
+    createMutation.mutate(data, {
+      onSuccess: (res) => {
         toast.success("OEM created successfully");
         onClose && onClose();
         reset();
+      },
+      onError: (error) => {
+        toast.error(error?.response?.data?.error || "Failed to create OEM");
       }
-    }).catch((error) => {
-      toast.error("Failed to create OEM");
     })
   }
 
 
 
   const updateOEM = (data) => {
-    editOem(editData._id, data).then((res) => {
-      toast.success("OEM Updated successfully");
-      onClose && onClose();
-      reset();
-    }).catch((error) => {
-      toast.error("Failed to update OEM");
+    editMutation.mutate({ id: editData._id, data }, {
+      onSuccess: (res) => {
+        toast.success("OEM Updated successfully");
+        onClose && onClose();
+        reset();
+      },
+      onError: (error) => {
+        toast.error(error?.response?.data?.error || "Failed to update OEM");
+      }
     })
   }
 

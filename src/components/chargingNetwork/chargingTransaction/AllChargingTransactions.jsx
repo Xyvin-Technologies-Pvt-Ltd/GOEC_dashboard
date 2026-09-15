@@ -10,8 +10,9 @@ import StyledSearchField from "../../../ui/styledSearchField";
 import Filter from "../filter";
 import RightDrawer from "../../../ui/RightDrawer";
 import { searchAndFilter } from "../../../utils/search";
-import { getInvoice, sendMail } from "../../../services/ocppAPI";
 import { toast } from "react-toastify";
+import { useInvoice } from "../../../hooks/queries/useOcpp";
+import { useSendInvoiceMail } from "../../../hooks/mutations/useOcppMutation";
 const tableHeader = [
   "Transaction ID",
   "Date",
@@ -39,6 +40,19 @@ export default function AllChargingTransactions({
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState("");
   const [selectedData, setSelectData] = useState();
+  const [invoiceTransactionId, setInvoiceTransactionId] = useState(null);
+
+  // TanStack Query hooks
+  const { data: invoiceData, refetch: refetchInvoice } = useInvoice(invoiceTransactionId, false);
+  const { mutate: sendInvoiceEmail, isPending: isSendingEmail } = useSendInvoiceMail({
+    onSuccess: () => {
+      toast.success("Email sent successfully");
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Email not sent");
+    },
+  });
 
   const AllOcppTransactionData = tableHeaderReplace(
     data,
@@ -74,23 +88,24 @@ export default function AllChargingTransactions({
   };
   const tableActionClick = async (e) => {
     if (e.action === "Download Invoice") {
-      const res = await getInvoice(e.data["Transaction ID"]);
-      const base64String = res.result;
-      const linkSource = `data:application/pdf;base64,${base64String}`;
-      const downloadLink = document.createElement("a");
-      const fileName = `Invoice_${e.data["Transaction ID"]}.pdf`;
+      setInvoiceTransactionId(e.data["Transaction ID"]);
+      const result = await refetchInvoice();
 
-      downloadLink.href = linkSource;
-      downloadLink.download = fileName;
-      downloadLink.click();
-    }
-    if(e.action === "Resend Email"){
-      const res = await sendMail(e.data["Transaction ID"]);
-      if(res === "error"){
-        toast.error("Email not sent");
-      }else {
-        toast.success("Email sent successfully");
+      if (result.data?.result) {
+        const base64String = result.data.result;
+        const linkSource = `data:application/pdf;base64,${base64String}`;
+        const downloadLink = document.createElement("a");
+        const fileName = `Invoice_${e.data["Transaction ID"]}.pdf`;
+
+        downloadLink.href = linkSource;
+        downloadLink.download = fileName;
+        downloadLink.click();
+      } else {
+        toast.error("Failed to download invoice");
       }
+    }
+    if (e.action === "Resend Email") {
+      sendInvoiceEmail(e.data["Transaction ID"]);
     }
     if (e.action === "View") {
       setAction("view");

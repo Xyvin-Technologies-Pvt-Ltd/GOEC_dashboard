@@ -21,14 +21,19 @@ import { ReactComponent as SMS } from "../../../assets/icons/sms.svg";
 import { useForm, Controller } from "react-hook-form";
 import StyledInput from "../../../ui/styledInput";
 import CalendarInput from "../../../ui/CalendarInput";
-import { imageUploadAPI } from "../../../services/imageAPI";
 import { categoryDropdownData, vendorDropdownData } from "../../../assets/json/chargestations";
 import { Country, State, City } from "country-state-city";
-import { createChargingStation, editChargingStation } from "../../../services/stationAPI";
+import { useCreateChargingStation, useEditChargingStation } from "../../../hooks/mutations/useChargingStationMutation";
+import { useImageUpload } from "../../../hooks/mutations/useImageUpload";
 
 const AddChargingStation = ({ data = {}, formSubmited, editStatus = false, ...props }) => {
   const [amenities, setAmenities] = useState(editStatus ? data['amenities'] : []);
   const [image, setImage] = useState();
+
+  // Use mutation hooks
+  const createChargingStationMutation = useCreateChargingStation();
+  const editChargingStationMutation = useEditChargingStation();
+  const imageUploadMutation = useImageUpload();
 
   //address data country state city
   const [states, setStates] = useState(editStatus ? State.getStatesOfCountry(data.country).map((e) => ({ label: e.name, value: e })) : [])
@@ -86,44 +91,54 @@ const AddChargingStation = ({ data = {}, formSubmited, editStatus = false, ...pr
 
   const addChargingStation = (values) => {
     if (image) {
-      imageUploadAPI(image).then((res) => {
-        if (res.status) {
-          let dt = {
-            amenities: amenities,
-            name: values.name,
-            address: `${values.address}, ${values.city.value.name}, ${values.state.value.name}, ${values.country.value.name}, ${values.pincode}`,
-            country: countryCode,
-            state: stateCode,
-            owner: values.owner,
-            owner_email: values.ownerEmailId,
-            owner_phone: values.ownerPhone,
-            location_support_name: values.lspName,
-            location_support_email: values.lpsemailId,
-            location_support__phone: values.lpsPhoneNumber,
-            latitude: values.latitude,
-            longitude: values.longitude,
-            commissioned_on: values.commissionedDate,
-            image: res.url,
-            startTime: values.startTime,
-            stopTime: values.endTime,
-            staff: values.staff,
-            vendor: values.vendor.value,
-            category: values.category.value,
-          }
-          createChargingStation(dt).then((res) => {
-            if (res.status) {
-              localStorage.setItem('token', res.token);
-              toast.success("Charging Station created successfully")
-              reset();
-              formSubmited();
-            } else {
-              toast.error(`${res.message}`);
-              reset();
+      imageUploadMutation.mutate(image, {
+        onSuccess: (res) => {
+          if (res.status) {
+            let dt = {
+              amenities: amenities,
+              name: values.name,
+              address: `${values.address}, ${values.city.value.name}, ${values.state.value.name}, ${values.country.value.name}, ${values.pincode}`,
+              country: countryCode,
+              state: stateCode,
+              owner: values.owner,
+              owner_email: values.ownerEmailId,
+              owner_phone: values.ownerPhone,
+              location_support_name: values.lspName,
+              location_support_email: values.lpsemailId,
+              location_support__phone: values.lpsPhoneNumber,
+              latitude: values.latitude,
+              longitude: values.longitude,
+              commissioned_on: values.commissionedDate,
+              image: res.url,
+              startTime: values.startTime,
+              stopTime: values.endTime,
+              staff: values.staff,
+              vendor: values.vendor.value,
+              category: values.category.value,
             }
-          })
+            createChargingStationMutation.mutate(dt, {
+              onSuccess: (res) => {
+                if (res.status) {
+                  localStorage.setItem('token', res.token);
+                  toast.success("Charging Station created successfully")
+                  reset();
+                  formSubmited();
+                } else {
+                  toast.error(`${res.message}`);
+                  reset();
+                }
+              },
+              onError: (error) => {
+                toast.error(error?.response?.data?.error || "Failed to create charging station");
+                reset();
+              }
+            });
+          }
+        },
+        onError: (error) => {
+          toast.error("Failed to upload image");
         }
-
-      })
+      });
     } else {
       let dt = {
         amenities: amenities,
@@ -146,23 +161,28 @@ const AddChargingStation = ({ data = {}, formSubmited, editStatus = false, ...pr
         vendor: values.vendor.value,
         category: values.category.value,
       }
-      createChargingStation(dt).then((res) => {
-        if (res.status) {
-          localStorage.setItem('token', res.token);
-          toast.success("Charging Station created successfully")
-          reset();
-          formSubmited();
-        } else {
-          toast.error(`${res.message}`);
+      createChargingStationMutation.mutate(dt, {
+        onSuccess: (res) => {
+          if (res.status) {
+            localStorage.setItem('token', res.token);
+            toast.success("Charging Station created successfully")
+            reset();
+            formSubmited();
+          } else {
+            toast.error(`${res.message}`);
+            reset();
+          }
+        },
+        onError: (error) => {
+          toast.error(error?.response?.data?.error || "Failed to create charging station");
           reset();
         }
-      })
+      });
     }
   }
 
 
   const updateChargingStation = (values) => {
-
     let dt = {
       amenities: amenities,
       name: values.name,
@@ -185,21 +205,41 @@ const AddChargingStation = ({ data = {}, formSubmited, editStatus = false, ...pr
       category: values.category.value ? values.category.value : data['category'],
     }
     if (image) {
-      imageUploadAPI(image).then((res) => {
-        if (res.status) {
-          editChargingStation(data['_id'], { ...dt, image: res.url }).then((res) => {
-            toast.success("Charging Station updated successfully");
-            formSubmited();
-          })
+      imageUploadMutation.mutate(image, {
+        onSuccess: (res) => {
+          if (res.status) {
+            editChargingStationMutation.mutate(
+              { id: data['_id'], data: { ...dt, image: res.url } },
+              {
+                onSuccess: (res) => {
+                  toast.success("Charging Station updated successfully");
+                  formSubmited();
+                },
+                onError: (error) => {
+                  toast.error(error?.response?.data?.error || "Failed to update charging station");
+                }
+              }
+            );
+          }
+        },
+        onError: (error) => {
+          toast.error("Failed to upload image");
         }
-
-      })
+      });
     } else {
-      editChargingStation(data['_id'], { ...dt, image: data['image'] }).then((res) => {
-        toast.success("Charging Station updated successfully");
-        reset();
-        formSubmited();
-      })
+      editChargingStationMutation.mutate(
+        { id: data['_id'], data: { ...dt, image: data['image'] } },
+        {
+          onSuccess: (res) => {
+            toast.success("Charging Station updated successfully");
+            reset();
+            formSubmited();
+          },
+          onError: (error) => {
+            toast.error(error?.response?.data?.error || "Failed to update charging station");
+          }
+        }
+      );
     }
   }
 

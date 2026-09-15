@@ -4,7 +4,7 @@ import StyledSelectField from "../../../../../ui/styledSelectField";
 import StyledDivider from "../../../../../ui/styledDivider";
 import StyledButton from "../../../../../ui/styledButton";
 import { useForm, Controller } from "react-hook-form";
-import { ChangeAvailability } from "../../../../../services/ocppAPI";
+import { useChangeAvailability } from "../../../../../hooks/mutations/useOcppMutation";
 import { toast } from "react-toastify";
 
 const Toast = ({ title, code, variant = "success", ...props }) => {
@@ -96,33 +96,30 @@ export default function ChargerAvailable() {
 
   const [availablityData, setAvailablityData] = useState();
   const [payloadData, setPayloadData] = useState();
+  const changeAvailabilityMutation = useChangeAvailability({
+    onSuccess: (res) => {
+      if (res) {
+        setAvailablityData(res.data);
+        const successToastId = toast.success(res.message, { position: "top-right" });
+        toast.update(successToastId);
+        reset();
+      }
+    },
+    onError: (error) => {
+      const msg = error?.response?.data?.error || error?.message || "Failed to change availability";
+      const errorToastId = toast.error(msg, { position: "top-right" });
+      toast.update(errorToastId);
+    },
+  });
 
-  const onSubmit = async (formData) => {
+  const onSubmit = (formData) => {
     const data = {
       connectorId: formData.connectorId.value,
       type: formData.type.value,
     };
     setPayloadData(data);
     const cpid = sessionStorage.getItem("cpid");
-    try {
-      const res = await ChangeAvailability(cpid, data);
-      if (res) {
-        setAvailablityData(res.data);
-        const successToastId = toast.success(
-          res.message,
-          {
-            position: "top-right",
-          }
-        );
-        toast.update(successToastId);
-        reset();
-      }
-    } catch (error) {
-      const errorToastId = toast.error(error.response.data.error, {
-        position: "top-right",
-      });
-      toast.update(errorToastId);
-    }
+    changeAvailabilityMutation.mutate({ cpid, data });
   };
 
   return (

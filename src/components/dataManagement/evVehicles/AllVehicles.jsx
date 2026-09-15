@@ -4,12 +4,12 @@ import LastSynced from "../../../layout/LastSynced";
 import { Box, Dialog, Stack, Typography } from "@mui/material";
 import StyledSearchField from "../../../ui/styledSearchField";
 import { tableHeaderReplace } from "../../../utils/tableHeaderReplace";
-import { deleteVehicle } from "../../../services/vehicleAPI";
+import { useDeleteVehicle } from "../../../hooks/mutations/useVehicleMutation";
 import { toast } from "react-toastify";
 import AddVehicles from "./AddVehicles";
 import { ReactComponent as Close } from "../../../assets/icons/close-icon-large.svg";
 import { Transition } from "../../../utils/DialogAnimation";
-import { useAuth } from "../../../core/auth/AuthContext";
+import { useAuthStore } from "../../../store";
 import { permissions } from "../../../core/routes/permissions";
 
 const tableHeader = [
@@ -34,8 +34,9 @@ const EditVehicle = ({data, open, onClose, ...props }) => {
 export default function AllVehicles({ data, setPageNo, totalCount, setSearchQuery, updateData, ...props }) {
   const [selectData, setSelectedData] = useState();
   const [editOpen, setEditOpen] = useState(false);
+  const deleteVehicleMutation = useDeleteVehicle();
   const VehicleData = tableHeaderReplace(data, ['brand', 'modelName', 'charger_types', 'number_of_ports'], tableHeader)
-  const { userCan } = useAuth()
+  const hasPermission = useAuthStore((state) => state.hasPermission)
   const tableActionClick = (e) => {
     if (e.action === "Edit") {
       setSelectedData(e.data)
@@ -46,13 +47,16 @@ export default function AllVehicles({ data, setPageNo, totalCount, setSearchQuer
     }
   }
 
-  const deleteVEHICLE = (data) => {
-    deleteVehicle(data._id).then((res) => {
-      toast.success("vehicle Deleted successfully");
-      updateData && updateData()
-    }).catch((error) => {
-      toast.error("Unable to Delete");
-    })
+  const deleteVEHICLE = (vehicleData) => {
+    deleteVehicleMutation.mutate(vehicleData._id, {
+      onSuccess: () => {
+        toast.success("Vehicle deleted successfully");
+        updateData && updateData();
+      },
+      onError: () => {
+        toast.error("Unable to delete vehicle");
+      },
+    });
   }
 
   const handleSearch = (value)=>{
@@ -76,7 +80,7 @@ export default function AllVehicles({ data, setPageNo, totalCount, setSearchQuer
         setPageNo={setPageNo}
         totalCount={totalCount}
         onActionClick={tableActionClick} 
-        showActionCell={userCan(permissions.evVehicle.modify)}
+        showActionCell={hasPermission(permissions.evVehicle.modify)}
         actions={["Edit", "Delete"]} />
       </Box>
     </>

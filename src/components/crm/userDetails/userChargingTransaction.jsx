@@ -1,11 +1,11 @@
 import { Box } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import LastSynced from "../../../layout/LastSynced";
 import StyledTable from "../../../ui/styledTable";
 import { chargingTransactionData } from "../../../assets/json/crm";
-import { getChargingHistory } from "../../../services/ocppAPI";
 import { useParams } from "react-router-dom";
 import { tableHeaderReplace } from "../../../utils/tableHeaderReplace";
+import { useChargingHistory } from "../../../hooks/queries/useOcpp";
 
 const tableHeader = [
   "Transaction ID",
@@ -20,37 +20,44 @@ const tableHeader = [
 
 export default function UserChargingTransaction() {
   const { id } = useParams();
-
-  const [chargingTransaction, setChargingTransaction] = useState([])
   const [pageNo, setPageNo] = useState(1);
-  const [totalCount, setTotalCount] = useState(1);
 
-  const getData = async (filter={pageNo}) => {
-    const postData = {};
-    const res = await getChargingHistory(id, postData,filter);
-    setChargingTransaction(res.result);
-    setTotalCount(res.totalCount);
-  };
+  // TanStack Query hook
+  const { data: chargingHistoryData, refetch } = useChargingHistory(
+    id,
+    {},
+    { pageNo }
+  );
 
-  useEffect(() => {
-    getData();
-  }, [id, pageNo]);
+  const chargingTransaction = chargingHistoryData?.result || [];
+  const totalCount = chargingHistoryData?.totalCount || 0;
 
-  const transData = tableHeaderReplace(chargingTransaction, ["transactionId","unitConsumed", "stationAddress", "duration", "chargingPoint", "connectorId", "amount", "closeBy"], tableHeader);
-
+  const transData = tableHeaderReplace(
+    chargingTransaction,
+    [
+      "transactionId",
+      "unitConsumed",
+      "stationAddress",
+      "duration",
+      "chargingPoint",
+      "connectorId",
+      "amount",
+      "closeBy",
+    ],
+    tableHeader
+  );
 
   return (
     <Box>
-      <LastSynced heading={"Charging Transactions"} showSearchField={true} />
+      <LastSynced heading={"Charging Transactions"} showSearchField={true} reloadHandle={refetch} />
       <Box sx={{ p: { xs: 2, md: 4 } }}>
         <StyledTable
           headers={tableHeader}
           data={transData}
           showActionCell={true}
           actions={["view"]}
-          onActionClick={(e) => {
-          }}
-          setPageNo={setPageNo} 
+          onActionClick={(e) => { }}
+          setPageNo={setPageNo}
           totalCount={totalCount}
         />
       </Box>

@@ -6,7 +6,7 @@ import StyledTab from "../../../ui/styledTab";
 import LocationalAccess from "./locationalAccess";
 import FunctionalAccess from "./functionalAccess";
 import { useForm, Controller, FormProvider } from "react-hook-form";
-import { createRole, updateRole } from "../../../services/userApi";
+import { useCreateRole, useUpdateRole } from "../../../hooks/mutations/useUserMutation";
 import { toast } from "react-toastify";
 import { PinkSwitch } from "../../../ui/PinkSwitch";
 import { useEffect } from "react";
@@ -32,7 +32,26 @@ export default function AddRole({ setIsChange, isChange, action, data,onClose, .
     reset
   } = methods;
 
-  const onSubmit = async (Formdata) => {
+  const createRoleMutation = useCreateRole({
+    onSuccess: () => {
+      setIsChange(!isChange);
+      props.onSuccess();
+    },
+    onError: () => {
+      toast.error("Failed to add role");
+    },
+  });
+  const updateRoleMutation = useUpdateRole({
+    onSuccess: () => {
+      setIsChange(!isChange);
+      props.onSuccess();
+    },
+    onError: () => {
+      toast.error("Failed to update role");
+    },
+  });
+
+  const onSubmit = (Formdata) => {
     let dt = {
       functionalPermissions: Formdata.functionalPermissions,
       isActive: Formdata.isActive,
@@ -40,17 +59,11 @@ export default function AddRole({ setIsChange, isChange, action, data,onClose, .
       roleDescription: Formdata.roleDescription,
       togglePage: Formdata.togglePage,
       locationalPermissions: Formdata.locationalPermissions.map((d)=>{return d.value ? d : {value:d}})
-      }
-    try {
-      if (action === "add") {
-        await createRole(dt);
-      } else if (action === "edit") {
-        await updateRole(data._id, dt);
-      }
-      setIsChange(!isChange);
-      props.onSuccess();
-    } catch (error) {
-      toast.error("Failed to add role");
+    };
+    if (action === "add") {
+      createRoleMutation.mutate(dt);
+    } else if (action === "edit") {
+      updateRoleMutation.mutate({ id: data._id, data: dt });
     }
   };
   const buttonChanged = (e) => {

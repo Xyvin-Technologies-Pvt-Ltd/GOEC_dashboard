@@ -13,14 +13,23 @@ import { ReactComponent as UserIcon } from '../../../assets/icons/Frame 42744.sv
 import { ReactComponent as Refresh } from '../../../assets/icons/autorenew.svg'
 import { ReactComponent as Close } from "../../../assets/icons/close-circle.svg";
 import { Controller, useForm } from "react-hook-form";
-import { getChargingPointsListOfStation } from "../../../services/stationAPI";
-import { getUserByMob, userchargingTariff } from "../../../services/userApi";
+import { useChargingPointsOfStation } from "../../../hooks/queries/useChargingStation";
+import { useUserByMob, useUserChargingTariff } from "../../../hooks/queries/useUser";
 import { toast } from "react-toastify";
+
 export default function Personal({ location }) {
   const [open, setOpen] = useState(false);
-  const [chargerList, setChargerList] = useState([])
-  const [currentTarrif, setCurrentTarrif] = useState()
-  const [user, setUser] = useState()
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [stationId, setStationId] = useState("");
+  const [currentTarrif, setCurrentTarrif] = useState();
+
+  const { data: userData } = useUserByMob(phoneNumber, !!phoneNumber);
+  const user = userData?.result;
+
+  const { refetch: fetchTariff } = useUserChargingTariff(user?._id, false);
+  const { data: stationPoints } = useChargingPointsOfStation(stationId, !!stationId);
+
+  const chargerList = stationPoints?.result?.map((dt) => ({ label: dt.cpid, value: dt._id })) || [];
 
   const {
     control,
@@ -37,8 +46,8 @@ export default function Personal({ location }) {
       toast.error("Please enter the valid mobile of user")
       return
     }
-    userchargingTariff(user._id).then((res) => {
-      if (res.status) {
+    fetchTariff().then(({ data: res }) => {
+      if (res?.status) {
         setCurrentTarrif(res.result)
         handleOpen()
       }
@@ -56,23 +65,12 @@ export default function Personal({ location }) {
   };
 
   const phoneNumberChangeHandle = (e) => {
-    getUserByMob(e.target.value).then((res) => {
-      if (res) {
-        setUser(res.result)
-      }
-    }).catch(err => {
-      console.error(err);
-      setUser()
-    })
+    setPhoneNumber(e.target.value)
   }
 
   const stationChange = (e) => {
     setValue("location", e)
-    getChargingPointsListOfStation(e.value).then((res) => {
-      if (res.status) {
-        setChargerList(res.result.map((dt) => ({ label: dt.cpid, value: dt._id })))
-      }
-    })
+    setStationId(e.value)
   }
   return (
     <>
@@ -88,7 +86,7 @@ export default function Personal({ location }) {
                 bgcolor: "#1c1d22",
                 p: 2,
                 mt: 5,
-                ml:2,
+                ml: 2,
                 width: { md: "50%" },
               }}
             >

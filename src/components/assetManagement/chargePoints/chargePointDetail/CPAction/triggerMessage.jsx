@@ -4,7 +4,7 @@ import StyledSelectField from "../../../../../ui/styledSelectField";
 import StyledDivider from "../../../../../ui/styledDivider";
 import StyledButton from "../../../../../ui/styledButton";
 import { useForm, Controller } from "react-hook-form";
-import { Trigger } from "../../../../../services/ocppAPI";
+import { useTriggerMessage } from "../../../../../hooks/mutations/useOcppMutation";
 import { toast } from "react-toastify";
 
 
@@ -88,6 +88,24 @@ export default function TriggerMessage() {
   const [triggerData, setTriggerData] = useState();
   const [payloadData, setPayloadData] = useState();
 
+  const triggerMessageMutation = useTriggerMessage({
+    onSuccess: (res) => {
+      if (res) {
+        setTriggerData(res.data);
+        const successToastId = toast.success("Triggered successfully", {
+          position: "top-right",
+        });
+        toast.update(successToastId);
+        reset();
+      }
+    },
+    onError: (error) => {
+      const msg = error?.response?.data?.error || error?.message || "Failed to trigger message";
+      const errorToastId = toast.error(msg, { position: "top-right" });
+      toast.update(errorToastId);
+    },
+  });
+
   let connectiorId = [
     { label: "1", value: 1 },
     { label: "2", value: 2 },
@@ -109,25 +127,7 @@ export default function TriggerMessage() {
     };
     setPayloadData(data);
     const cpid = sessionStorage.getItem("cpid");
-    try {
-      const res = await Trigger(cpid, data);
-      if (res) {
-        setTriggerData(res.data);
-        const successToastId = toast.success(
-          "Triggered successfully",
-          {
-            position: "top-right",
-          }
-        );
-        toast.update(successToastId);
-        reset();
-      }
-    } catch (error) {
-      const errorToastId = toast.error(error.response.data.error, {
-        position: "top-right",
-      });
-      toast.update(errorToastId);
-    }
+    triggerMessageMutation.mutate({ cpid, data });
   };
   return (
     <>

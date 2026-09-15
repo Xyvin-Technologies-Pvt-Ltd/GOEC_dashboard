@@ -7,23 +7,11 @@ import LastSynced from "../../layout/LastSynced";
 import { useForm, Controller } from "react-hook-form";
 import CalendarInput from "../../ui/CalendarInput";
 import StyledInput from "../../ui/styledInput";
-import {
-  getChargingPointsListOfStation,
-  getListOfChargingStation,
-} from "../../services/stationAPI";
-import { getReportForChargePoint } from "../../services/evMachineAPI";
+import { useChargingStationDropdown, useChargingPointsForStations } from "../../hooks/queries/useChargingStation";
+import { fetchReport } from "../../hooks/queries/useReportApi";
 import { generateExcel } from "../../utils/excelReport";
-import {
-  getAccountTransactionReport,
-  getWalletReport,
-} from "../../services/walletAPI";
-import {
-  getAlarmReport,
-  getChargingSummaryReport,
-} from "../../services/ocppAPI";
 import moment from "moment";
-import { getFeedbackReport } from "../../services/reviewApi";
-import { getUserRegistationReport } from "../../services/userApi";
+// report service wrappers are provided by hooks/useReportApi
 
 export default function DownloadReport() {
   const {
@@ -37,14 +25,7 @@ export default function DownloadReport() {
     clearErrors,
   } = useForm();
 
-  const reportApiFunctions = {
-    "Charge points": (params) => getReportForChargePoint(params),
-    "Account Transaction": (params) => getAccountTransactionReport(params),
-    "Alarms": (params) => getAlarmReport(params),
-    "Charging Summary": (params) => getChargingSummaryReport(params),
-    "User Registration": (params) => getUserRegistationReport(params),
-    "Feedback": (params) => getFeedbackReport(params),
-  };
+  // use report helper from hooks
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -76,24 +57,17 @@ export default function DownloadReport() {
       data.cpid = data.cpid.filter((cp) => cp.value !== "all").map((cp) => cp.value);
     }
 
-    const selectedReportFunction = reportApiFunctions[data.report];
-
-    if (selectedReportFunction) {
-      try {
-        const reportData = await selectedReportFunction(data);
-        const excelData = reportData.result;
-        if (excelData) {
-          generateExcel(excelData.headers, excelData.body);
-        }
-        reset();
-        setSelectedOption("");
-      } catch (error) {
-        console.error("Error fetching report data:", error);
-      } finally {
-        setLoading(false);
+    try {
+      const reportData = await fetchReport(data.report, data);
+      const excelData = reportData.result;
+      if (excelData) {
+        generateExcel(excelData.headers, excelData.body);
       }
-    } else {
-      console.error("Selected report function is not defined:", data.report);
+      reset();
+      setSelectedOption("");
+    } catch (error) {
+      console.error("Error fetching report data:", error);
+    } finally {
       setLoading(false);
     }
   };
@@ -125,47 +99,34 @@ export default function DownloadReport() {
   const [loading, setLoading] = useState(false);
   const [locationList, setLocationList] = useState([]);
   const [machineList, setMachineList] = useState([]);
+  const [selectedLocationIds, setSelectedLocationIds] = useState(null);
+  const { data: stationDropdown = [] } = useChargingStationDropdown();
+  const { data: machinesForLocations = [] } = useChargingPointsForStations(selectedLocationIds, !!selectedLocationIds);
+
+  // keep machineList in sync with hook response
+  useEffect(() => {
+    if (machinesForLocations && machinesForLocations.length) setMachineList(machinesForLocations);
+    else setMachineList([]);
+  }, [machinesForLocations]);
 
   useEffect(() => {
-    getListOfChargingStation().then((res) => {
-      if (res.status) {
-        setLocationList([{ label: "All", value: "all" }, ...res.result.map((dt) => ({ label: dt.name, value: dt._id }))]);
-      }
-    });
-  }, []);
+    // stationDropdown comes formatted from hook
+    if (stationDropdown && stationDropdown.length) {
+      setLocationList([{ label: "All", value: "all" }, ...stationDropdown]);
+    }
+  }, [stationDropdown]);
 
   const handleSelectChange = (option) => {
     setSelectedOption(option.label);
   };
 
   const handleLocationChange = (selectedOptions) => {
-    const hasAllOption = selectedOptions.some(option => option.value === "all");
+    const hasAllOption = selectedOptions.some((option) => option.value === "all");
     if (hasAllOption) {
-      setMachineList([]);
-      getChargingPointsListOfStation("all").then(res => {
-        if (res.result) {
-          const newMachineList = res.result.map(dt => ({
-            label: dt.evMachines?.CPID,
-            value: dt.evMachines?.CPID,
-          }));
-          const uniqueMachineList = Array.from(new Set(newMachineList.map(JSON.stringify))).map(JSON.parse);
-          setMachineList(uniqueMachineList);
-        }
-      });
+      setSelectedLocationIds(["all"]);
     } else {
-      setMachineList([]);
-      const locationIds = selectedOptions.map(option => option.value);
-      Promise.all(locationIds.map(id => getChargingPointsListOfStation(id)))
-        .then(results => {
-          const newMachineList = results.flatMap(res =>
-            res.result.map(dt => ({
-              label: dt.evMachines.CPID,
-              value: dt.evMachines.CPID,
-            }))
-          );
-          const uniqueMachineList = Array.from(new Set(newMachineList.map(JSON.stringify))).map(JSON.parse);
-          setMachineList(uniqueMachineList);
-        });
+      const locationIds = selectedOptions.map((option) => option.value);
+      setSelectedLocationIds(locationIds);
     }
   };
 

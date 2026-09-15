@@ -9,18 +9,68 @@ import { useForm, Controller } from "react-hook-form";
 import StyledInput from "../../../ui/styledInput";
 import CalendarInput from "../../../ui/CalendarInput";
 import StyledButton from "../../../ui/styledButton";
-import { getChargingStationListDropdown } from "../../../services/stationAPI";
-import { createEvMachine, editEvMachine, getEvModelDropdown, getOemDropdown } from "../../../services/evMachineAPI";
+import { useChargingStationDropdown } from "../../../hooks/queries/useChargingStation";
+import { useOemDropdown, useEvModelDropdown } from "../../../hooks/queries/useEvMachine";
+import { useCreateEvMachine, useEditEvMachine } from "../../../hooks/mutations/useEvMachineMutation";
 import { toast } from "react-toastify";
 import { ContentCopy } from "@mui/icons-material";
 // StyledTable component
 const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted, editStatus = false, isFromStation = false, stationId }) => {
 
-  const [stationList, setStationList] = useState([])
-  const [OEMList, setOEMList] = useState([])
-  const [modelList, setModelList] = useState([])
-
   const [modelOptions, setModelOptions] = useState([])
+  const { data: stationListData } = useChargingStationDropdown();
+  const { data: oemListData } = useOemDropdown();
+  const { data: modelListData } = useEvModelDropdown();
+  const createMutation = useCreateEvMachine();
+  const editMutation = useEditEvMachine();
+
+  const getOemRefOnModel = (modelItem) =>
+    modelItem?.oem ?? modelItem?.OEM ?? modelItem?.oem_id ?? null;
+
+  const modelBelongsToOem = (modelItem, oemSelection) => {
+    if (!oemSelection) return false;
+    const selectedId = oemSelection.value;
+    const selectedLabel = oemSelection.label;
+    const oemRef = getOemRefOnModel(modelItem);
+    if (oemRef == null || oemRef === "") return false;
+    if (typeof oemRef === "object" && oemRef !== null) {
+      const refId = oemRef._id ?? oemRef.id;
+      const refName = oemRef.name ?? oemRef.label;
+      return (
+        (refId != null && String(refId) === String(selectedId)) ||
+        (refName != null && refName === selectedLabel)
+      );
+    }
+    return (
+      String(oemRef) === String(selectedId) ||
+      oemRef === selectedLabel
+    );
+  };
+
+  const stationList = stationListData || [];
+  const OEMList = oemListData || [];
+  const modelList = modelListData || [];
+
+  const buildModelOptionsForOem = (oemSelection) => {
+    if (!modelList.length || !oemSelection) return [];
+    const hasOemLinkage = modelList.some((m) => {
+      const r = getOemRefOnModel(m);
+      return r != null && r !== "";
+    });
+    const source = hasOemLinkage
+      ? modelList.filter((dt) => modelBelongsToOem(dt, oemSelection))
+      : modelList;
+    return source.map((dt) => ({
+      label: dt.model_name ?? dt.label,
+      value: dt.value,
+    }));
+  };
+  const editConfigurationUrl =
+    chargepointData?.configuration_url != null &&
+    String(chargepointData.configuration_url).trim() !== ""
+      ? String(chargepointData.configuration_url)
+      : null;
+
   const {
     control,
     handleSubmit,
@@ -42,6 +92,7 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
       CPID: editStatus ? chargepointData["CPID"] : '',
     },
   });
+
   const onSubmit = (data) => {
     // Handle form submission with data
     // Close your form or perform other actions
@@ -65,11 +116,14 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
       published: data.published ? 'Yes' : "No"
     }
 
-    createEvMachine(dt).then((res) => {
-      toast.success("Chargepoint created successfully ")
-      formsubmitted()
-    }).catch((error) => {
-      toast.error(error.response.data.error)
+    createMutation.mutate(dt, {
+      onSuccess: (res) => {
+        toast.success("Chargepoint created successfully ")
+        formsubmitted()
+      },
+      onError: (error) => {
+        toast.error(error?.response?.data?.error || "Failed to create chargepoint")
+      }
     })
   }
 
@@ -78,7 +132,7 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
     let dt = {
       name: data.chargePointDisplayName,
       location_name: isFromStation ? stationId : (data.locationName.value ? data.locationName.value : getListId(stationList, chargepointData["Station"])),
-      authorization_ke1y: data.authorisationkey,
+      authorization_key: data.authorisationkey,
       serial_number: data.serialNumber,
       commissioned_date: data.commissionedDate,
       evModel: data.model.value ? data.model.value : getListId(modelList, chargepointData["Model"]),
@@ -88,63 +142,20 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
       // published: data.published ? 'Yes' : "No"
     }
     data.published !== undefined && (dt.published = data.published ? 'Yes' : "No")
-    editEvMachine(chargepointData._id, dt).then((res) => {
-      toast.success("Chargepoint updated successfully ")
-      formsubmitted()
-    }).catch((error) => {
-      toast.error(error)
+    editMutation.mutate({ id: chargepointData._id, data: dt }, {
+      onSuccess: (res) => {
+        toast.success("Chargepoint updated successfully ")
+        formsubmitted()
+      },
+      onError: (error) => {
+        toast.error(error?.response?.data?.error || "Failed to update chargepoint")
+      }
     })
   }
 
   const handleChange = (event) => {
     setValue("published", event.target.checked);
   };
-
-  const init = () => {
-    getChargingStationListDropdown().then((res) => {
-      if (res.status) {
-        setStationList(res.result.map((e) => ({ label: e.name, value: e._id })))
-        reset({
-          locationName: editStatus ? chargepointData["Station"] : '',
-        })
-      }
-    })
-
-    getOemDropdown().then((res) => {
-      if (res.status) {
-        setOEMList(res.result.map((e) => ({ label: e.name, value: e._id })))
-        reset({
-          chargePointOEM: editStatus ? chargepointData["OEM"] : ''
-        })
-      }
-    })
-
-    getEvModelDropdown().then((res) => {
-      if (res.status) {
-        setModelList(res.result)
-        if (editStatus) {
-          let list = []
-          res.result.map((dt) => {
-            if (dt.oem === chargepointData["OEM"]) {
-              list.push({
-                label: dt.model_name,
-                value: dt._id
-              })
-            }
-          })
-          setModelOptions(list)
-        }
-        reset({
-          model: editStatus ? chargepointData["Model"] : '',
-        })
-      }
-    })
-
-
-  }
-  useEffect(() => {
-    init()
-  }, [])
 
   const getListId = (list, value) => {
     for (let index = 0; index < list.length; index++) {
@@ -154,13 +165,22 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
     }
   }
 
+  useEffect(() => {
+    if (!editStatus || !modelList?.length || !OEMList.length || !chargepointData) return;
+    const oemName = chargepointData["OEM"];
+    const oemSelection =
+      OEMList.find((o) => o.label === oemName) ?? {
+        label: oemName,
+        value: getListId(OEMList, oemName),
+      };
+    setModelOptions(buildModelOptionsForOem(oemSelection));
+  }, [modelList, OEMList, editStatus, chargepointData]);
+
   const handleDateChangeInParent = (date) => {
-    setValue("commissionedDate", date); // Assuming you have 'expiryDate' in your form state
+    setValue("commissionedDate", date);
     clearErrors("commissionedDate");
   };
-  const commissionedDate = watch("commissionedDate", ""); // Watching the value for 'expiryDate'
-
-  // pagination
+  const commissionedDate = watch("commissionedDate", "");
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -173,9 +193,16 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
             </Typography>
             <Stack spacing={2}>
               <StyledInput
-                placeholder={`${chargepointData && chargepointData.configuration_url}`}
+                placeholder={editConfigurationUrl ?? "—"}
                 disabled iconright={<ContentCopy style={{ cursor: 'pointer' }}
-                  onClick={() => { navigator.clipboard.writeText(`${chargepointData && chargepointData.configuration_url}`); toast.success("copied") }} />}
+                  onClick={() => {
+                    if (!editConfigurationUrl) {
+                      toast.info("No configuration URL to copy");
+                      return;
+                    }
+                    navigator.clipboard.writeText(editConfigurationUrl);
+                    toast.success("copied");
+                  }} />}
                 style={{ height: '50px', backgroundColor: '#4A4458' }} />
             </Stack>
           </Stack>
@@ -230,17 +257,9 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
                 <>
                   <StyledSelectField options={OEMList} {...field} placeholder="select OEM"
                     onChange={(e) => {
-                      setValue("chargePointOEM", e)
-                      let list = []
-                      modelList.map((dt) => {
-                        if (dt.oem === e.label) {
-                          list.push({
-                            label: dt.model_name,
-                            value: dt._id
-                          })
-                        }
-                      })
-                      setModelOptions(list)
+                      setValue("chargePointOEM", e);
+                      setValue("model", null);
+                      setModelOptions(buildModelOptionsForOem(e));
                     }} />
                   {errors.chargePointOEM && (
                     <span style={errorMessageStyle}>

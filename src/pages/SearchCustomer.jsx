@@ -7,7 +7,7 @@ import StyledButton from '../ui/styledButton'
 import CustomerCard from '../components/crm/searchCustomer/customerCard'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
-import { getUserByEmailMobile } from '../services/userApi'
+import { useUserByEmailMobile } from '../hooks/queries/useUser'
 
 const selectOptions = [
   { value: 'number', label: 'Phone Number' },
@@ -17,7 +17,23 @@ const selectOptions = [
 export default function SearchCustomers() {
   const [selectedOption, setSelectedOption] = useState('number')
   const [inputValue, setInputValue] = useState('')
+  const [searchQuery, setSearchQuery] = useState(null)
   const [searchCustomers, setSearchCustomers] = useState()
+  
+  const { data: customerData, error } = useUserByEmailMobile(searchQuery, !!searchQuery)
+
+  React.useEffect(() => {
+    if (customerData?.result?.[0]) {
+      setSearchCustomers(customerData.result[0])
+    }
+  }, [customerData])
+
+  React.useEffect(() => {
+    if (error) {
+      toast.error(error.response?.data?.error || 'Error searching customer')
+    }
+  }, [error])
+
   const onSubmit = () => {
     if (inputValue === '') {
       toast.error(selectedOption === 'email' ? 'Enter Email' : 'Enter Phone number')
@@ -25,22 +41,12 @@ export default function SearchCustomers() {
     }
     if (selectedOption === 'email' && inputValue.toLowerCase().match(
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)) {
-      getCustomer(`email=${inputValue}`)
+      setSearchQuery(`email=${inputValue}`)
     } else if (selectedOption === 'email') {
       toast.error("Enter Valid email")
     } else {
-      getCustomer(`phoneNumber=${inputValue}`)
+      setSearchQuery(`phoneNumber=${inputValue}`)
     }
-  }
-
-  const getCustomer = (data) => {
-    getUserByEmailMobile(data).then((res) => {
-      if (res) {
-        setSearchCustomers(res.result[0])
-      }
-    }).catch(error => {
-      toast.error(error.response.data.error)
-    })
   }
 
   return (

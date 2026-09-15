@@ -6,12 +6,12 @@ import StyledButton from "../../ui/styledButton";
 import { useForm, Controller } from "react-hook-form";
 import StyledInput from "../../ui/styledInput";
 import CalendarInput from "../../ui/CalendarInput";
-import { getChargingPointsListOfStation, getListOfChargingStation } from "../../services/stationAPI";
+import { useListOfChargingStation, useChargingPointsOfStation } from "../../hooks/queries/useChargingStation";
 
 
 export default function Filter({ onSubmited }) {
-  const [locationList, setLocationList] = useState([])
-  const [machineList, setMachineList] = useState([])
+  const [selectedStationId, setSelectedStationId] = useState(null);
+
   const {
     control,
     handleSubmit,
@@ -22,6 +22,18 @@ export default function Filter({ onSubmited }) {
     formState: { errors },
     clearErrors,
   } = useForm();
+
+  // TanStack Query hooks
+  const { data: stationsData } = useListOfChargingStation();
+  const { data: chargingPointsData } = useChargingPointsOfStation(
+    selectedStationId,
+    !!selectedStationId // only fetch when station is selected
+  );
+
+  // Extract data with safe defaults
+  const locationList = stationsData?.result?.map((dt) => ({ label: dt.name, value: dt._id })) || [];
+  const machineList = chargingPointsData?.result?.map((dt) => ({ label: dt.evMachines.CPID, value: dt.evMachines })) || [];
+
   const onSubmit = (data) => {
     // Handle form submission with data
     console.log(data);
@@ -81,27 +93,23 @@ export default function Filter({ onSubmited }) {
 
 
   useEffect(() => {
-    getListOfChargingStation().then((res) => {
-      console.log(res);
-      if (res.status) {
-        setLocationList(res.result.map((dt) => ({ label: dt.name, value: dt._id })))
-      }
-    })
     if (localStorage.getItem("filter") !== null) {
-      reset(JSON.parse(localStorage.getItem("filter")))
-      getMachineList(JSON.parse(localStorage.getItem("filter")).location)
-    }
-  }, [])
-
-  const getMachineList = (value) => {
-    getChargingPointsListOfStation(value).then((res) => {
-      if (res.result) {
-        setMachineList(res.result.map((dt) => ({ label: dt.evMachines.CPID, value: dt.evMachines })))
+      const savedFilter = JSON.parse(localStorage.getItem("filter"));
+      reset(savedFilter);
+      if (savedFilter.location) {
+        setSelectedStationId(savedFilter.location);
       }
-    }).catch(err => {
-      console.log(err);
-    })
-  }
+    }
+  }, [reset])
+
+  const handleLocationChange = (value) => {
+    if (value) {
+      setSelectedStationId(value.value);
+    } else {
+      setSelectedStationId(null);
+    }
+  };
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -173,6 +181,10 @@ export default function Filter({ onSubmited }) {
                     {...field}
                     placeholder={"Search Payment Status"}
                     options={locationList}
+                    onChange={(value) => {
+                      field.onChange(value);
+                      handleLocationChange(value);
+                    }}
                   />
                   {errors.location && (
                     <span style={errorMessageStyle}>
@@ -229,11 +241,11 @@ export default function Filter({ onSubmited }) {
 
 
             <Stack direction={"row"} spacing={1} sx={{ justifyContent: 'center' }}>
-            <StyledButton width={150} variant="primary" type="submit">
+              <StyledButton width={150} variant="primary" type="submit">
                 Apply
               </StyledButton>
               <StyledButton variant="secondary" width={120} type="button"
-                onClick={() => { reset({}); onSubmited(); localStorage.removeItem("filter") }}>
+                onClick={() => { reset({}); onSubmited(); localStorage.removeItem("filter"); setSelectedStationId(null); }}>
                 Reset
               </StyledButton>
             </Stack>

@@ -1,56 +1,39 @@
 import { Box } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import StyledTab from '../ui/styledTab'
 import AlarmsList from '../components/dashboard/alarms/alarmsList'
 import AlarmSummary from '../components/dashboard/alarms/alarmSummary'
-import { getAlarmSummary, getAlarms } from '../services/ocppAPI'
+import { useAlarms, useAlarmSummary } from '../hooks/queries/useOcpp'
 
 export default function Alarms() {
   const [tabIndex, setTabIndex] = useState(0)
-  const [alarmList,setAlarmList] = useState([])
-  const [summaryData,setSummaryData] = useState()
   const [pageNo, setPageNo] = useState(1);
-  const [totalCount, setTotalCount] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Build filter object
+  const alarmFilters = {
+    pageNo,
+    ...(searchQuery && { searchQuery })
+  };
+
+  // TanStack Query hooks
+  const { data: alarmsData, refetch: refetchAlarms } = useAlarms(alarmFilters);
+  const { data: alarmSummaryData, refetch: refetchAlarmSummary } = useAlarmSummary();
+
+  // Extract data with safe defaults
+  const alarmList = alarmsData?.result || [];
+  const totalCount = alarmsData?.totalCount || 0;
+  const summaryData = alarmSummaryData?.result;
 
   const tabOnChange = (e) => {
     setTabIndex(e.index)
   }
 
-
-  useEffect(() => {
-    init()
-  }, [pageNo, searchQuery])
-  const init= ()=>{
-    getAlarmsList()
-    getAlarmSummaryData()
-  }
-
-  const getAlarmsList = (dt={pageNo})=>{
-    if(searchQuery){
-      dt.searchQuery = searchQuery;
-    }
-    getAlarms(dt).then((res)=>{
-      if (res.status) {
-        setAlarmList(res.result)
-        setTotalCount(res.totalCount);
-      }
-    })
-  }
-
-  const getAlarmSummaryData = () =>{
-    getAlarmSummary().then(res=>{
-      if (res.status) {
-        setSummaryData(res.result)
-      }
-    })
-  }
-  
   return (
     <Box>
       <StyledTab buttons={['Alarms', 'Alarm Summary']} onChanged={tabOnChange} />
       <Box>
-        {tabIndex === 0 ? <AlarmsList data={alarmList} dataReload={getAlarmsList} setPageNo={setPageNo} totalCount={totalCount} setSearchQuery={setSearchQuery}/> : (summaryData && <AlarmSummary data={summaryData} dataReload={getAlarmSummaryData} />)}
+        {tabIndex === 0 ? <AlarmsList data={alarmList} dataReload={refetchAlarms} setPageNo={setPageNo} totalCount={totalCount} setSearchQuery={setSearchQuery} /> : (summaryData && <AlarmSummary data={summaryData} dataReload={refetchAlarmSummary} />)}
       </Box>
     </Box>
   )

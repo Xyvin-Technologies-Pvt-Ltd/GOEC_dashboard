@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
-import { Stack, Box, Grid, Typography } from "@mui/material";
-import StyledSelectField from "../../../../../ui/styledSelectField";
+import { Stack, Box } from "@mui/material";
 import StyledButton from "../../../../../ui/styledButton";
 import { useForm, Controller } from "react-hook-form";
 import StyledInput from "../../../../../ui/styledInput";
 import CalendarInput from "../../../../../ui/CalendarInput";
-import { getChargingPointsListOfStation, getListOfChargingStation } from "../../../../../services/stationAPI";
 
 
 export default function Filter({ onSubmited }) {
@@ -19,6 +17,7 @@ export default function Filter({ onSubmited }) {
     formState: { errors },
     clearErrors,
   } = useForm();
+
   const onSubmit = (data) => {
     // Handle form submission with data
     let dt = {
@@ -43,6 +42,7 @@ export default function Filter({ onSubmited }) {
 
   };
   const endDate = watch("endDate", ""); // Watching the value for 'expiryDate'
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>

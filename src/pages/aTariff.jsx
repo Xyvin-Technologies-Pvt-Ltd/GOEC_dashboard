@@ -1,28 +1,17 @@
 import { Box, Stack } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import StyledTab from "../ui/styledTab";
 import Personal from "../components/tariff/assignTariff/personal";
 import Location from "../components/tariff/assignTariff/location";
-import { getChargingStationListDropdown } from "../services/stationAPI";
+import { useChargingStationDropdown } from "../hooks/queries/useChargingStation";
+
 export default function ATariff() {
   const [togglePage, setTogglePage] = useState(0);
-  const [locationList, setLocationList] = useState([])
+  const { data: locationList = [] } = useChargingStationDropdown();
 
   const buttonChanged = (e) => {
     setTogglePage(e.index);
   };
-
-  const getLocation = () => {
-    getChargingStationListDropdown().then((res) => {
-      if (res.status) {
-        setLocationList(res.result.map((dt)=>({label:dt.name,value:dt._id})))
-      }
-    })
-  }
-
-  useEffect(() => {
-    getLocation();
-  }, [])
 
   return (
     <Box>

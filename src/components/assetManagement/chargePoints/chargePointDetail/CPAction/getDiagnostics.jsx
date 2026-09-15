@@ -4,7 +4,7 @@ import StyledInput from "../../../../../ui/styledInput";
 import StyledDivider from "../../../../../ui/styledDivider";
 import StyledButton from "../../../../../ui/styledButton";
 import { useForm, Controller } from "react-hook-form";
-import { getDiagonostics } from "../../../../../services/ocppAPI";
+import { useGetDiagnostics } from "../../../../../hooks/mutations/useOcppMutation";
 import { toast } from "react-toastify";
 
 export default function GetDiagnostics() {
@@ -17,8 +17,11 @@ export default function GetDiagnostics() {
 
   const onSubmit = async (data) => {
     const cpid = sessionStorage.getItem("cpid");
-    try {
-      const res = await getDiagonostics(cpid, data);
+    getDiagnosticsMutation.mutate({ cpid, data });
+  };
+
+  const getDiagnosticsMutation = useGetDiagnostics({
+    onSuccess: (res) => {
       if (res) {
         const successToastId = toast.success("GetDiagnostics Response fetched successfully", {
           position: "top-right",
@@ -26,13 +29,13 @@ export default function GetDiagnostics() {
         toast.update(successToastId);
         reset();
       }
-    } catch (error) {
-      const errorToastId = toast.error(error.response.data.error, {
-        position: "top-right",
-      });
+    },
+    onError: (error) => {
+      const msg = error?.response?.data?.error || error?.message || "Failed to get diagnostics";
+      const errorToastId = toast.error(msg, { position: "top-right" });
       toast.update(errorToastId);
-    }
-  };
+    },
+  });
 
   return (
     <Box

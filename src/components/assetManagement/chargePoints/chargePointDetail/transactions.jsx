@@ -6,7 +6,7 @@ import StyledTable from '../../../../ui/styledTable'
 import LastSynced from '../../../../layout/LastSynced'
 import { searchAndFilter } from '../../../../utils/search'
 import { useEffect } from 'react'
-import { getTransactionById } from '../../../../services/ocppAPI'
+import { useTransactionById } from '../../../../hooks/queries/useOcpp'
 import { tableHeaderReplace } from '../../../../utils/tableHeaderReplace'
 import TransactionDetails from './transaction/transactionDetails'
 import RightDrawer from '../../../../ui/RightDrawer'
@@ -37,21 +37,25 @@ export default function Transactions({ CPID }) {
     const [totalCount, setTotalCount] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [transaction, setTransaction] = useState();
+    const filter = {
+        pageNo,
+        ...(searchQuery && { searchQuery }),
+    };
+
+    const { data: txData = {}, refetch } = useTransactionById(CPID, filter, !!CPID);
+
+    const derivedTxList = txData.result || [];
+    const derivedTotal = txData.totalCount || 0;
 
     useEffect(() => {
-        init()
-    }, [pageNo, searchQuery])
-    const init = (filter={pageNo}) => {
-        if(searchQuery){
-            filter.searchQuery = searchQuery;
-          }
-        getTransactionById(CPID,filter).then((res) => {
-            if (res.success) {
-                setTransactionList(tableHeaderReplace(res.result, ['transactionId', 'date', 'username', 'transactionMode', 'unitConsumed', 'location', 'duration', 'chargePointId', 'totalAmount', 'closureReason'], tableHeader))
-                setTotalCount(res.totalCount);
-            }
-        })
-    }
+        setTransactionList(tableHeaderReplace(derivedTxList, ['transactionId', 'date', 'username', 'transactionMode', 'unitConsumed', 'location', 'duration', 'chargePointId', 'totalAmount', 'closureReason'], tableHeader));
+        setTotalCount(derivedTotal);
+    }, [derivedTxList, derivedTotal]);
+
+    const init = (dt = { pageNo }) => {
+        if (dt.pageNo !== undefined) setPageNo(dt.pageNo);
+        if (dt.searchQuery !== undefined) setSearchQuery(dt.searchQuery);
+    };
 
     const actionclickHandle = (e) => {
         if (e.action === 'View') {

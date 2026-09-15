@@ -1,5 +1,5 @@
 import { Grid, Typography, Container, Stack, Modal, Box, Dialog } from "@mui/material";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import LastSynced from "../../../layout/LastSynced";
 import StyledSelectField from "../../../ui/styledSelectField";
@@ -10,14 +10,59 @@ import StyledDivider from "../../../ui/styledDivider";
 import Assign from "./assign";
 import { ReactComponent as Close } from "../../../assets/icons/close-circle.svg";
 import { Controller, useForm } from "react-hook-form";
-import { getChargingPointsListOfStation } from "../../../services/stationAPI";
+import { useQueryClient } from "@tanstack/react-query";
+import { useChargingPointsForStations } from "../../../hooks/queries/useChargingStation";
+import { useChargerTariffDetail } from "../../../hooks/queries/useEvMachine";
 import { getChargerTarrifDetail } from "../../../services/evMachineAPI";
+import { toast } from "react-toastify";
+
+/** OCPP / display id when present; dashboard tariff route may also accept Mongo _id. */
+function resolveTariffRouteKey(dt) {
+  if (!dt || typeof dt !== "object") return "";
+  const candidates = [
+    dt.CPID,
+    dt.cpid,
+    dt.chargePointDisplayName,
+    dt.chargePointId,
+    dt.deviceId,
+    dt.ocppId,
+    dt.ocppid,
+    dt.name,
+  ];
+  const hit = candidates.find((v) => v != null && String(v).trim() !== "");
+  if (hit != null) return String(hit).trim();
+  return dt._id != null ? String(dt._id) : "";
+}
 
 export default function Location({ location }) {
   const [open, setOpen] = useState(false);
-  const [chargerList, setChargerList] = useState([])
-  const [currentTarrif, setCurrentTarrif] = useState()
+  const [currentTarrif, setCurrentTarrif] = useState();
+  const [selectedStationId, setSelectedStationId] = useState(null);
+  const [cpidForQuery, setCpidForQuery] = useState(null);
+  const queryClient = useQueryClient();
 
+  const { data: chargerOptions = [] } = useChargingPointsForStations(selectedStationId ? [selectedStationId] : null, !!selectedStationId);
+  useChargerTariffDetail(cpidForQuery, false);
+
+  const chargerList = useMemo(
+    () =>
+      (chargerOptions || [])
+        .filter((dt) => dt && dt._id)
+        .map((dt) => {
+          const cpidStr = [dt.CPID, dt.cpid, dt.chargePointDisplayName, dt.chargePointId]
+            .find((v) => v != null && String(v).trim() !== "");
+          const cpidResolved = cpidStr != null ? String(cpidStr).trim() : "";
+          const tariffRouteKey = resolveTariffRouteKey(dt);
+          const idShort = String(dt._id).slice(-8);
+          return {
+            label: cpidResolved || dt.name || `Charge point (${idShort})`,
+            value: dt._id,
+            cpid: cpidResolved,
+            tariffRouteKey,
+          };
+        }),
+    [chargerOptions]
+  );
 
   const {
     control,
@@ -25,17 +70,46 @@ export default function Location({ location }) {
     setValue,
     reset,
     formState: { errors },
-    clearErrors,
-  } = useForm()
+  } = useForm();
 
-  const onSubmit = (data) => {
-    // Handle form submission with data
-    getChargerTarrifDetail(data.CPID.label).then((res) => {
-      if (res.status) {
-        setCurrentTarrif(res.result[0])
-        handleOpen()
+  const onSubmit = async (formData) => {
+    const selected = formData.CPID;
+    const evMachineMongoId = selected?.value;
+    const tariffRouteKey =
+      selected?.tariffRouteKey ?? selected?.cpid ?? (evMachineMongoId ? String(evMachineMongoId) : "");
+    if (!evMachineMongoId) {
+      toast.error("Please select a location and CPID.", { position: "top-right" });
+      return;
+    }
+    if (!tariffRouteKey) {
+      toast.error("Could not resolve charge point id for this row.", { position: "top-right" });
+      return;
+    }
+    setCpidForQuery(tariffRouteKey);
+    try {
+      const result = await queryClient.fetchQuery({
+        queryKey: ["chargerTariffDetail", tariffRouteKey],
+        queryFn: () => getChargerTarrifDetail(tariffRouteKey),
+      });
+      if (!result?.status) {
+        toast.error(result?.message || "Could not load tariff details.", { position: "top-right" });
+        return;
       }
-    })
+      const rows = result.result;
+      const firstRow = Array.isArray(rows) ? rows[0] : rows;
+      const merged =
+        firstRow && typeof firstRow === "object"
+          ? { ...firstRow, _id: firstRow._id ?? evMachineMongoId }
+          : {
+              _id: evMachineMongoId,
+              CPID: selected?.cpid || tariffRouteKey,
+            };
+      setCurrentTarrif(merged);
+      handleOpen();
+    } catch (err) {
+      console.error(err);
+      toast.error("Could not load tariff details.", { position: "top-right" });
+    }
   };
 
   // Function to open the modal
@@ -49,13 +123,11 @@ export default function Location({ location }) {
   };
 
   const stationChange = (e) => {
-    setValue("location", e)
-    getChargingPointsListOfStation(e.value).then((res) => {
-      if (res.status) {
-        setChargerList(res.result.map((dt) => ({ label: dt.evMachines.CPID, value: dt.evMachines._id })))
-      }
-    })
-  }
+    setValue("location", e);
+    setSelectedStationId(e.value);
+    setValue("CPID", null);
+  };
+
   return (
     <>
       <Box>

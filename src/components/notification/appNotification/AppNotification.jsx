@@ -6,18 +6,27 @@ import InputField from "../../../ui/styledInput";
 import StyledButton from "../../../ui/styledButton";
 import ProgressBar from "../../../ui/ProgressBar";
 import { Controller, useForm } from "react-hook-form";
-import { userSuggestionList } from "../../../services/userApi";
 import FileUpload from "../../../utils/FileUpload";
 import StyledTextArea from "../../../ui/styledTextArea";
 import { toast } from "react-toastify";
-import { sendBulkPushNotification } from "../../../services/notificationAPI";
-import { imageUploadAPI } from "../../../services/imageAPI";
+import { useUserSuggestionList } from "../../../hooks/queries/useUser";
+import { useSendBulkPushNotification } from "../../../hooks/mutations/useNotificationMutation";
+import { useImageUpload } from "../../../hooks/mutations/useImageUpload";
 
 export default function EmailNotification() {
   const [userList, setUserList] = useState([]);
   const [uploadPercentage, setUploadPercentage] = useState(0);
   const [selectedFile, setSelectedFile] = useState();
+  const [suggestionQuery, setSuggestionQuery] = useState("");
   const reference = useRef();
+  
+  // Use mutation hooks
+  const sendBulkPushNotificationMutation = useSendBulkPushNotification();
+  const imageUploadMutation = useImageUpload();
+  
+  // Use query hook for user suggestions
+  const { data: suggestionData } = useUserSuggestionList(suggestionQuery, !!suggestionQuery);
+  
   const {
     control,
     handleSubmit,
@@ -39,43 +48,44 @@ export default function EmailNotification() {
       return user ? user._id : null;
     }).filter(id => id !== null); 
     
-   
-   
-   
-    const formData = new FormData();
-    formData.append("to", mails);
-    formData.append("subject", data.subject);
-    formData.append("text", data.content);
-    formData.append("url", data.url);
-    formData.append("userArray", userIds);
-try {
-  if (selectedFile) {
-    let uploadImage = await imageUploadAPI(selectedFile)
-    formData.append("imagePath", uploadImage.url)
-  }
-} catch (error) {
-  toast.error("image upload error")
-}
+    const formDataObject = {
+      to: mails,
+      subject: data.subject,
+      text: data.content,
+      url: data.url,
+      userArray: userIds,
+    };
 
-    let formDataObject = {};
-    for (let pair of formData.entries()) {
-      if (pair[0] === "to[]") {
-        if (!formDataObject["to"]) {
-          formDataObject["to"] = [];
+    if (selectedFile) {
+      imageUploadMutation.mutate(selectedFile, {
+        onSuccess: (uploadImage) => {
+          formDataObject.imagePath = uploadImage.url;
+          sendBulkPushNotificationMutation.mutate(formDataObject, {
+            onSuccess: (res) => {
+              toast.success("Send successfully");
+              reset();
+              setSelectedFile(null);
+            },
+            onError: (error) => {
+              toast.error(error?.response?.data?.error || "Failed to send notification");
+            }
+          });
+        },
+        onError: (error) => {
+          toast.error("Image upload error");
         }
-        formDataObject["to"].push(pair[1]);
-      } else {
-        formDataObject[pair[0]] = pair[1];
-      }
-    }
-    sendBulkPushNotification(formDataObject)
-      .then((res) => {
-        toast.success("Send successfully");
-        reset();
-      })
-      .catch((error) => {
-        console.error(error);
       });
+    } else {
+      sendBulkPushNotificationMutation.mutate(formDataObject, {
+        onSuccess: (res) => {
+          toast.success("Send successfully");
+          reset();
+        },
+        onError: (error) => {
+          toast.error(error?.response?.data?.error || "Failed to send notification");
+        }
+      });
+    }
   };
 
   const handleFileSelect = (file) => {
@@ -91,29 +101,24 @@ try {
   };
 
   const loadUserOptions = async (inputValue) => {
-    try {
-      const response = await userSuggestionList(inputValue);
-      setUserList(response.result);
-   
-      if (response.status) {
-        const mappedUsers = response.result.map((user) => ({
-          label: user.mobile,
-          value: user.firebaseToken,
-        }));
+    setSuggestionQuery(inputValue);
+    
+    if (suggestionData?.result) {
+      const mappedUsers = suggestionData.result.map((user) => ({
+        label: user.mobile,
+        value: user.firebaseToken,
+      }));
       
-        // Adding the 'All' option to the beginning of the mappedUsers array
-        const updatedSuggestions = [
-          { label: 'All', value: '*' },
-          ...mappedUsers,
-        ];
+      // Adding the 'All' option to the beginning of the mappedUsers array
+      const updatedSuggestions = [
+        { label: 'All', value: '*' },
+        ...mappedUsers,
+      ];
       
-        return updatedSuggestions;
-      }
-      return [];
-    } catch (error) {
-      console.error("Error fetching users", error);
-      return [];
+      setUserList(suggestionData.result);
+      return updatedSuggestions;
     }
+    return [];
   };
 
   return (
@@ -149,11 +154,18 @@ try {
                         selectedOptions.some((option) => option.value === "*")
                       ) {
                         const confirmation = window.confirm("Are you sure want to send notification to all?");
-                        if(confirmation){                            
-                          loadUserOptions("").then((fullList) => {
-                            const filteredList = fullList.filter((option) => option.value !== '*');
-                            setValue("sendTo", filteredList);
-                          });
+                        if(confirmation){
+                          setSuggestionQuery("");
+                          // Wait for the data to update, then map it
+                          setTimeout(() => {
+                            if (suggestionData?.result) {
+                              const mappedUsers = suggestionData.result.map((user) => ({
+                                label: user.mobile,
+                                value: user.firebaseToken,
+                              }));
+                              setValue("sendTo", mappedUsers);
+                            }
+                          }, 100);
                         }
                       } else {
                         setValue("sendTo", selectedOptions);

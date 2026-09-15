@@ -7,6 +7,13 @@ import StyledInput from "../../../../ui/styledInput";
 import { toast } from "react-toastify";
 import moment from "moment";
 export default function ChargePointDetailsCard({ data }) {
+  const station = data?.chargingStationDetails?.[0];
+  const model = data?.evModelDetails?.[0];
+  const configurationUrl =
+    data?.configuration_url != null && String(data.configuration_url).trim() !== ""
+      ? String(data.configuration_url)
+      : null;
+
   return (
     <Box pb={2} sx={{ backgroundColor: "secondary.main", borderRadius: "4px" }}>
       <Stack px={3} pt={2} spacing={2}>
@@ -32,15 +39,17 @@ export default function ChargePointDetailsCard({ data }) {
         </Typography>
         <Stack spacing={2}>
           <StyledInput
-            placeholder={`${data && data.configuration_url}`}
+            placeholder={configurationUrl ?? "—"}
             disabled
             iconright={
               <ContentCopy
                 style={{ cursor: "pointer" }}
                 onClick={() => {
-                  navigator.clipboard.writeText(
-                    `${data && data.configuration_url}`
-                  );
+                  if (!configurationUrl) {
+                    toast.info("No configuration URL to copy");
+                    return;
+                  }
+                  navigator.clipboard.writeText(configurationUrl);
                   toast.success("copied");
                 }}
               />
@@ -72,7 +81,7 @@ export default function ChargePointDetailsCard({ data }) {
               fontSize: "14px",
             }}
           >
-            {data && data.chargingStationDetails[0].name}
+            {station?.name ?? "—"}
           </Typography>
         </Stack>
 
@@ -97,7 +106,7 @@ export default function ChargePointDetailsCard({ data }) {
               fontSize: "14px",
             }}
           >
-            {data && data.evModelDetails[0].oem}
+            {model?.oem ?? "—"}
           </Typography>
         </Stack>
 
@@ -122,7 +131,7 @@ export default function ChargePointDetailsCard({ data }) {
               fontSize: "14px",
             }}
           >
-            {data && data.evModelDetails[0].model_name}
+            {model?.model_name ?? "—"}
           </Typography>
         </Stack>
 
@@ -147,7 +156,7 @@ export default function ChargePointDetailsCard({ data }) {
               fontSize: "14px",
             }}
           >
-            {data && data.evModelDetails[0].charger_type}
+            {model?.charger_type ?? "—"}
           </Typography>
         </Stack>
 
@@ -197,7 +206,7 @@ export default function ChargePointDetailsCard({ data }) {
               fontSize: "14px",
             }}
           >
-            {data && data.evModelDetails[0].ocpp_version}
+            {model?.ocpp_version ?? "—"}
           </Typography>
         </Stack>
 
@@ -273,7 +282,9 @@ export default function ChargePointDetailsCard({ data }) {
               fontSize: "14px",
             }}
           >
-            {data &&  moment(data.createdAt).format("DD-MM-YYYY")}
+            {data?.createdAt
+              ? moment(data.createdAt).format("DD-MM-YYYY")
+              : "—"}
           </Typography>
         </Stack>
 

@@ -1,21 +1,25 @@
 import { useState, useEffect } from "react";
-import { Box, Drawer, Typography, useMediaQuery } from "@mui/material";
-
+import { Box, Drawer, useMediaQuery } from "@mui/material";
 import { NavItem } from "../ui/Navitem";
-import { ReactComponent as Logo } from "../assets/Logo.svg";
 import { siderbarListItems } from "../assets/json/sidebar";
-import { useAuth } from "../core/auth/AuthContext";
+import { useAuthStore } from "../store";
 import { useNavigate } from "react-router-dom";
 import HeaderLogo from "../assets/header-logo.png";
 
 const Sidebar = ({ open, onClose, ...props }) => {
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up("lg"));
-  const { userCan } = useAuth();
+  const permissions = useAuthStore((state) => state.permissions);
+  const hasPermission = useAuthStore((state) => state.hasPermission);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [filteredItems, setFilteredItems] = useState([]);
   const navigate = useNavigate();
 
-  // Load sidebar items initially and on user permission changes
+  // Load sidebar items initially and on user permission changes.
+  // Subscribe to `permissions` (not only `hasPermission`): the latter is a stable
+  // function reference, so the sidebar would not re-render after checkAuthStatus()
+  // fills permissions. Child effects can also run before App's checkAuthStatus effect,
+  // so the first pass often sees an empty permission list — without this, only items
+  // without effective RBAC checks (e.g. Help, mis-filtered Report/Logs) stay visible.
   useEffect(() => {
     const filterSidebarItems = () => {
       const updatedItems = siderbarListItems()
@@ -24,10 +28,16 @@ const Sidebar = ({ open, onClose, ...props }) => {
           sub: item.sub?.filter(
             (subItem) =>
               !subItem.requiredRoles ||
-              subItem.requiredRoles.some((role) => userCan(role))
+              subItem.requiredRoles.some((role) => hasPermission(role))
           ),
         }))
-        .filter((item) => (item.sub ? item.sub.length > 0 : true));
+        .filter((item) => {
+          if (item.sub) return item.sub.length > 0;
+          if (item.requiredRoles?.length) {
+            return item.requiredRoles.some((role) => hasPermission(role));
+          }
+          return true;
+        });
       setFilteredItems(updatedItems);
 
       navigate(
@@ -45,12 +55,15 @@ const Sidebar = ({ open, onClose, ...props }) => {
     };
 
     filterSidebarItems();
-  }, [activeIndex, navigate, userCan]);
+  }, [activeIndex, navigate, permissions, hasPermission]);
 
   const handleItemClick = (index) => {
-    setActiveIndex(index);
     if (index === activeIndex) {
-      onClose(); // Close the sidebar on item click
+      // If clicking the same item, toggle it (collapse)
+      setActiveIndex(-1);
+    } else {
+      // If clicking a different item, expand it
+      setActiveIndex(index);
     }
   };
 

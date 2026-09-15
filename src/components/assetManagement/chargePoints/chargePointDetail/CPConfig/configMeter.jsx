@@ -4,7 +4,7 @@ import StyledButton from "../../../../../ui/styledButton";
 import StyledSelectField from "../../../../../ui/styledSelectField";
 import { Clear } from "@mui/icons-material";
 import { toast } from "react-toastify";
-import { changeConfiguration } from "../../../../../services/ocppAPI";
+import { useChangeConfiguration } from "../../../../../hooks/mutations/useOcppMutation";
 
 const ChipBox = ({ label, onDelete }) => {
   return (
@@ -53,7 +53,22 @@ export default function ConfigMeter({ title, selectData, chipData, ...props }) {
 
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [chips, setChips] = useState(chipData);
-  const [loading, setLoading] = useState(false);
+
+  // TanStack Query mutation hook
+  const { mutate: updateConfiguration, isPending: isUpdating } = useChangeConfiguration({
+    onSuccess: (res) => {
+      if (res.status) {
+        toast.success("Configuration updated successfully!");
+        const cpid = sessionStorage.getItem("cpid");
+        const newChips = [...chips, ...selectedOptions];
+        setChips(newChips);
+        setSelectedOptions([]);
+      }
+    },
+    onError: (error) => {
+      toast.error("Failed to update configuration.");
+    },
+  });
 
   const handleSelectChange = (selected) => {
     setSelectedOptions(selected.map((option) => option.value));
@@ -65,25 +80,17 @@ export default function ConfigMeter({ title, selectData, chipData, ...props }) {
     setChips(newChipData);
   };
 
-  const handleSave = async () => {
-    setLoading(true);
-    try {
-      const cpid = sessionStorage.getItem("cpid");
-      const newChips = [...chips, ...selectedOptions];
-      const res = await changeConfiguration(cpid, {
+  const handleSave = () => {
+    const cpid = sessionStorage.getItem("cpid");
+    const newChips = [...chips, ...selectedOptions];
+
+    updateConfiguration({
+      cpid,
+      data: {
         key: title,
         value: newChips.join(","),
-      });
-      if (res.status) {
-        toast.success("Configuration updated successfully!");
-        setChips(newChips);
-        setSelectedOptions([]);
-      }
-    } catch (error) {
-      toast.error("Failed to update configuration.");
-    } finally {
-      setLoading(false);
-    }
+      },
+    });
   };
 
   const filteredOptions = measurandOptions.filter(
@@ -115,9 +122,9 @@ export default function ConfigMeter({ title, selectData, chipData, ...props }) {
               color: "#fff",
               width: "150px",
             }}
-            disabled={loading}
+            disabled={isUpdating}
           >
-            {loading ? "Saving..." : "Save"}
+            {isUpdating ? "Saving..." : "Save"}
           </StyledButton>
         </Stack>
         <Grid container spacing={2}>

@@ -1,7 +1,6 @@
 import { Grid, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { getListOfChargingStation } from "../../../services/stationAPI";
-import AsyncSelect from "react-select/async";
+import React, { useMemo } from "react";
+import { useListOfChargingStation } from "../../../hooks/queries/useChargingStation";
 import { Controller, useFormContext } from "react-hook-form";
 import StyledSelectField from "../../../ui/styledSelectField";
 
@@ -13,36 +12,27 @@ function LocationalAccess({ isUpdate, datas }) {
     formState: { errors },
   } = useFormContext(); // Use useFormContext to access form methods
 
-  const [optionList, setOptionList] = useState([]);
+  // TanStack Query hook
+  const { data: stationsData } = useListOfChargingStation();
 
-  const loadLocationOptions = async (inputValue) => {
-    try {
-      const response = await getListOfChargingStation(inputValue);
-      if (response.status) {
-        const stationOptions = response.result.map((station) => ({
-          label: station.name,
-          value: station._id,
-        }));
-
-        const allOption = { label: "All", value: "*" };
-
-        setOptionList([allOption, ...stationOptions]);
-      }
-    } catch (error) {
-      console.error("Error fetching stations", error);
-    }
-  };
-  useEffect(() => {
-    loadLocationOptions();
-  }, []);
+  // Extract data with safe defaults and add "All" option
+  const optionList = useMemo(() => {
+    if (!stationsData?.result) return [];
+    const stationOptions = stationsData.result.map((station) => ({
+      label: station.name,
+      value: station._id,
+    }));
+    const allOption = { label: "All", value: "*" };
+    return [allOption, ...stationOptions];
+  }, [stationsData]);
 
   const handleSelectAll = () => {
     const allValuesExceptAll = optionList
       .filter((option) => option.value !== "*")
       .map((option) => option.value);
-  
+
     setValue("locationalPermissions", allValuesExceptAll);
-  };  
+  };
 
   return (
     <>

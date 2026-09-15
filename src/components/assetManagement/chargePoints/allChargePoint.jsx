@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom'
 import { searchAndFilter } from '../../../utils/search'
 import { tableHeaderReplace } from '../../../utils/tableHeaderReplace'
 import { permissions } from '../../../core/routes/permissions'
-import { useAuth } from '../../../core/auth/AuthContext'
+import { useAuthStore } from '../../../store'
 
 const tableHeader = [
   'CPID',
@@ -25,7 +25,7 @@ const tableHeader = [
 
 export default function AllChargePoint({ data, setPageNo, setSearchQuery, totalCount, deleteData, editData, reloadData, ...props }) {
   const navigate = useNavigate()
-  const { userCan } = useAuth()
+  const hasPermission = useAuthStore((state) => state.hasPermission)
 
   const handleSearch = (value)=>{
     setSearchQuery(value)
@@ -57,7 +57,7 @@ export default function AllChargePoint({ data, setPageNo, setSearchQuery, totalC
           showActionCell={true}
           setPageNo={setPageNo}
           totalCount={totalCount}
-          actions={userCan(permissions.chargePoint.modify) ? ["Edit", "View", "Delete"] : ["View"]}
+          actions={hasPermission(permissions.chargePoint.modify) ? ["Edit", "View", "Delete"] : ["View"]}
           onActionClick={tableActionClick} />
       </Box>
     </>

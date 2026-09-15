@@ -1,9 +1,10 @@
 import { Box, Dialog, Stack, Typography } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import StyledTab from '../ui/styledTab'
 import AllChargeStation from '../components/assetManagement/chargeStations/allChargeStation';
 import AddChargingStation from '../components/assetManagement/chargeStations/AddChargingStation';
-import { getChargingStationList, createChargingStation, deleteChargingStation } from '../services/stationAPI';
+import { useChargingStationList } from '../hooks/queries/useChargingStation';
+import { useDeleteChargingStation } from '../hooks/mutations/useChargingStationMutation';
 import ConfirmDialog from '../ui/confirmDialog';
 import { ReactComponent as Close } from "../assets/icons/close-icon-large.svg";
 import { toast } from 'react-toastify';
@@ -11,36 +12,31 @@ import { Transition } from '../utils/DialogAnimation';
 
 export default function ChargingStation() {
   const [togglePage, setTogglePage] = useState(0);
-  const [chargeStationListData, setChargeStationListData] = useState([])
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedData, setSelectedData] = useState(false);
   const [pageNo, setPageNo] = useState(1);
-  const [totalCount, setTotalCount] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const init = (filter = {pageNo}) => {
-    if(searchQuery){
-      filter.searchQuery = searchQuery;
-    }
-    getChargingStationList(filter).then((res) => {
-      if (res.status) {
-        setChargeStationListData(res.result)
-        setTotalCount(res.totalCount);
-      }
-    }
-    )
+  const filters = { pageNo };
+  if (searchQuery) {
+    filters.searchQuery = searchQuery;
   }
 
-  useEffect(() => {
-    init();
-  }, [pageNo, searchQuery])
+  const { data: stationData, refetch } = useChargingStationList(filters);
+  const chargeStationListData = stationData?.result || [];
+  const totalCount = stationData?.totalCount || 1;
+
+  const { mutate: deleteStation } = useDeleteChargingStation({
+    onSuccess: () => {
+      toast.success("charging station deleted successfully");
+    }
+  });
 
   const deleteData = () => {
-    deleteChargingStation(selectedData._id).then((res) => {
-      init();
-      toast.success("charging station deleted successfully")
-    })
+    if (selectedData?._id) {
+      deleteStation(selectedData._id);
+    }
   }
 
   const buttonChanged = (e) => {
@@ -61,7 +57,7 @@ export default function ChargingStation() {
           <Typography sx={{ color: 'secondary.contrastText' }}>Edit ChargeStation</Typography>
           <Close style={{ cursor: 'pointer' }} onClick={() => { setEditDialogOpen(false) }} />
         </Stack>
-        <AddChargingStation formSubmited={() => { init(); setEditDialogOpen(false) }} data={selectedData} editStatus={true} />
+        <AddChargingStation formSubmited={() => { refetch(); setEditDialogOpen(false) }} data={selectedData} editStatus={true} />
       </Dialog>
       <StyledTab
         activeIndex={togglePage}
@@ -71,12 +67,12 @@ export default function ChargingStation() {
           data={chargeStationListData}
           deleteData={(data) => { setSelectedData(data); setDialogOpen(true) }}
           editData={(data) => { setSelectedData(data); setEditDialogOpen(true) }}
-          reloadData={init}
-          setPageNo={setPageNo} 
+          reloadData={() => refetch()}
+          setPageNo={setPageNo}
           totalCount={totalCount}
-          setSearchQuery={setSearchQuery} 
-          /> :
-        <AddChargingStation formSubmited={() => { init(); setTogglePage(0) }} />}
+          setSearchQuery={setSearchQuery}
+        /> :
+        <AddChargingStation formSubmited={() => { refetch(); setTogglePage(0) }} />}
     </Box>
   );
 }

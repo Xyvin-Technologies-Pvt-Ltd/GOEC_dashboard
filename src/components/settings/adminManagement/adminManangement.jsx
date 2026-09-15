@@ -7,15 +7,15 @@ import StyledDivider from "../../../ui/styledDivider";
 import AddAdmin from "./addAdmin";
 import { ReactComponent as Close } from "../../../assets/icons/close-circle.svg";
 import { toast } from "react-toastify";
-import { deleteAdmin } from "../../../services/userApi";
-import { useAuth } from "../../../core/auth/AuthContext";
+import { useDeleteAdmin } from "../../../hooks/mutations/useUserMutation";
+import { useAuthStore } from "../../../store";
 import { permissions } from "../../../core/routes/permissions";
 
 export default function AdminManangement({ data, headers, setIsChange, isChange, setPageNo, totalCount }) {
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState("add");
   const [tableData, setTableData] = useState();
-  const { userCan } = useAuth()
+  const hasPermission = useAuthStore((state) => state.hasPermission)
   // Function to open the modal
   const handleOpen = () => {
     setOpen(true);
@@ -31,15 +31,23 @@ export default function AdminManangement({ data, headers, setIsChange, isChange,
     handleClose(); // Close the modal after success
   };
 
-  const handleClick = async (e) => {
+  const deleteAdminMutation = useDeleteAdmin({
+    onSuccess: () => {
+      setIsChange(!isChange);
+      toast.success("Admin account deleted!");
+    },
+    onError: () => {
+      toast.error("Failed to delete admin!");
+    },
+  });
+
+  const handleClick = (e) => {
     if (e.action === "Edit") {
       setAction("edit");
       setOpen(true);
       setTableData(e.data);
     } else if (e.action === "Delete") {
-      await deleteAdmin(e.data._id);
-      setIsChange(!isChange);
-      toast.success("Admin account deleted!");
+      deleteAdminMutation.mutate(e.data._id);
     }
   };
   return (
@@ -56,7 +64,7 @@ export default function AdminManangement({ data, headers, setIsChange, isChange,
         setPageNo={setPageNo}
         totalCount={totalCount}
         onActionClick={handleClick} 
-        showActionCell={userCan(permissions.adminManagement.modify)}
+        showActionCell={hasPermission(permissions.adminManagement.modify)}
         actions={["Edit","Delete"]}
         />
       </Box>

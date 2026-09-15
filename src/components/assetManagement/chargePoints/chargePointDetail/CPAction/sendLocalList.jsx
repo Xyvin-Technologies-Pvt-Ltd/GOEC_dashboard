@@ -4,7 +4,7 @@ import StyledSelectField from "../../../../../ui/styledSelectField";
 import StyledDivider from "../../../../../ui/styledDivider";
 import StyledButton from "../../../../../ui/styledButton";
 import { useForm, Controller } from "react-hook-form";
-import { LocalList } from "../../../../../services/ocppAPI";
+import { useSendLocalList } from "../../../../../hooks/mutations/useOcppMutation";
 import { toast } from "react-toastify";
 
 
@@ -27,25 +27,22 @@ export default function SendLocalList() {
       updateType: formData.updateType.value,
     };
     const cpid = sessionStorage.getItem("cpid");
-    try {
-      const res = await LocalList(cpid, data);
-      if (res) {
-        const successToastId = toast.success(
-          "SendLocalList Response",
-          {
-            position: "top-right",
-          }
-        );
-        toast.update(successToastId);
-        reset();
-      }
-    } catch (error) {
-      const errorToastId = toast.error(error.response.data.error, {
-        position: "top-right",
-      });
-      toast.update(errorToastId);
-    }
+    sendLocalListMutation.mutate({ cpid, data });
   };
+
+  const sendLocalListMutation = useSendLocalList({
+    onSuccess: (res) => {
+      const msg = res?.message || "SendLocalList Response";
+      const successToastId = toast.success(msg, { position: "top-right" });
+      toast.update(successToastId);
+      reset();
+    },
+    onError: (error) => {
+      const msg = error?.response?.data?.error || error?.message || "Failed to send local list";
+      const errorToastId = toast.error(msg, { position: "top-right" });
+      toast.update(errorToastId);
+    },
+  });
 
   let version = [
     { label: "1.6", value: 1.6 },

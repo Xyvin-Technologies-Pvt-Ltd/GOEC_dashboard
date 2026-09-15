@@ -13,7 +13,8 @@ import StyledButton from "../../../ui/styledButton";
 import { Add } from "@mui/icons-material";
 import ConnectorDetails from "./addEvcharger/connectorDetails";
 import { Controller, useForm } from "react-hook-form";
-import { createEvModel, editEvModel, getOemDropdown } from "../../../services/evMachineAPI";
+import { useOemDropdown } from "../../../hooks/queries/useEvMachine";
+import { useCreateEvModel, useEditEvModel } from "../../../hooks/mutations/useEvMachineMutation";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 // StyledTable component
@@ -63,9 +64,11 @@ const numberOfPorts = [
 
 export default function AddEvCharger({ editStatus = false, chargerData = {}, formSubmitted }) {
   const [connectorDetailOpen, setConnectorDetailOpen] = useState(false)
-  const [oemData, setOemData] = useState([])
   const [noOfPorts, setNoOfPorts] = useState(editStatus ? chargerData["Number of Ports"] : 0)
   const [connectors, setConnectors] = useState(editStatus ? chargerData["connectors"] : [])
+  const { data: oemData = [] } = useOemDropdown();
+  const createEvModelMutation = useCreateEvModel();
+  const editEvModelMutation = useEditEvModel();
   const { control, handleSubmit, setValue, reset, formState: { errors }, clearErrors } = useForm({
     defaultValues: {
       oem: editStatus ? chargerData["Company Name"] : '',
@@ -77,21 +80,6 @@ export default function AddEvCharger({ editStatus = false, chargerData = {}, for
     }
   });
 
-  const getOEMApi = () => {
-    getOemDropdown().then((res) => {
-      if (res.status) {
-        const formattedOEM = res.result.map((brand) => ({
-          label: brand.name,
-          value: brand._id,
-        }));
-        setOemData(formattedOEM);
-      }
-    });
-  };
-  useEffect(() => {
-    getOEMApi()
-  }, [])
-
   const onSubmit = (data) => {
     if (editStatus) {
       updateEVCharger(data)
@@ -101,7 +89,7 @@ export default function AddEvCharger({ editStatus = false, chargerData = {}, for
 
   }
 
-  const createEVCharger = (data)=>{
+  const createEVCharger = (data) => {
     if (connectors.length == 0) {
       toast.error("Enter connecters details")
     } else {
@@ -114,37 +102,39 @@ export default function AddEvCharger({ editStatus = false, chargerData = {}, for
         capacity: data.capacity,
         connectors: connectors
       }
-      createEvModel(obj).then((res) => {
-        if (res.status) {
+      createEvModelMutation.mutate(obj, {
+        onSuccess: (res) => {
           toast.success("EV charger Created Successfully")
           formSubmitted && formSubmitted()
+        },
+        onError: (error) => {
+          toast.error("Could not create EV Charger")
         }
-      }).catch((error) => {
-        toast.error("could not create EV Charger")
       })
     }
   }
 
-  const updateEVCharger = (data)=>{
+  const updateEVCharger = (data) => {
     if (connectors.length == 0) {
       toast.error("Enter connecters details")
     } else {
       let obj = {
-        oem:data.oem.value ? data.oem.value : getListId(oemData,chargerData["oem"]),
-        model_name:data.model_name,
-        no_of_ports:data.no_of_ports.value ? data.no_of_ports.value : getListId(noOfPorts,chargerData["no_of_ports"]),
-        ocpp_version:data.ocpp_version.value ? data.ocpp_version.value : getListId(OCCPVersionData,chargerData["ocpp_version"]),
-        output_type:data.output_type.value ? data.output_type.value : getListId(outputTypeData,chargerData["output_type"]),
-        capacity:data.capacity,
-        connectors:connectors
+        oem: data.oem.value ? data.oem.value : getListId(oemData, chargerData["oem"]),
+        model_name: data.model_name,
+        no_of_ports: data.no_of_ports.value ? data.no_of_ports.value : getListId(noOfPorts, chargerData["no_of_ports"]),
+        ocpp_version: data.ocpp_version.value ? data.ocpp_version.value : getListId(OCCPVersionData, chargerData["ocpp_version"]),
+        output_type: data.output_type.value ? data.output_type.value : getListId(outputTypeData, chargerData["output_type"]),
+        capacity: data.capacity,
+        connectors: connectors
       }
-      editEvModel(chargerData._id,obj).then((res)=>{
-        if (res.status) {
+      editEvModelMutation.mutate({ id: chargerData._id, data: obj }, {
+        onSuccess: (res) => {
           toast.success("EV charger Updated Successfully")
           formSubmitted && formSubmitted()
+        },
+        onError: (error) => {
+          toast.error("Could not update EV Charger")
         }
-      }).catch((error)=>{
-        toast.error("could not create EV Charger")
       })
     }
   }

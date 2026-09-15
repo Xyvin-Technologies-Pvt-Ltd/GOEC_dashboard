@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Box } from "@mui/material";
 import Tax from "../components/tariff/tax/Tax";
-import { getTaxList } from "../services/taxAPI";
+import { useTaxList } from "../hooks/queries/useTax";
 
 export default function CTax() {
-  const [taxListData, setTaxListData] = useState([]);
   const [isChange, setIsChange] = useState(false);
   const [pageNo, setPageNo] = useState(1);
-  const [totalCount, setTotalCount] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
 
   const headers = [
@@ -17,21 +15,18 @@ export default function CTax() {
     "Created on",
   ];
 
-  const getTaxData = (filter={pageNo})=>{
-    if(searchQuery){
-      filter.searchQuery = searchQuery;
-    }
-    getTaxList(filter).then((res)=>{
-      if(res){
-        setTaxListData(res.taxs);
-        setTotalCount(res.totalCount);
-      }
-    })
+  const filter = { pageNo };
+  if(searchQuery){
+    filter.searchQuery = searchQuery;
   }
 
-  useEffect(() => {
-    getTaxData()
-  }, [isChange, pageNo, searchQuery])
+  const { data: taxData, refetch: refetchTaxData } = useTaxList(filter);
+  const taxListData = taxData?.taxs || [];
+  const totalCount = taxData?.totalCount || 0;
+
+  const getTaxData = () => {
+    refetchTaxData();
+  }
   
 
   return (

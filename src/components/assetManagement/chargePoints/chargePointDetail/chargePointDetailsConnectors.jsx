@@ -4,7 +4,6 @@ import StyledDivider from "../../../../ui/styledDivider";
 import { ReactComponent as Qr_evplug } from "../../../../assets/icons/material-symbols_qr-code.svg";
 import { ReactComponent as Mdi_unlocked } from "../../../../assets/icons/mdi_unlocked.svg"
 import { getConnectorIcon } from "../../../../utils/connectorIcons";
-import { unlock } from "../../../../services/ocppAPI";
 import { Download } from "@mui/icons-material";
 import { Transition } from "../../../../utils/DialogAnimation";
 
@@ -71,14 +70,22 @@ export default function ChargePointDetailsConnectors({ data, unlockButtonHandle 
   const [connectors, setConnectors] = useState([])
 
 
-  useEffect(()=>{
-    if (data) {
-      setConnectors(data.connectors.map((dt,index)=>(
-        {...dt,...data.evModelDetails[0].connectors[index]}
-      )))
-      setConnectorName(data.name)
+  useEffect(() => {
+    if (!data) return;
+    setConnectorName(data.name ?? "");
+    const cpConnectors = data.connectors;
+    if (!Array.isArray(cpConnectors) || cpConnectors.length === 0) {
+      setConnectors([]);
+      return;
     }
-  },[data])
+    const modelConnectors = data.evModelDetails?.[0]?.connectors ?? [];
+    setConnectors(
+      cpConnectors.map((dt, index) => ({
+        ...dt,
+        ...(modelConnectors[index] ?? {}),
+      }))
+    );
+  }, [data]);
   return (
     <Box
       sx={{ backgroundColor: "secondary.main", borderRadius: "4px" }}

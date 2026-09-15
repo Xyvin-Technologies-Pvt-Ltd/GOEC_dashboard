@@ -1,11 +1,12 @@
 import { Box, Dialog } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import LastSynced from "../../../../layout/LastSynced";
 import StyledTable from "../../../../ui/styledTable";
 import { RFIDData } from "../../../../assets/json/crm";
 import AssignRFID from "./assignRFID";
 import { Transition } from "../../../../utils/DialogAnimation";
-import { removeRfidTag, userRfidList } from "../../../../services/userApi";
+import { useUserRfidList } from "../../../../hooks/queries/useUser";
+import { useRemoveRfidTag } from "../../../../hooks/mutations/useUserMutation";
 import { useParams } from "react-router-dom";
 import { tableHeaderReplace } from "../../../../utils/tableHeaderReplace";
 import { toast } from "react-toastify";
@@ -22,39 +23,32 @@ const tableHeader = [
 export default function RFID() {
 
     const { id } = useParams();
-
-  const [data, setData] = useState([]);
   const [pageNo, setPageNo] = useState(1);
-  const [totalCount, setTotalCount] = useState(1);
+  const [open, setopen] = useState(false);
 
-  const init = async (filter={pageNo}) => {
-    try {
-      const res = await userRfidList(id,filter)
-      setData(res.result)
-      setTotalCount(res.totalCount);
-    } catch (error) {
-    }
+  const filters = { pageNo };
+  const { data: rfidData } = useUserRfidList(id, filters);
+  const removeRfidTagMutation = useRemoveRfidTag();
+
+  const data = rfidData?.result || [];
+  const totalCount = rfidData?.totalCount || 0;
+
+  const tableActionClick = (e) => {
+    const rfid = { "rfidTagId": e.data.id };
+    removeRfidTagMutation.mutate(
+      { id, data: rfid },
+      {
+        onSuccess: () => {
+          toast.success("Unassigned successfully!");
+        },
+        onError: () => {
+          toast.error("Some error occurred");
+        },
+      }
+    );
   };
 
-  useEffect(() => {
-    init();
-  }, [pageNo]);
-
-  const tableActionClick = async (e) => {
-    
-       let rfid = {"rfidTagId": e.data.id}
-       try {
-         await removeRfidTag(id,rfid)
-         init();
-        toast.success("Unassigned successfully!");
-
-       } catch (error) {
-        toast.error("Some error");
-       }
-  }
-
-  const [open, setopen] = useState(false);
-  const rfidData = tableHeaderReplace(data, ['rfidTag', 'createdOn', 'expiry', 'serialNumber', 'status'], tableHeader)
+  const rfidTableData = tableHeaderReplace(data, ['rfidTag', 'createdOn', 'expiry', 'serialNumber', 'status'], tableHeader)
 
   return (
     <Box>
@@ -79,7 +73,7 @@ export default function RFID() {
       <Box sx={{ p: { xs: 2, md: 4 } }}>
         <StyledTable
           headers={tableHeader}
-          data={rfidData}
+          data={rfidTableData}
           setPageNo={setPageNo} 
           totalCount={totalCount}
           showActionCell={true}

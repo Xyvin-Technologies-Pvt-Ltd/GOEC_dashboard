@@ -7,7 +7,7 @@ import StyledTable from '../../../../ui/styledTable'
 import { chargerLogData } from '../../../../assets/json/chargepoints'
 import LastSynced from '../../../../layout/LastSynced'
 import StyledIconButton from '../../../../ui/stylediconButton'
-import { getMachineLog } from '../../../../services/ocppAPI'
+import { useMachineLog } from '../../../../hooks/queries/useOcpp'
 import { tableHeaderReplace } from '../../../../utils/tableHeaderReplace'
 import { searchAndFilter } from '../../../../utils/search'
 import RightDrawer from '../../../../ui/RightDrawer'
@@ -38,7 +38,8 @@ export default function ChargerLog({ CPID }) {
     const [totalCount, setTotalCount] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [open, setOpen] = useState(false);
-    const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [downloadFilter, setDownloadFilter] = useState(null);
     const {
         control,
         handleSubmit,
@@ -50,23 +51,13 @@ export default function ChargerLog({ CPID }) {
       } = useForm();
       const onSubmit = async(data) => {
         setLoading(true);
-        // Handle form submission with data
-        let dt = {
+        // prepare filter for download and trigger the download hook
+        const dt = {
           startDate: data.startDate,
-          endDate: data.endDate
+          endDate: data.endDate,
         };
-      
-        // Wait for the response before proceeding
-        const res = await getMachineLog(CPID, dt);
-      
-        if (res.status) {
-          const updatedLog = tableHeaderReplace(res.result, ['connectorId', 'date', 'command', 'payload', 'uniqueId', 'source'], tableHeader);
-          exportExcelData(updatedLog, 'ChargerLog');
-        }
-      
-        handleClose();
-        reset();
-        setLoading(false);
+        setDownloadFilter(dt);
+        // when downloadFilter is set the download hook will be enabled and fetch data
       };
       
     
@@ -94,29 +85,49 @@ export default function ChargerLog({ CPID }) {
       const handleClose = () => {
         setOpen(false);
       };
-    useEffect(() => {
-        init()
-    }, [pageNo, searchQuery])
-    const init = (filter={}) => {
-        if(searchQuery){
-            filter.searchQuery = searchQuery;
-          }
-        filter.pageNo = pageNo
-        getMachineLog(CPID,filter).then((res) => {
-            if (res.status) {
-                setLogList(tableHeaderReplace(res.result, ['connectorId', 'date', 'command', 'payload', 'uniqueId', 'source'], tableHeader))
-                setTotalCount(res.totalCount);
-            }
-        })
-    }
+    const filter = {
+      pageNo,
+      ...(searchQuery && { searchQuery }),
+    };
 
+    const { data: machineData = {}, refetch } = useMachineLog(CPID, filter, !!CPID);
+
+    // derive list and totalCount from hook data
+    const derivedLogList = machineData.result || [];
+    const derivedTotalCount = machineData.totalCount || 0;
+
+    useEffect(() => {
+      setLogList(tableHeaderReplace(derivedLogList, ['connectorId', 'date', 'command', 'payload', 'uniqueId', 'source'], tableHeader));
+      setTotalCount(derivedTotalCount);
+    }, [derivedLogList, derivedTotalCount]);
+
+    // Download-specific hook instance (enabled only when downloadFilter is set)
+    const { data: downloadData = {}, refetch: refetchDownload } = useMachineLog(CPID, downloadFilter || {}, !!(CPID && downloadFilter));
+
+    // watch downloadData and trigger export when available
+    useEffect(() => {
+      if (downloadFilter && downloadData && downloadData.status) {
+        const updatedLog = tableHeaderReplace(downloadData.result, ['connectorId', 'date', 'command', 'payload', 'uniqueId', 'source'], tableHeader);
+        exportExcelData(updatedLog, 'ChargerLog');
+        handleClose();
+        reset();
+        setLoading(false);
+        setDownloadFilter(null);
+      }
+    }, [downloadData]);
+
+    // compatibility init used by Filter component to update pagination/search
+    const init = (dt = { pageNo }) => {
+      if (dt.pageNo !== undefined) setPageNo(dt.pageNo);
+      if (dt.searchQuery !== undefined) setSearchQuery(dt.searchQuery);
+    };
 
     const handleClick = () => {
-        handleOpen();
+      handleOpen();
     }
 
     return (
-        <><LastSynced heading={'Charger logs'} reloadHandle={init}>
+        <><LastSynced heading={'Charger logs'} reloadHandle={() => refetch()}>
             <StyledSearchField placeholder={'Search'} onChange={(e) => {
                 setSearchQuery(e.target.value)
             }} />

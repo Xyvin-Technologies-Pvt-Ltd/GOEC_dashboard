@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
-import { Stack, Box, Grid, Typography } from "@mui/material";
-import StyledSelectField from "../../../../../ui/styledSelectField";
+import { Stack, Box } from "@mui/material";
 import StyledButton from "../../../../../ui/styledButton";
 import { useForm, Controller } from "react-hook-form";
 import StyledInput from "../../../../../ui/styledInput";
 import CalendarInput from "../../../../../ui/CalendarInput";
-import { getChargingPointsListOfStation, getListOfChargingStation } from "../../../../../services/stationAPI";
 
 
 export default function Filter({ onSubmited }) {
@@ -15,16 +13,16 @@ export default function Filter({ onSubmited }) {
     handleSubmit,
     setValue,
     watch,
-    setError,
     reset,
     formState: { errors },
     clearErrors,
   } = useForm();
+
   const onSubmit = (data) => {
     // Handle form submission with data
     let dt = {
-      startDate:data.startDate,
-      endDate:data.endDate
+      startDate: data.startDate,
+      endDate: data.endDate
     }
     onSubmited && onSubmited(dt)
     // Close your form or perform other actions
@@ -44,6 +42,7 @@ export default function Filter({ onSubmited }) {
 
   };
   const endDate = watch("endDate", ""); // Watching the value for 'expiryDate'
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -75,7 +74,7 @@ export default function Filter({ onSubmited }) {
                   )}
                 </>
               )}
-            rules={{ required: "StartDate is required" }}
+              rules={{ required: "StartDate is required" }}
             />
             <Label>End date</Label>
             <Controller
@@ -102,7 +101,7 @@ export default function Filter({ onSubmited }) {
                   )}
                 </>
               )}
-            rules={{ required: "endDate is required" }}
+              rules={{ required: "endDate is required" }}
             />
 
             <Stack direction={"row"} spacing={1} sx={{ justifyContent: 'center' }}>

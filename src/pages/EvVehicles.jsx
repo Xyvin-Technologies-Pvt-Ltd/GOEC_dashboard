@@ -1,34 +1,29 @@
 import { Box, Stack } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import StyledTab from '../ui/styledTab'
 
 import AddVehicles from '../components/dataManagement/evVehicles/AddVehicles'
 import AllVehicles from '../components/dataManagement/evVehicles/AllVehicles'
-import { getVehicleListForDashboard } from '../services/vehicleAPI'
+import { useVehicleListForDashboard } from '../hooks/queries/useVehicle'
 
 
 export default function Vehicles() {
   const [togglePage, setTogglePage] = useState(0);
-  const [vehicleListData, setVehicleListData] = useState([]);
   const [pageNo, setPageNo] = useState(1);
-  const [totalCount, setTotalCount] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const init = (filter = {pageNo}) => {
-    if(searchQuery){
-      filter.searchQuery = searchQuery;
-    }
-    getVehicleListForDashboard(filter).then((res) => {
-      if (res.status) {
-        setVehicleListData(res.result.map((item) => ({ ...item, charger_types: item.compactable_port.toString() })));
-        setTotalCount(res.totalCount);
-      }
-    });
-  };
+  const filter = { pageNo };
+  if(searchQuery){
+    filter.searchQuery = searchQuery;
+  }
 
-  useEffect(() => {
-    init();
-  }, [pageNo, searchQuery]);
+  const { data: vehicleData, refetch: refetchVehicles } = useVehicleListForDashboard(filter);
+  const vehicleListData = vehicleData?.result?.map((item) => ({ ...item, charger_types: item.compactable_port.toString() })) || [];
+  const totalCount = vehicleData?.totalCount || 0;
+
+  const init = () => {
+    refetchVehicles();
+  };
 
   const buttonChanged = (e) => {
     setTogglePage(e.index);

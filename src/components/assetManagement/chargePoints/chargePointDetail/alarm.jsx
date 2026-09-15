@@ -6,7 +6,7 @@ import { Tune, FileDownloadOutlined } from '@mui/icons-material'
 import StyledTable, { TableHeader } from '../../../../ui/styledTable'
 import { alarmData } from '../../../../assets/json/chargepoints'
 import { useState } from 'react'
-import { getAlarmsById } from '../../../../services/ocppAPI'
+import { useAlarmsById } from '../../../../hooks/queries/useOcpp'
 import LastSynced from '../../../../layout/LastSynced'
 import { tableHeaderReplace } from '../../../../utils/tableHeaderReplace'
 import { searchAndFilter } from '../../../../utils/search'
@@ -39,24 +39,32 @@ export default function Alarm({ CPID }) {
     const [pageNo, setPageNo] = useState(1);
     const [totalCount, setTotalCount] = useState(1);
 
+    const filter = {
+        pageNo,
+        ...(searchQuery && { searchQuery }),
+    };
+
+    const { data: alarmsData = {}, refetch } = useAlarmsById(CPID, filter, !!CPID);
+
+    // derive list and totalCount from hook data
+    const derivedAlarmList = alarmsData.result || [];
+    const derivedTotalCount = alarmsData.totalCount || 0;
+
+    // keep a simple init function for Filter component to update pagination/search
+    const init = (dt = { pageNo }) => {
+        if (dt.pageNo !== undefined) setPageNo(dt.pageNo);
+        if (dt.searchQuery !== undefined) setSearchQuery(dt.searchQuery);
+    };
+
+    // sync derived values into local state for compatibility with table props
     useEffect(() => {
-        init()
-    }, [pageNo, searchQuery])
-    const init = (dt={pageNo}) => {
-        if(searchQuery){
-            dt.searchQuery = searchQuery;
-          }
-        getAlarmsById(CPID,dt).then((res) => {
-            if (res.status) {
-                setAlarmList(tableHeaderReplace(res.result, ['cpid', 'date', 'summary', 'connectorId', 'status', 'errorCode'], tableHeader))
-                setTotalCount(res.totalCount);
-            }
-        })
-    }
+        setAlarmList(tableHeaderReplace(derivedAlarmList, ['cpid', 'date', 'summary', 'connectorId', 'status', 'errorCode'], tableHeader));
+        setTotalCount(derivedTotalCount);
+    }, [derivedAlarmList, derivedTotalCount]);
 
     return (
         <>
-            <LastSynced heading="Alarms" reloadHandle={init}>
+            <LastSynced heading="Alarms" reloadHandle={() => refetch()}>
                 <StyledSearchField placeholder={'Search'} onChange={(e) => {
                     setSearchQuery(e.target.value)
                 }} />

@@ -10,15 +10,15 @@ import AddTax from "./addTax";
 import StyledButton from "../../../ui/styledButton";
 import StyledSearchField from "../../../ui/styledSearchField";
 import { tableHeaderReplace } from "../../../utils/tableHeaderReplace";
-import { deleteTax } from "../../../services/taxAPI";
-import { searchAndFilter } from "../../../utils/search";
-import { useAuth } from "../../../core/auth/AuthContext";
+import { useDeleteTax } from "../../../hooks/mutations/useTaxMutation";
+import { useAuthStore } from "../../../store";
 import { permissions } from "../../../core/routes/permissions";
 function Tax({ data, headers, onIsChange, isChange, updateData, setPageNo, totalCount, setSearchQuery }) {
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState("add");
   const [tableData, setTableData] = useState();
-  const { userCan } = useAuth()
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const deleteTaxMutation = useDeleteTax();
 
   // Function to open the modal
   const handleOpen = () => {
@@ -38,14 +38,19 @@ function Tax({ data, headers, onIsChange, isChange, updateData, setPageNo, total
       setTableData(e.data);
     } else if (e.action === "Delete") {
       setAction("delete");
-      const res = deleteTax(e.data._id);
-      if (res) {
-        const successToastId = toast.success("Tax deleted successfully", {
-          position: "top-right",
-        });
-        toast.update(successToastId);
-        onIsChange(!isChange);
-      }
+      deleteTaxMutation.mutate(e.data._id, {
+        onSuccess: () => {
+          toast.success("Tax deleted successfully", {
+            position: "top-right",
+          });
+          onIsChange(!isChange);
+        },
+        onError: () => {
+          toast.error("Failed to delete tax", {
+            position: "top-right",
+          });
+        },
+      });
     }
   };
 
@@ -76,7 +81,7 @@ function Tax({ data, headers, onIsChange, isChange, updateData, setPageNo, total
         setPageNo={setPageNo}
         totalCount={totalCount}
         onActionClick={handleClick}
-        showActionCell={userCan(permissions.tax.modify)}
+        showActionCell={hasPermission(permissions.tax.modify)}
         actions={["Edit","Delete"]}
         />
       </Box>

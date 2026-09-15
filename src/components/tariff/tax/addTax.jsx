@@ -4,11 +4,14 @@ import styled from "styled-components";
 import StyledButton from "../../../ui/styledButton";
 import StyledSwitch from "../../../ui/styledSwitch";
 import { Controller, useForm } from "react-hook-form";
-import { createTax, editTax } from "../../../services/taxAPI";
+import { useCreateTax, useEditTax } from "../../../hooks/mutations/useTaxMutation";
 import { toast } from "react-toastify";
 import StyledInput from "../../../ui/styledInput";
 
 export default function AddTax({ action, data, onIsChange, isChange, setOpen }) {
+  const createTaxMutation = useCreateTax();
+  const editTaxMutation = useEditTax();
+
   const defaultValues = useMemo(() => {
     return action === "edit"
       ? {
@@ -34,12 +37,14 @@ export default function AddTax({ action, data, onIsChange, isChange, setOpen }) 
 
   const onSubmit = async (formData) => {
     try {
-      const res = action === "add" ? await createTax(formData) : await editTax(data._id, formData);
-      if (res) {
-        toast.success(`Tax ${action === "add" ? "created" : "updated"} successfully`, { position: "top-right" });
-        onIsChange(!isChange);
-        reset();
+      if (action === "add") {
+        await createTaxMutation.mutateAsync(formData);
+      } else {
+        await editTaxMutation.mutateAsync({ id: data._id, data: formData });
       }
+      toast.success(`Tax ${action === "add" ? "created" : "updated"} successfully`, { position: "top-right" });
+      onIsChange(!isChange);
+      reset();
     } catch (error) {
       toast.error("Something went wrong", { position: "top-right" });
     }

@@ -1,23 +1,23 @@
 import { Box, Container, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
-import { ReactComponent as Logo } from "../assets/Logo.svg";
 import StyledDivider from "../ui/styledDivider";
 import StyledInput from "../ui/styledInput";
 import { MailOutline, Lock, Visibility } from "@mui/icons-material";
 import StyledButton from "../ui/styledButton";
 import { Controller, useForm } from "react-hook-form";
 import { ReactComponent as Close } from "../assets/icons/close-circle.svg";
-import { adminLogin } from "../services/userApi";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import StyledLoader from "../ui/styledLoader";
 import HeaderLogo from "../assets/header-logo.png";
+import { useAuthStore } from "../store";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [forgotShow, setForgotShow] = useState(false);
-  const [isSubmit, setIsSubmit] = useState(false);
   const navigate = useNavigate();
+  const login = useAuthStore((state) => state.login);
+  const isLoading = useAuthStore((state) => state.isLoading);
 
   const {
     control,
@@ -26,19 +26,13 @@ export default function Login() {
   } = useForm();
 
   const onSubmit = async (formData) => {
-    setIsSubmit(true);
     try {
-      let data = await adminLogin(formData);
-      localStorage.setItem("token", data.token);
+      await login(formData);
       toast.success("Login Success");
-      setIsSubmit(false);
       navigate("/dashboard", { replace: true });
     } catch (error) {
-      toast.error("Authentication Failed");
-      setIsSubmit(false);
-      // reset({},{keepDefaultValues:false});
+      toast.error(error.message || "Authentication Failed");
     }
-    setTimeout(() => {}, 2000);
   };
 
   const handleForgot = (formData) => {
@@ -139,7 +133,7 @@ export default function Login() {
                     )}
                     rules={{ required: "Password is required" }}
                   />
-                  {isSubmit ? (
+                  {isLoading ? (
                     <Box sx={{ display: "flex", justifyContent: "center" }}>
                       <StyledLoader />
                     </Box>
@@ -148,6 +142,7 @@ export default function Login() {
                       variant={"primary"}
                       width="100%"
                       type="submit"
+                      disabled={isLoading}
                     >
                       Sign in
                     </StyledButton>
