@@ -105,7 +105,7 @@ export default function Overview({ data }) {
         }
     };
     return (
-        <><LastSynced heading={'Analytics - Overview'} />
+        <><LastSynced heading={'Analytics - Overviews'} />
             <Grid container p={{ xs: 1, md: 2 }} spacing={1}>
                 <Grid item xs={12} md={5} lg={4}>
                     <Box sx={{ backgroundColor: 'secondary.main', borderRadius: '4px' }}>
