@@ -5,7 +5,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
         "Status": "online"
     },
     {
@@ -13,16 +13,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
-        "Status": "online"
-
-    },
-    {
-        "RFID Tag": "23202911",
-        "User Name": "Avinash Nazeer",
-        "Created On":"15-11-2022",
-        "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
         "Status": "online"
 
     },
@@ -31,7 +22,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
         "Status": "online"
 
     },
@@ -40,7 +31,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
         "Status": "online"
 
     },
@@ -49,7 +40,16 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-       "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
+        "Status": "online"
+
+    },
+    {
+        "RFID Tag": "23202911",
+        "User Name": "Avinash Nazeer",
+        "Created On":"15-11-2022",
+        "Expires On":"15-11-2024",
+       "Balance": "NPR 1200",
         "Status": "offline"
 
     },
@@ -58,7 +58,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
         "Status": "online"
 
     },
@@ -67,7 +67,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
         "Status": "online"
 
     },
@@ -76,7 +76,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
         "Status": "online"
 
     },
@@ -85,7 +85,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
         "Status": "online"
 
     },
@@ -94,7 +94,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
         "Status": "online"
 
     },
@@ -103,7 +103,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
         "Status": "online"
 
     },
@@ -112,7 +112,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
         "Status": "online"
 
     },
@@ -121,7 +121,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
         "Status": "online"
 
     },
@@ -130,7 +130,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-       "Balance": "₹ 1200",
+       "Balance": "NPR 1200",
         "Status": "online"
 
     },
@@ -139,7 +139,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-       "Balance": "₹ 1200",
+       "Balance": "NPR 1200",
         "Status": "offline"
 
     },
@@ -148,7 +148,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
         "Status": "offline"
 
     },
@@ -157,7 +157,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
         "Status": "online"
 
     },
@@ -166,7 +166,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
         "Status": "online"
 
     },
@@ -175,7 +175,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
         "Status": "online"
 
     },
@@ -184,7 +184,7 @@ export const DummyData = [
         "User Name": "Avinash Nazeer",
         "Created On":"15-11-2022",
         "Expires On":"15-11-2024",
-        "Balance": "₹ 1200",
+        "Balance": "NPR 1200",
         "Status": "online"
 
     },

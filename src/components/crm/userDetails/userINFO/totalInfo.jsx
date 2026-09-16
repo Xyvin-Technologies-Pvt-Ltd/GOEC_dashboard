@@ -14,7 +14,7 @@ export default function TotalInfo({userData}) {
         },
         {
             label: 'Total Amount',
-            sub: 'billed (INR)',
+            sub: 'billed (NPR)',
             value: userData?.totalAmount && userData?.totalAmount.toFixed(2)
         },
         {

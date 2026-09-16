@@ -46,7 +46,7 @@ export default function AddTariff({ action, data, onIsChange, isChange, updateDa
           name: data?.Name,
           value: data?.Value,
           tax: { label: data?.taxData?.name, value: data?.Tax },
-          serviceFee: data?.["Service fee(INR)"],
+          serviceFee: data?.["Service fee(NPR)"],
         }
       : {};
   }, [action, data]);

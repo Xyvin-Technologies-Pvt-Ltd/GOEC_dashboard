@@ -10,7 +10,7 @@ import StyledInput from "../../ui/styledInput";
 import { useChargingStationDropdown, useChargingPointsForStations } from "../../hooks/queries/useChargingStation";
 import { fetchReport } from "../../hooks/queries/useReportApi";
 import { generateExcel } from "../../utils/excelReport";
-import moment from "moment";
+import { formatNepalDateOnly } from "../../utils/formatNepalTime";
 // report service wrappers are provided by hooks/useReportApi
 
 export default function DownloadReport() {
@@ -73,14 +73,14 @@ export default function DownloadReport() {
   };
 
   const handleDateChangeInParent = (date) => {
-    const formattedDate = moment(date).format("YYYY-MM-DD");
+    const formattedDate = formatNepalDateOnly(date);
     setValue("startDate", formattedDate);
     clearErrors("startDate");
   };
   const startDate = watch("startDate", "");
 
   const handleEndDateChangeInParent = (date) => {
-    const formattedDate = moment(date).format("YYYY-MM-DD");
+    const formattedDate = formatNepalDateOnly(date);
     setValue("endDate", formattedDate);
     clearErrors("endDate");
   };

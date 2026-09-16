@@ -16,7 +16,7 @@ export default function CTariff() {
   const headers = [
     "Name",
     "Value",
-    "Service fee(INR)",
+    "Service fee(NPR)",
     "Created on",
     "Last updated",
     "Tax",

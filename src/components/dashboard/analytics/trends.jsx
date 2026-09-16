@@ -12,7 +12,7 @@ import { useDashboardTrends } from '../../../hooks/queries/useOcpp'
 
 
 const buttons = [
-    'Revenue (INR)',
+    'Revenue (NPR)',
     'Charging Transactions',
     'Energy'
 ]
@@ -47,7 +47,7 @@ export default function Trends() {
             <Box sx={{ p: 2 }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} md={4}>
-                        <DashboardDataCard title={'Revenue'} subTitle={'Earned(INR)'} value={totalRevenue} />
+                        <DashboardDataCard title={'Revenue'} subTitle={'Earned(NPR)'} value={totalRevenue} />
                     </Grid>
 
                     <Grid item xs={12} md={4}>

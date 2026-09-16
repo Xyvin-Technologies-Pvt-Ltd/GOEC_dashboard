@@ -3,6 +3,7 @@ import React from 'react'
 import { Transition } from '../../../../../utils/DialogAnimation';
 import { ReactComponent as Close } from "../../../../../assets/icons/close-icon-large.svg";
 import { Star } from '@mui/icons-material';
+import { formatNepalTime } from '../../../../../utils/formatNepalTime';
 
 
 
@@ -65,11 +66,11 @@ export default function TransactionDetails({ open, onClose, data }) {
                 </Stack>
                 <Stack direction={'row'} sx={{justifyContent:'space-between',backgroundColor:'#211F26',px:2,py:1}}>
                     <Typography variant='body1' color='primary.contrastText' sx={{fontWeight:300}}>Charging start</Typography>
-                    <Typography variant='body1' color='secondary.contrastText' sx={{fontWeight:100}}>{data && data['startTime']}</Typography>
+                    <Typography variant='body1' color='secondary.contrastText' sx={{fontWeight:100}}>{data && formatNepalTime(data['startTime'])}</Typography>
                 </Stack>
                 <Stack direction={'row'} sx={{justifyContent:'space-between',backgroundColor:'#2B2930',px:2,py:1}}>
                     <Typography variant='body1' color='primary.contrastText' sx={{fontWeight:300}}>Charging End</Typography>
-                    <Typography variant='body1' color='secondary.contrastText' sx={{fontWeight:100}}>{data && data['endTime']}</Typography>
+                    <Typography variant='body1' color='secondary.contrastText' sx={{fontWeight:100}}>{data && formatNepalTime(data['endTime'])}</Typography>
                 </Stack>
                 <Stack direction={'row'} sx={{justifyContent:'space-between',backgroundColor:'#211F26',px:2,py:1}}>
                     <Typography variant='body1' color='primary.contrastText' sx={{fontWeight:300}}>Duration</Typography>

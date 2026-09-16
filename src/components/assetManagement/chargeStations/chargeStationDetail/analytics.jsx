@@ -27,7 +27,7 @@ export default function Analytics({data}) {
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 2, md: 15 }} sx={{ justifyContent: 'center' }}>
                     <Stack direction={'column'}>
                         <Typography variant='caption' sx={{ color: 'primary.DimText', fontSize: '14px', fontWeight: '400' }}>Revenue</Typography>
-                        <Typography variant='caption' sx={{ color: 'primary.DimText', fontSize: '14px', fontWeight: '400' }}>Earned(INR)</Typography>
+                        <Typography variant='caption' sx={{ color: 'primary.DimText', fontSize: '14px', fontWeight: '400' }}>Earned(NPR)</Typography>
                         <Box sx={{ height: '91 px' }}>
                             <Box direction={'column'} spacing={'5px'} sx={{ mt: 2, borderLeft: '3px solid ', borderImage: 'linear-gradient(100deg, #ED5DCD -2.24%, rgba(95, 93, 215, 0.71) 98.06%) 10', borderRadius: 8, pl: 2, py: 0 }}>
                                 <Typography variant='h5'>{data && data.total_revenue.toFixed(2)}</Typography>

@@ -5,12 +5,10 @@ import React, { useState } from 'react'
 import StyledButton from '../../../../ui/styledButton'
 import AddTopup from './addTopup'
 import DeductWallet from './deductWallet'
-import moment from 'moment'
 
 export default function WalletInfo({data, onIsChange, isChange}) {
     const [topupOpen,setTopupOpen] = useState(false)
     const [deductOpen,setDeductOpen] = useState(false)
-    // const dateMoment = moment(data.createdAt);
     // ! Last Top-up on data is not available
     return (
         <Box sx={{ backgroundColor: 'secondary.main', borderRadius: '4px', p: {xs:2,md:4} }}>
@@ -34,7 +32,7 @@ export default function WalletInfo({data, onIsChange, isChange}) {
                                 </Stack>
                             </Stack>
                         </Box>
-                        <Typography variant='h5' sx={{ color: 'success.main' }}>₹ {data?.wallet && data?.wallet.toFixed(2)}</Typography>
+                        <Typography variant='h5' sx={{ color: 'success.main' }}>NPR {data?.wallet && data?.wallet.toFixed(2)}</Typography>
                     </Stack>
                     <Stack direction={'row'} spacing={2} p={3.5} sx={{ justifyContent: 'center' }}>
                         <StyledButton variant='primary' style={{ width: '180px', height: '40px', fontSize: '14px' }} onClick={()=>{setTopupOpen(true)}}>TOP-UP</StyledButton>
@@ -48,7 +46,7 @@ export default function WalletInfo({data, onIsChange, isChange}) {
                                 <AccountBalanceWalletOutlined />
                                 <Typography>Wallet Balance</Typography>
                             </Box>
-                            <Typography variant='h5'>₹ {data?.wallet && data?.wallet.toFixed(2)}</Typography>
+                            <Typography variant='h5'>NPR {data?.wallet && data?.wallet.toFixed(2)}</Typography>
                         </Stack>
 
                     </Box>

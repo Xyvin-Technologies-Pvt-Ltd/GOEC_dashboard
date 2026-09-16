@@ -5,7 +5,7 @@ import { ReactComponent as ContentCopy } from "../../../../assets/icons/content_
 import StyledDivider from "../../../../ui/styledDivider";
 import StyledInput from "../../../../ui/styledInput";
 import { toast } from "react-toastify";
-import moment from "moment";
+import { formatNepalTime } from "../../../../utils/formatNepalTime";
 export default function ChargePointDetailsCard({ data }) {
   const station = data?.chargingStationDetails?.[0];
   const model = data?.evModelDetails?.[0];
@@ -231,7 +231,9 @@ export default function ChargePointDetailsCard({ data }) {
               fontSize: "14px",
             }}
           >
-            {data && data.commissioned_date}
+            {data?.commissioned_date
+              ? formatNepalTime(data.commissioned_date, "DD-MM-YYYY")
+              : "—"}
           </Typography>
         </Stack>
 
@@ -283,7 +285,7 @@ export default function ChargePointDetailsCard({ data }) {
             }}
           >
             {data?.createdAt
-              ? moment(data.createdAt).format("DD-MM-YYYY")
+              ? formatNepalTime(data.createdAt, "DD-MM-YYYY")
               : "—"}
           </Typography>
         </Stack>

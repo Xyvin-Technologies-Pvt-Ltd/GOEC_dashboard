@@ -2,7 +2,7 @@ export const DummyData = [
 
     {
         "Name": "TARIFF TWENTY",
-        "Service fee(INR)": "22",
+        "Service fee(NPR)": "22",
         "Created on": "15-11-2022",
         "Last updated": "16-11-2022",
         "Tax": "16-11-2022",
@@ -11,7 +11,7 @@ export const DummyData = [
 
     {
         "Name": "TARIFF TWENTY",
-        "Service fee(INR)": "22",
+        "Service fee(NPR)": "22",
         "Created on": "15-11-2022",
         "Last updated": "16-11-2022",
         "Tax": "16-11-2022",
@@ -19,7 +19,7 @@ export const DummyData = [
     },
     {
         "Name": "TARIFF TWENTY",
-        "Service fee(INR)": "22",
+        "Service fee(NPR)": "22",
         "Created on": "15-11-2022",
         "Last updated": "16-11-2022",
         "Tax": "16-11-2022",
@@ -27,7 +27,7 @@ export const DummyData = [
     },
     {
         "Name": "TARIFF TWENTY",
-        "Service fee(INR)": "22",
+        "Service fee(NPR)": "22",
         "Created on": "15-11-2022",
         "Last updated": "16-11-2022",
         "Tax": "16-11-2022",
@@ -35,7 +35,7 @@ export const DummyData = [
     },
     {
         "Name": "TARIFF TWENTY",
-        "Service fee(INR)": "22",
+        "Service fee(NPR)": "22",
         "Created on": "15-11-2022",
         "Last updated": "16-11-2022",
         "Tax": "16-11-2022",
@@ -43,7 +43,7 @@ export const DummyData = [
     },
     {
         "Name": "TARIFF TWENTY",
-        "Service fee(INR)": "22",
+        "Service fee(NPR)": "22",
         "Created on": "15-11-2022",
         "Last updated": "16-11-2022",
         "Tax": "16-11-2022",
@@ -51,7 +51,7 @@ export const DummyData = [
     },
     {
         "Name": "TARIFF TWENTY",
-        "Service fee(INR)": "22",
+        "Service fee(NPR)": "22",
         "Created on": "15-11-2022",
         "Last updated": "16-11-2022",
         "Tax": "16-11-2022",
@@ -59,7 +59,7 @@ export const DummyData = [
     },
     {
         "Name": "TARIFF TWENTY",
-        "Service fee(INR)": "22",
+        "Service fee(NPR)": "22",
         "Created on": "15-11-2022",
         "Last updated": "16-11-2022",
         "Tax": "16-11-2022",
@@ -67,7 +67,7 @@ export const DummyData = [
     },
     {
         "Name": "TARIFF TWENTY",
-        "Service fee(INR)": "22",
+        "Service fee(NPR)": "22",
         "Created on": "15-11-2022",
         "Last updated": "16-11-2022",
         "Tax": "16-11-2022",
@@ -75,7 +75,7 @@ export const DummyData = [
     },
     {
         "Name": "TARIFF TWENTY",
-        "Service fee(INR)": "22",
+        "Service fee(NPR)": "22",
         "Created on": "15-11-2022",
         "Last updated": "16-11-2022",
         "Tax": "16-11-2022",
@@ -83,7 +83,7 @@ export const DummyData = [
     },
     {
         "Name": "TARIFF TWENTY",
-        "Service fee(INR)": "22",
+        "Service fee(NPR)": "22",
         "Created on": "15-11-2022",
         "Last updated": "16-11-2022",
         "Tax": "16-11-2022",
@@ -91,7 +91,7 @@ export const DummyData = [
     },
     {
         "Name": "TARIFF TWENTY",
-        "Service fee(INR)": "22",
+        "Service fee(NPR)": "22",
         "Created on": "15-11-2022",
         "Last updated": "16-11-2022",
         "Tax": "16-11-2022",
@@ -99,7 +99,7 @@ export const DummyData = [
     },
     {
         "Name": "TARIFF TWENTY",
-        "Service fee(INR)": "22",
+        "Service fee(NPR)": "22",
         "Created on": "15-11-2022",
         "Last updated": "16-11-2022",
         "Tax": "16-11-2022",
@@ -107,7 +107,7 @@ export const DummyData = [
     },
     {
         "Name": "TARIFF TWENTY",
-        "Service fee(INR)": "22",
+        "Service fee(NPR)": "22",
         "Created on": "15-11-2022",
         "Last updated": "16-11-2022",
         "Tax": "16-11-2022",

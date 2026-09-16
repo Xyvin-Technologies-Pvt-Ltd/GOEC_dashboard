@@ -12,7 +12,7 @@ const tariffData = [
     Location: "Oberon Mall",
     CPID: "GOEC1",
     Value: 15,
-    Tax: "GST Kerala",
+    Tax: "VAT Nepal",
     ServiceFee: "-",
   },
   {
@@ -20,7 +20,7 @@ const tariffData = [
     Location: "Oberon Mall",
     CPID: "GOEC1",
     Value: 15,
-    Tax: "GST Kerala",
+    Tax: "VAT Nepal",
     ServiceFee: "-",
   },
   {
@@ -28,7 +28,7 @@ const tariffData = [
     Location: "Oberon Mall",
     CPID: "GOEC1",
     Value: 15,
-    Tax: "GST Kerala",
+    Tax: "VAT Nepal",
     ServiceFee: "-",
   },
   {
@@ -36,7 +36,7 @@ const tariffData = [
     Location: "Oberon Mall",
     CPID: "GOEC1",
     Value: 15,
-    Tax: "GST Kerala",
+    Tax: "VAT Nepal",
     ServiceFee: "-",
   },
 ];
