@@ -9,7 +9,28 @@ import TableSkeleton from "./tableSkeleton";
 import { Typography } from "@mui/material";
 import { useRemoteStopTransaction } from "../hooks/mutations/useOcppMutation";
 import { toast } from "react-toastify";
-import moment from "moment";
+import { formatNepalTime } from "../utils/formatNepalTime";
+
+const DATE_COLUMN_HEADERS = new Set([
+  "date",
+  "time",
+  "created on",
+  "expires on",
+  "last updated",
+  "generated on",
+  "session start time",
+  "session finish time",
+  "start time",
+  "last meter value received",
+  "last meter values received",
+]);
+
+/** RFID / tag style date fields — show calendar date only */
+const DATE_ONLY_HEADERS = new Set([
+  "created on",
+  "expires on",
+]);
+
 // StyledTable component
 
 const StyledTable = ({
@@ -100,10 +121,10 @@ const StyledTable = ({
                     const isPublished = header.toLowerCase() === "published";
                     const isConnectionStatus = header.toLowerCase() === "connector status";
                     const isCommand = header.toLowerCase() === "command";
-                    const isDateColumn =
-                      header.toLowerCase() === "date" ||
-                      header.toLowerCase() === "created on" ||
-                      header.toLowerCase() === "last updated";
+                    const headerKey = header.toLowerCase();
+                    const isDateColumn = DATE_COLUMN_HEADERS.has(headerKey);
+                    const isDateOnlyColumn = DATE_ONLY_HEADERS.has(headerKey);
+                    const isDurationColumn = headerKey.includes("duration");
                     const command = prevHeader;
                     prevHeader = header;
 
@@ -140,8 +161,15 @@ const StyledTable = ({
                           />
                         ) : isPublished || isConnectionStatus ? (
                           <StyledStatusChip $status={row[header]}>{row[header]}</StyledStatusChip>
-                          // ) : isDateColumn ? (
-                          //   moment(row[header]).format("DD-MM-YYYY")
+                        ) : isDateColumn ? (
+                          formatNepalTime(
+                            row[header],
+                            isDateOnlyColumn ? "DD-MM-YYYY" : undefined
+                          )
+                        ) : isDurationColumn ? (
+                          !row[header] || String(row[header]).includes("NaN")
+                            ? "-"
+                            : row[header]
                         ) : row[header] || row[header] === "" ? (
                           row[header]
                         ) : (

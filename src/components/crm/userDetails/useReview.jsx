@@ -5,6 +5,7 @@ import { Star, DeleteOutline, ArrowBackIos, ArrowForwardIos } from "@mui/icons-m
 import LastSynced from "../../../layout/LastSynced";
 import { useParams } from "react-router-dom";
 import { useUserReviews } from "../../../hooks/queries/useReview";
+import { formatNepalTime } from "../../../utils/formatNepalTime";
 
 const ReviewComponent = ({ data }) => {
   const renderStars = () => {
@@ -37,7 +38,7 @@ const ReviewComponent = ({ data }) => {
           variant="subtitle2"
           sx={{ color: "rgba(255, 255, 255, 0.50)", fontSize: "12px", fontWeight: 300 }}
         >
-          {data.createdAt}
+          {formatNepalTime(data.createdAt)}
         </Typography>
       </Stack>
     </Box>

@@ -2,10 +2,9 @@ import { CalendarMonth } from '@mui/icons-material'
 import { Box, Stack, Typography } from '@mui/material'
 import { TimeIcon } from '@mui/x-date-pickers'
 import React from 'react'
-import moment from 'moment';
+import { formatNepalTime } from '../../../../utils/formatNepalTime';
 
 export default function UserInfo({data}) {
-    const dateMoment = moment(data?.createdAt);
     return (
         <Box sx={{ backgroundColor: 'secondary.main', borderRadius: '4px', p: 4 }}>
             <Stack spacing={2}>
@@ -22,11 +21,11 @@ export default function UserInfo({data}) {
                     <Stack direction={'row'} spacing={2}>
                         <Stack direction={'row'} alignItems={'center'} spacing={0.5}>
                             <CalendarMonth sx={{ fontSize: '14px' }} />
-                            <Typography variant='subtitle2'>{dateMoment.format('DD MMMM YYYY')}</Typography>
+                            <Typography variant='subtitle2'>{formatNepalTime(data?.createdAt, 'DD MMMM YYYY')}</Typography>
                         </Stack>
                         <Stack direction={'row'} alignItems={'center'} spacing={0.5}>
                             <TimeIcon sx={{ fontSize: '14px' }} />
-                            <Typography variant='subtitle2'>{dateMoment.format('h:mm a')}</Typography>
+                            <Typography variant='subtitle2'>{formatNepalTime(data?.createdAt, 'h:mm a')}</Typography>
                         </Stack>
                     </Stack>
                 </Stack>

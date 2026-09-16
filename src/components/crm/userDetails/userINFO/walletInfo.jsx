@@ -5,12 +5,10 @@ import React, { useState } from 'react'
 import StyledButton from '../../../../ui/styledButton'
 import AddTopup from './addTopup'
 import DeductWallet from './deductWallet'
-import moment from 'moment'
 
 export default function WalletInfo({data, onIsChange, isChange}) {
     const [topupOpen,setTopupOpen] = useState(false)
     const [deductOpen,setDeductOpen] = useState(false)
-    // const dateMoment = moment(data.createdAt);
     // ! Last Top-up on data is not available
     return (
         <Box sx={{ backgroundColor: 'secondary.main', borderRadius: '4px', p: {xs:2,md:4} }}>

@@ -18,6 +18,7 @@ import { styled } from '@mui/material/styles';
 
 import Pump from "../../../assets/images/pump.jpg";
 import { Star } from "@mui/icons-material";
+import { formatNepalTime } from "../../../utils/formatNepalTime";
 
 
 export default function ChargingSummary({ datas }) {
@@ -31,8 +32,8 @@ export default function ChargingSummary({ datas }) {
       { label: "Chargepoint", value: datas["Chargepoint ID"] },
       { label: "Connector type", value: datas.vehicleInfo?.compactable_port },
       { label: "Connector ID", value: datas["Connector ID"] },
-      { label: "Charging start", value: datas["startTime"] },
-      { label: "Charging End", value: datas["endTime"] },
+      { label: "Charging start", value: formatNepalTime(datas["startTime"]) },
+      { label: "Charging End", value: formatNepalTime(datas["endTime"]) },
       { label: "Duration", value: datas["Duration (hh:mm:ss)"] },
       { label: "Delivered Energy", value: datas["Units Consumed"] },
       { label: "Session ID", value: datas["id"] },

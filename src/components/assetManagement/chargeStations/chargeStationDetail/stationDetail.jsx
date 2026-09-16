@@ -1,6 +1,7 @@
 import { Star, CalendarMonth, AccessTime } from '@mui/icons-material'
 import { Box, Chip, Grid, Stack, Typography, Button } from '@mui/material'
 import React from 'react'
+import { formatNepalTime } from '../../../../utils/formatNepalTime'
 
 export default function StationDetail({ data, ...props }) {
   return (
@@ -33,7 +34,7 @@ export default function StationDetail({ data, ...props }) {
               <Stack direction={'row'} spacing={1} sx={{ alignItems: 'center' }}>
                 <Typography variant='subtitle2' sx={{ color: 'primary.DimText', fontSize: '12px', fontWeight: '400' }}>Commissioned on :</Typography>
                 <CalendarMonth sx={{ color: 'secondary.contrastText', fontSize: '15px' }} />
-                <Typography variant='subtitle1' sx={{ color: 'secondary.contrastText', fontSize: '12px', fontWeight: '400' }}>{data.commissioned_on && data.commissioned_on}</Typography>
+                <Typography variant='subtitle1' sx={{ color: 'secondary.contrastText', fontSize: '12px', fontWeight: '400' }}>{data.commissioned_on ? formatNepalTime(data.commissioned_on, 'DD MMMM YYYY') : '-'}</Typography>
               </Stack>
               <Stack direction={'row'} spacing={1} sx={{ alignItems: 'center' }}>
                 <Typography variant='subtitle2' sx={{ color: 'primary.DimText', fontSize: '12px', fontWeight: '400' }}>Operation between :</Typography>
