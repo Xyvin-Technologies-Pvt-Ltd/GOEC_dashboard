@@ -104,7 +104,7 @@ export default function ChargingSummary({ datas }) {
         sx={{ backgroundColor: '#212326', justifyContent: 'space-between', p: 2 }}
       >
         <Typography variant="subtitle2" align="left">Total Amount</Typography>
-        <Typography variant="h6" align="center" color={'#6FCC60'}>₹{datas["Total Amount"]}</Typography>
+        <Typography variant="h6" align="center" color={'#6FCC60'}>NPR {datas["Total Amount"]}</Typography>
       </Stack>
     </Box>
   );

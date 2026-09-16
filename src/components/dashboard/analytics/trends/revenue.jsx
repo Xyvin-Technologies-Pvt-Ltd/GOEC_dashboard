@@ -71,7 +71,7 @@ export default function Revenue({trendsData}) {
             y: {
                 title: {
                     display: true,
-                    text: "Revenue (INR)",
+                    text: "Revenue (NPR)",
                     color: '#fff',
                     padding: { top: 20, left: 0, right: 0, bottom: 20 }
                 },

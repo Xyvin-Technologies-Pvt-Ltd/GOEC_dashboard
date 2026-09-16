@@ -41,7 +41,7 @@ export default function Utilization() {
                 data: trendsUtilization?.map((e) => e.value1),
             },
             {
-                label: 'Revenue(INR)',
+                label: 'Revenue(NPR)',
                 backgroundColor: '#574CA6',
                 data: trendsUtilization?.map((e) => e.value2),
             }

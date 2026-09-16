@@ -169,7 +169,7 @@ export default function Overview({ data }) {
                 <Grid item xs={12}>
                     <Grid container spacing={1}>
                         <Grid item xs={12} md={4}>
-                            <DashboardDataCard title={'Revenue'} subTitle={'Earned(INR)'} value={data && data.TotalRevenue} />
+                            <DashboardDataCard title={'Revenue'} subTitle={'Earned(NPR)'} value={data && data.TotalRevenue} />
                         </Grid>
                         <Grid item xs={12} md={4}>
                             <DashboardDataCard title={'Energy'} subTitle={'Delivered(kWh)'} value={data && data.TotalEnergy} />

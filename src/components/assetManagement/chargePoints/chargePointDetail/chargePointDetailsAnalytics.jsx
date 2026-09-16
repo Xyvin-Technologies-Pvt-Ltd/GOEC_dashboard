@@ -98,7 +98,7 @@ export default function ChargePointDetailsAnalytics({ data }) {
                 fontWeight: "400",
               }}
             >
-              Earned(INR)
+              Earned(NPR)
             </Typography>
             <Box sx={{ height: "91 px" }}>
               <Box
