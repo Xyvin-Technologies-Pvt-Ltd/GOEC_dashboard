@@ -21,8 +21,8 @@ import LastSynced from "../../../layout/LastSynced";
 import { useForm, Controller } from "react-hook-form";
 import StyledInput from "../../../ui/styledInput";
 import { useAddRfidTag, useRemoveRfidTag } from "../../../hooks/mutations/useUserMutation";
-import { useUserByEmailMobile } from "../../../hooks/queries/useUser";
 import { useRfidUnassignedList } from "../../../hooks/queries/useRfid";
+import { getUserByEmailMobile } from "../../../services/userApi";
 import { toast } from "react-toastify";
 import StyledDivider from "../../../ui/styledDivider";
 
@@ -75,7 +75,6 @@ const AssingedCard = ({ data, unassign }) => {
 
 const AssignRfid = () => {
   const [userInfo, setUserInfo] = useState();
-  const [phoneNumber, setPhoneNumber] = useState("");
 
   const {
     control,
@@ -89,10 +88,6 @@ const AssignRfid = () => {
 
   // TanStack Query hooks
   const { data: rfidUnassignedData, refetch: refetchUnassignedRfids } = useRfidUnassignedList();
-  const { refetch: fetchUserByPhone } = useUserByEmailMobile(
-    `phoneNumber=${phoneNumber}`,
-    false // lazy loading
-  );
 
   const { mutate: assignRfidTag, isPending: isAssigning } = useAddRfidTag({
     onSuccess: () => {
@@ -145,22 +140,21 @@ const AssignRfid = () => {
   };
 
   const userFetchButtonHandle = () => {
-    const mobile = userInfo
-      ? userInfo.mobile
-      : getValues().phoneNumber && getValues().phoneNumber;
-    if (mobile.length > 9) {
-      setPhoneNumber(getValues().phoneNumber);
-      fetchUserByPhone().then((res) => {
-        if (res.data?.success) {
-          setUserInfo(res.data.result[0]);
-        } else {
-          toast.error("User not found");
+    const mobile = getValues().phoneNumber || userInfo?.mobile;
+    if (mobile && String(mobile).length > 9) {
+      getUserByEmailMobile(`phoneNumber=${mobile}`)
+        .then((res) => {
+          if (res?.success) {
+            setUserInfo(res.result[0]);
+          } else {
+            toast.error("User not found");
+            setUserInfo();
+          }
+        })
+        .catch((err) => {
+          toast.error(err.response?.data?.error || "Failed to fetch user");
           setUserInfo();
-        }
-      }).catch((err) => {
-        toast.error(err.response?.data?.error || "Failed to fetch user");
-        setUserInfo();
-      });
+        });
     } else {
       toast.error("please enter valid mobile number");
     }
