@@ -26,7 +26,7 @@ jobs:
       # 3️⃣ Verify Production API URL
       - name: Verify Production API URL
         env:
-          REACT_APP_API_URL: ${{ vars.REACT_APP_API_URL }}
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
         run: |
           if [ -z "$REACT_APP_API_URL" ]; then
             echo "❌ REACT_APP_API_URL is not configured"
