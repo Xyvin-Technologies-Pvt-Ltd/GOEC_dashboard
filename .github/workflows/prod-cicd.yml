@@ -1,4 +1,4 @@
-name: Deploy GOEC Dashboard (PRODUCTION-(nepal-server)
+name: Deploy GOEC Dashboard (PRODUCTION - Nepal Server)
 
 on:
   push:
@@ -16,35 +16,48 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2️⃣ Build React App
-      - name: Install & Build React App
+      # 2️⃣ Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: npm
-      - run: |
-          npm ci
-          CI=false npm run build
-          echo "🎉 Build Completed"
-          ls -la build/
 
-      # 3️⃣ Upload files using SSH key with rsync
+      # 3️⃣ Install & Build React App
+      - name: Install & Build React App
+        env:
+          REACT_APP_API_URL: ${{ vars.REACT_APP_API_URL }}
+        run: |
+          echo "📦 Installing dependencies..."
+          npm ci
+
+          echo "🔨 Building production React application..."
+          CI=false npm run build
+
+          echo "🎉 Build Completed"
+          ls -lah build/
+
+      # 4️⃣ Upload build files using SSH
       - name: Upload build files to server via SSH Key
         env:
           SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
         run: |
-          sudo apt-get update && sudo apt-get install -y rsync
+          sudo apt-get update
+          sudo apt-get install -y rsync
 
-          # Create private key file
           echo "$SSH_KEY" > private_key.pem
           chmod 600 private_key.pem
 
-          # Upload files
-          rsync -avzr --delete -e "ssh -o StrictHostKeyChecking=no -i private_key.pem" \
+          echo "📤 Uploading build files..."
+
+          rsync -avzr --delete \
+            -e "ssh -o StrictHostKeyChecking=no -i private_key.pem" \
             ./build/ \
             root@${{ secrets.PROD_SERVER_IP }}:/root/goec-new/
 
-      # 4️⃣ Deploy on server & restart NGINX
+          rm -f private_key.pem
+
+      # 5️⃣ Deploy on server & restart Nginx
       - name: Deploy & Restart Nginx
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -53,40 +66,59 @@ jobs:
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             set -e
+
             echo "🚀 Running deployment on AlmaLinux..."
 
-            # Ensure nginx installed
+            # Ensure Nginx is installed
             if ! command -v nginx &>/dev/null; then
-              echo "📦 Installing nginx..."
-              sudo dnf install -y nginx
-              sudo systemctl enable --now nginx
+              echo "📦 Installing Nginx..."
+              dnf install -y nginx
+              systemctl enable --now nginx
             fi
 
             # Backup existing build
             if [ -d "/usr/share/nginx/html/goec-dashboard" ]; then
               echo "📦 Creating backup..."
-              cp -R /usr/share/nginx/html/goec-dashboard \
+
+              cp -R \
+                /usr/share/nginx/html/goec-dashboard \
                 /usr/share/nginx/html/goec-dashboard.backup.$(date +%Y%m%d_%H%M%S)
             fi
 
+            # Clean old files
             echo "🗑 Cleaning old files..."
+
             rm -rf /usr/share/nginx/html/goec-dashboard
             mkdir -p /usr/share/nginx/html/goec-dashboard
 
-            echo "📥 Deploy new build..."
-            cp -R /root/goec-new/* /usr/share/nginx/html/goec-dashboard/
+            # Deploy new build
+            echo "📥 Deploying new build..."
 
+            cp -R /root/goec-new/. \
+              /usr/share/nginx/html/goec-dashboard/
+
+            # Set permissions
             echo "🔐 Setting permissions..."
-            chown -R nginx:nginx /usr/share/nginx/html/goec-dashboard
-            chmod -R 755 /usr/share/nginx/html/goec-dashboard
 
-            echo "🧹 Cleanup..."
+            chown -R nginx:nginx \
+              /usr/share/nginx/html/goec-dashboard
+
+            chmod -R 755 \
+              /usr/share/nginx/html/goec-dashboard
+
+            # Cleanup
+            echo "🧹 Cleaning temporary files..."
+
             rm -rf /root/goec-new
 
-            echo "🔍 Validating config..."
+            # Validate Nginx configuration
+            echo "🔍 Validating Nginx configuration..."
+
             nginx -t
 
-            echo "♻ Restarting nginx..."
+            # Restart Nginx
+            echo "♻ Restarting Nginx..."
+
             systemctl restart nginx
 
             echo "🎉 Deployment completed successfully!"
