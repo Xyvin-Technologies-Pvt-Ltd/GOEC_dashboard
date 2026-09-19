@@ -38,7 +38,7 @@ jobs:
       # 4️⃣ Install & Build React App
       - name: Install & Build React App
         env:
-          REACT_APP_API_URL: ${{ vars.REACT_APP_API_URL }}
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
         run: |
           echo "📦 Installing dependencies..."
           npm ci
