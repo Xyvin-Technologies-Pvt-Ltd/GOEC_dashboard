@@ -32,7 +32,8 @@ jobs:
       - name: Install Dependencies & Build
         env:
           REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL_TEST }}
-          REACT_APP_OCPP_URL: ${{ secrets.REACT_APP_OCPP_URL_TEST }}
+          REACT_APP_OCPP_API_URL: ${{ secrets.REACT_APP_OCPP_API_URL_TEST }}
+          REACT_APP_GOOGLE_MAPS_API_KEY: ${{ secrets.REACT_APP_GOOGLE_MAPS_API_KEY }}
         run: |
           echo "🔨 Installing dependencies..."
           npm ci
