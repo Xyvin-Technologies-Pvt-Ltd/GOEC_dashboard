@@ -3,6 +3,7 @@ import axios from "axios";
 // const baseURL = `https://oxium.goecworld.com`;
 // const baseURL = `http://localhost`;
 const baseURL = process.env.REACT_APP_API_URL || `http://13.203.2.34:5050`;
+const ocppBaseURL = process.env.REACT_APP_OCPP_API_URL || `http://13.203.2.34:6500`;
 const createAxiosInstance = (baseURL, defaultHeaders = {}) => {
   const instance = axios.create({ baseURL, headers: defaultHeaders });
   setupInterceptors(instance);
@@ -77,7 +78,7 @@ export const PAYMENT_INSTANCE = createAxiosInstance(`${baseURL}/api/v1`, {
 ///! ocpp
 
 export const OCPP_INSTANCE = createAxiosInstance(
-  `http://13.203.2.34:6500/api/v1`,
+  `${ocppBaseURL}/api/v1`,
   { "Content-Type": "application/json" }
 );
 
