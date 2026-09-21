@@ -7,6 +7,7 @@ on:
       - ".github/workflows/cicd.yml"
     branches:
       - main
+
   workflow_dispatch:
 
 jobs:
@@ -15,11 +16,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       # Step 1: Checkout the code
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js (match your version, e.g. 18)
+      # Step 2: Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -28,9 +30,16 @@ jobs:
 
       # Step 3: Install dependencies and build React app
       - name: Install Dependencies & Build
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL_TEST }}
+          REACT_APP_OCPP_URL: ${{ secrets.REACT_APP_OCPP_URL_TEST }}
         run: |
+          echo "🔨 Installing dependencies..."
           npm ci
+
+          echo "🚀 Building TEST React app..."
           CI=false npm run build
+
           echo "✅ Build completed successfully"
           ls -la build/
 
@@ -45,8 +54,10 @@ jobs:
             echo "✅ SSH connection OK"
             echo "Current user: $(whoami)"
             echo "Current directory: $(pwd)"
+
             echo "Available disk space:"
             df -h
+
             echo "Nginx status:"
             sudo systemctl status nginx --no-pager || echo "Nginx not running"
 
@@ -59,8 +70,10 @@ jobs:
           key: ${{ secrets.LIGHTSAIL_KEY }}
           script: |
             echo "🧹 Cleaning up previous deployment..."
+
             rm -rf ~/deploy-temp
             mkdir -p ~/deploy-temp
+
             echo "✅ Temp directory prepared"
 
       # Step 6: Rsync build output to Lightsail
@@ -74,7 +87,7 @@ jobs:
           remote_user: ${{ secrets.LIGHTSAIL_USER }}
           remote_key: ${{ secrets.LIGHTSAIL_KEY }}
 
-      # Step 7: Move build to web root, restart Nginx
+      # Step 7: Move build to web root and restart Nginx
       - name: Deploy & Restart Nginx
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -82,46 +95,63 @@ jobs:
           username: ${{ secrets.LIGHTSAIL_USER }}
           key: ${{ secrets.LIGHTSAIL_KEY }}
           script: |
-            echo "🚀 Starting deployment..."
+            echo "🚀 Starting TEST deployment..."
 
             # Backup existing deployment
             if [ -d "/var/www/html/goec-dashboard" ]; then
               echo "📦 Backing up existing deployment..."
-              sudo cp -R /var/www/html/goec-dashboard /var/www/html/goec-dashboard.backup.$(date +%Y%m%d_%H%M%S)
+
+              sudo cp -R \
+                /var/www/html/goec-dashboard \
+                /var/www/html/goec-dashboard.backup.$(date +%Y%m%d_%H%M%S)
             fi
 
             # Remove old deployment
             echo "🗑️ Removing old deployment..."
+
             sudo rm -rf /var/www/html/goec-dashboard
 
             # Create new directory
             echo "📁 Creating deployment directory..."
+
             sudo mkdir -p /var/www/html/goec-dashboard
 
             # Copy new build
             echo "📋 Copying new build..."
-            sudo cp -R ~/deploy-temp/* /var/www/html/goec-dashboard/
+
+            sudo cp -R \
+              ~/deploy-temp/* \
+              /var/www/html/goec-dashboard/
 
             # Set permissions
             echo "🔐 Setting permissions..."
-            sudo chown -R www-data:www-data /var/www/html/goec-dashboard
-            sudo chmod -R 755 /var/www/html/goec-dashboard
+
+            sudo chown -R \
+              www-data:www-data \
+              /var/www/html/goec-dashboard
+
+            sudo chmod -R 755 \
+              /var/www/html/goec-dashboard
 
             # Clean up temp files
             echo "🧹 Cleaning up temp files..."
+
             rm -rf ~/deploy-temp
 
             # Test nginx configuration
             echo "🔍 Testing nginx configuration..."
+
             sudo nginx -t
 
             # Restart nginx
             echo "♻️ Restarting Nginx..."
+
             sudo systemctl restart nginx
 
             # Verify nginx is running
             echo "✅ Checking nginx status..."
+
             sudo systemctl status nginx --no-pager
 
-            echo "🎉 Deployment completed successfully!"
-            echo "🌐 Your app should be available at: http://${{ secrets.LIGHTSAIL_HOST }}"
+            echo "🎉 TEST deployment completed successfully!"
+            echo "🌐 Your TEST app is deployed successfully."
