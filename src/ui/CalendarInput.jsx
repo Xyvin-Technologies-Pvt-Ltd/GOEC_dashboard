@@ -30,7 +30,7 @@ function convertDateFormat(inputDate) {
   return formattedDate;
 }
 
-const CalendarInput = ({dateValue,onDateChange }) => {
+const CalendarInput = ({dateValue,onDateChange, minDate }) => {
 
   const cal_date=dateValue ? new Date(convertDateFormat(dateValue)) : new Date()
   const [selectedDate, setSelectedDate] = useState(cal_date);
@@ -49,15 +49,12 @@ const CalendarInput = ({dateValue,onDateChange }) => {
       if (onDateChange) {
         onDateChange(formattedDate);
       }
-      const updateDate = convertDateFormat(formattedDate);
-      const new_date=new Date(updateDate)
-  
-      setSelectedDate(new_date);
-      //setSelectedDate(date);
+      // `date` is already the real Date object the picker gave us — reuse it
+      // directly instead of round-tripping through convertDateFormat, which
+      // expects "DD-MM-YYYY" and was misparsing the "yyyy-MM-dd" string above
+      // (scrambling day/month/year into a garbage 1900s-ish date).
+      setSelectedDate(date);
       setDatePickerOpen(false);
-
-      
-
 
 
     } else {
@@ -78,6 +75,7 @@ const CalendarInput = ({dateValue,onDateChange }) => {
             showYearDropdown
             showMonthDropdown
             dropdownMode="select"
+            minDate={minDate}
             popperPlacement="bottom-start"
             open
             onClickOutside={() => setDatePickerOpen(false)} // Close calendar on outside click

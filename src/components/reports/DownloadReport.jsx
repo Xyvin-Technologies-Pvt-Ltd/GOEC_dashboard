@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Stack } from "@mui/material";
+import { Stack, Tooltip } from "@mui/material";
+import dayjs from "dayjs";
 import StyledSelectField from "../../ui/styledSelectField";
 import StyledButton from "../../ui/styledButton";
 import LastSynced from "../../layout/LastSynced";
@@ -9,9 +10,16 @@ import CalendarInput from "../../ui/CalendarInput";
 import StyledInput from "../../ui/styledInput";
 import { useChargingStationDropdown, useChargingPointsForStations } from "../../hooks/queries/useChargingStation";
 import { fetchReport } from "../../hooks/queries/useReportApi";
+import { useChargingSessionsReportView } from "../../hooks/queries/useReportView";
 import { generateExcel } from "../../utils/excelReport";
 import { formatNepalDateOnly } from "../../utils/formatNepalTime";
+import { useAuthStore } from "../../store";
+import ReportViewResults from "./ReportViewResults";
 // report service wrappers are provided by hooks/useReportApi
+
+const VIEWABLE_REPORTS = ["Charging Summary"];
+const MAX_VIEW_RANGE_DAYS = 92;
+const REPORT_DATE_FLOOR = new Date(2020, 0, 1);
 
 export default function DownloadReport() {
   const {
@@ -40,13 +48,17 @@ export default function DownloadReport() {
       data.report !== "Account Transaction" &&
       data.report !== "Charge points" &&
       data.report !== "User Registration" &&
-      !data.location
+      data.location === undefined
     ) {
       setError("location", { type: "custom", message: "select location" });
       setLoading(false);
       return;
-    } else if (data.location) {
-      data.location = data.location.filter((loc) => loc.value !== "all").map((loc) => loc.value);
+    }
+    // "" means "All locations" was explicitly picked — omit the param so the
+    // backend uses the user's full allowed set (matches the single-location
+    // contract every OCPP-backed report/listing endpoint expects).
+    if (data.location === "") {
+      data.location = undefined;
     }
 
     if (data.report === "Alarms" && !data.cpid) {
@@ -85,6 +97,7 @@ export default function DownloadReport() {
     clearErrors("endDate");
   };
   const endDate = watch("endDate", "");
+  const location = watch("location", "");
 
   const options = [
     { value: "Account Transaction", label: "Account Transaction" },
@@ -112,7 +125,7 @@ export default function DownloadReport() {
   useEffect(() => {
     // stationDropdown comes formatted from hook
     if (stationDropdown && stationDropdown.length) {
-      setLocationList([{ label: "All", value: "all" }, ...stationDropdown]);
+      setLocationList([{ label: "All", value: "" }, ...stationDropdown]);
     }
   }, [stationDropdown]);
 
@@ -120,13 +133,123 @@ export default function DownloadReport() {
     setSelectedOption(option.label);
   };
 
-  const handleLocationChange = (selectedOptions) => {
-    const hasAllOption = selectedOptions.some((option) => option.value === "all");
-    if (hasAllOption) {
-      setSelectedLocationIds(["all"]);
+  // report/listing endpoints on this backend accept a single location id (or
+  // none, for "All") — a report-owned single-select drives selectedLocationIds
+  // for the Alarms CPID lookup too, so "" (All) maps to the hook's "all" sentinel.
+  const handleLocationChange = (value) => {
+    setSelectedLocationIds(value ? [value] : ["all"]);
+  };
+
+  //! --- On-screen View (charging-sessions) ---
+  const logout = useAuthStore((state) => state.logout);
+  const isViewableReport = VIEWABLE_REPORTS.includes(selectedOption);
+
+  const [viewValidationError, setViewValidationError] = useState("");
+  const [committedFilters, setCommittedFilters] = useState(null);
+  const [viewPage, setViewPage] = useState(1);
+  const [viewLimit, setViewLimit] = useState(20);
+  const [viewSortBy, setViewSortBy] = useState("transactionDate");
+  const [viewSortOrder, setViewSortOrder] = useState("desc");
+  const [downloadingExcel, setDownloadingExcel] = useState(false);
+
+  const isViewStale =
+    !!committedFilters &&
+    (committedFilters.report !== selectedOption ||
+      committedFilters.startDate !== startDate ||
+      committedFilters.endDate !== endDate ||
+      committedFilters.location !== location);
+
+  const viewParams = committedFilters
+    ? {
+        reportType: "charging-sessions",
+        startDate: committedFilters.startDate,
+        endDate: committedFilters.endDate,
+        ...(committedFilters.location ? { location: committedFilters.location } : {}),
+        page: viewPage,
+        limit: viewLimit,
+        sortBy: viewSortBy,
+        sortOrder: viewSortOrder,
+      }
+    : null;
+
+  const {
+    data: viewData,
+    isLoading: viewLoading,
+    isError: viewIsError,
+    error: viewError,
+    refetch: refetchView,
+  } = useChargingSessionsReportView(viewParams, !!committedFilters);
+
+  useEffect(() => {
+    if (viewError?.response?.status === 401) {
+      logout();
+    }
+  }, [viewError, logout]);
+
+  const validateViewFilters = () => {
+    if (!isViewableReport) return "On-screen view is not available for this report yet";
+    if (!startDate || !endDate) return "Select both start and end date to view the report";
+    const start = dayjs(startDate);
+    const end = dayjs(endDate);
+    if (end.isBefore(start, "day")) return "End date cannot be before start date";
+    if (end.diff(start, "day") > MAX_VIEW_RANGE_DAYS) {
+      return `Date range cannot exceed ${MAX_VIEW_RANGE_DAYS} days`;
+    }
+    return "";
+  };
+
+  const handleView = () => {
+    const error = validateViewFilters();
+    setViewValidationError(error);
+    if (error) return;
+    setCommittedFilters({ report: selectedOption, startDate, endDate, location });
+    setViewPage(1);
+  };
+
+  const handleSortChange = (sortKey) => {
+    if (viewSortBy === sortKey) {
+      setViewSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
-      const locationIds = selectedOptions.map((option) => option.value);
-      setSelectedLocationIds(locationIds);
+      setViewSortBy(sortKey);
+      setViewSortOrder("desc");
+    }
+    setViewPage(1);
+  };
+
+  const handleLimitChange = (newLimit) => {
+    setViewLimit(newLimit);
+    setViewPage(1);
+  };
+
+  const viewErrorMessage = (() => {
+    const status = viewError?.response?.status;
+    if (status === 400) return viewError?.response?.data?.error || "Invalid filters for this report.";
+    if (status === 401) return "Session expired. Redirecting to login...";
+    if (status === 403) return "You don't have access to this location";
+    if (status === 500) return "Something went wrong. Please try again.";
+    if (viewIsError) return "Something went wrong. Please try again.";
+    return "";
+  })();
+
+  const handleDownloadExcel = async () => {
+    if (!committedFilters) return;
+    setDownloadingExcel(true);
+    try {
+      const payload = {
+        report: "Charging Summary",
+        startDate: committedFilters.startDate,
+        endDate: committedFilters.endDate,
+        ...(committedFilters.location ? { location: committedFilters.location } : {}),
+      };
+      const reportData = await fetchReport("Charging Summary", payload);
+      const excelData = reportData.result;
+      if (excelData) {
+        generateExcel(excelData.headers, excelData.body);
+      }
+    } catch (error) {
+      console.error("Error downloading report:", error);
+    } finally {
+      setDownloadingExcel(false);
     }
   };
 
@@ -167,7 +290,7 @@ export default function DownloadReport() {
                   <>
                     <StyledInput
                       {...field}
-                      iconright={<CalendarInput onDateChange={handleDateChangeInParent} />}
+                      iconright={<CalendarInput onDateChange={handleDateChangeInParent} minDate={REPORT_DATE_FLOOR} />}
                       placeholder="mm/dd/yyyy"
                       value={startDate}
                       readOnly
@@ -189,7 +312,7 @@ export default function DownloadReport() {
                   <>
                     <StyledInput
                       {...field}
-                      iconright={<CalendarInput onDateChange={handleEndDateChangeInParent} />}
+                      iconright={<CalendarInput onDateChange={handleEndDateChangeInParent} minDate={REPORT_DATE_FLOOR} />}
                       placeholder="mm/dd/yyyy"
                       value={endDate}
                       readOnly
@@ -214,13 +337,13 @@ export default function DownloadReport() {
                       render={({ field }) => (
                         <>
                           <StyledSelectField
-                            isMulti
                             placeholder="Select Location"
-                            {...field}
                             options={locationList}
-                            onChange={(selectedOptions) => {
-                              field.onChange(selectedOptions);
-                              handleLocationChange(selectedOptions);
+                            value={field.value}
+                            onChange={(option) => {
+                              const value = option?.value ?? "";
+                              field.onChange(value);
+                              handleLocationChange(value);
                             }}
                           />
                           {errors.location && (
@@ -259,13 +382,53 @@ export default function DownloadReport() {
                 </>
               )}
 
-              <StyledButton variant="primary" fontSize="14" type="submit">
-                {loading ? "Downloading..." : "Download"}
-              </StyledButton>
+              <ButtonRow>
+                <StyledButton variant="primary" fontSize="14" type="submit">
+                  {loading ? "Downloading..." : "Download"}
+                </StyledButton>
+
+                <Tooltip
+                  title={isViewableReport ? "" : "On-screen view is not available for this report yet"}
+                  disableHoverListener={isViewableReport}
+                >
+                  <span style={{ width: "100%" }}>
+                    <StyledButton
+                      type="button"
+                      variant="secondary"
+                      fontSize="14"
+                      disabled={!isViewableReport}
+                      onClick={handleView}
+                    >
+                      View
+                    </StyledButton>
+                  </span>
+                </Tooltip>
+              </ButtonRow>
+              {viewValidationError && <span style={errorMessageStyle}>{viewValidationError}</span>}
             </FormContainer>
           </Stack>
         </TableContainer>
       </form>
+
+      {committedFilters && (
+        <ReportViewResults
+          data={viewData}
+          isLoading={viewLoading}
+          isError={viewIsError}
+          errorMessage={viewErrorMessage}
+          onRetry={viewErrorMessage && viewError?.response?.status === 500 ? refetchView : null}
+          sortBy={viewSortBy}
+          sortOrder={viewSortOrder}
+          onSortChange={handleSortChange}
+          page={viewPage}
+          limit={viewLimit}
+          onPageChange={setViewPage}
+          onLimitChange={handleLimitChange}
+          onDownloadExcel={handleDownloadExcel}
+          downloadLoading={downloadingExcel}
+          stale={isViewStale}
+        />
+      )}
     </>
   );
 }
@@ -313,6 +476,13 @@ export const Label = styled.label`
   line-height: normal;
   letter-spacing: 0.3px;
   text-transform: capitalize;
+`;
+
+export const ButtonRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
 `;
 
 const errorMessageStyle = {

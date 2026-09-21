@@ -109,3 +109,9 @@ export const IMAGE_UPLOAD_URL = createAxiosInstance(`${baseURL}/api/v1`, {
 export const LOGS_URL = createAxiosInstance(`${baseURL}/api/v1`, {
   "Content-Type": "application/json",
 });
+
+///! reports
+
+export const REPORT_INSTANCE = createAxiosInstance(`${baseURL}/api/v1`, {
+  "Content-Type": "application/json",
+});
