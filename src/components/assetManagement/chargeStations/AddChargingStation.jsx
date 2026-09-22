@@ -76,7 +76,8 @@ const AddChargingStation = ({ data = {}, formSubmited, editStatus = false, ...pr
       lpsPhoneNumber: editStatus ? data['location_support__phone'] : '',
       lpsemailId: editStatus ? data['location_support_email'] : '',
       vendor: editStatus ? data['vendor'] : '',
-      category: editStatus ? data['category'] : ''
+      category: editStatus ? data['category'] : '',
+      stationRefId: editStatus ? data['station_ref_id'] : '',
     },
   });
   const onSubmit = (values) => {
@@ -115,6 +116,7 @@ const AddChargingStation = ({ data = {}, formSubmited, editStatus = false, ...pr
               staff: values.staff,
               vendor: values.vendor.value,
               category: values.category.value,
+              station_ref_id: values.stationRefId,
             }
             createChargingStationMutation.mutate(dt, {
               onSuccess: (res) => {
@@ -160,6 +162,7 @@ const AddChargingStation = ({ data = {}, formSubmited, editStatus = false, ...pr
         staff: values.staff,
         vendor: values.vendor.value,
         category: values.category.value,
+        station_ref_id: values.stationRefId,
       }
       createChargingStationMutation.mutate(dt, {
         onSuccess: (res) => {
@@ -203,6 +206,7 @@ const AddChargingStation = ({ data = {}, formSubmited, editStatus = false, ...pr
       staff: values.staff,
       vendor: values.vendor.value ? values.vendor.value : data['vendor'],
       category: values.category.value ? values.category.value : data['category'],
+      station_ref_id: values.stationRefId,
     }
     if (image) {
       imageUploadMutation.mutate(image, {
@@ -292,6 +296,17 @@ const AddChargingStation = ({ data = {}, formSubmited, editStatus = false, ...pr
                   </>
                 )}
                 rules={{ required: "Location Name is required" }}
+              />
+
+              <Typography sx={{ marginBottom: 1, marginTop: 3, color: 'primary.contrastText' }}>
+                Station Ref ID
+              </Typography>
+              <Controller
+                name="stationRefId"
+                control={control}
+                render={({ field }) => (
+                  <StyledInput {...field} placeholder="Enter Station Ref ID" />
+                )}
               />
 
               {/* <InputField placeholder={"Enter Location Name"} /> */}
