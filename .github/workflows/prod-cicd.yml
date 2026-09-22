@@ -1,0 +1,152 @@
+name: Deploy GOEC Dashboard - Production
+
+on:
+  push:
+    branches:
+      - prod
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: 🚀 Build & Deploy Production Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      # 3️⃣ Verify Production API URL
+      - name: Verify Production API URL
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+          REACT_APP_OCPP_API_URL: ${{ secrets.REACT_APP_OCPP_API_URL }}
+          REACT_APP_GOOGLE_MAPS_API_KEY: ${{ secrets.REACT_APP_GOOGLE_MAPS_API_KEY }}
+        run: |
+          if [ -z "$REACT_APP_API_URL" ]; then
+            echo "❌ REACT_APP_API_URL is not configured"
+            exit 1
+          fi
+
+          if [ -z "$REACT_APP_OCPP_API_URL" ]; then
+            echo "❌ REACT_APP_OCPP_API_URL is not configured"
+            exit 1
+          fi
+
+          if [ -z "$REACT_APP_GOOGLE_MAPS_API_KEY" ]; then
+            echo "❌ REACT_APP_GOOGLE_MAPS_API_KEY is not configured"
+            exit 1
+          fi
+
+          echo "✅ Production API URL is configured"
+          echo "✅ Production OCPP API URL is configured"
+          echo "✅ Google Maps API key is configured"
+
+      # 4️⃣ Install & Build React App
+      - name: Install & Build React App
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+          REACT_APP_OCPP_API_URL: ${{ secrets.REACT_APP_OCPP_API_URL }}
+          REACT_APP_GOOGLE_MAPS_API_KEY: ${{ secrets.REACT_APP_GOOGLE_MAPS_API_KEY }}
+        run: |
+          echo "📦 Installing dependencies..."
+          npm ci
+
+          echo "🔨 Building production React application..."
+          CI=false npm run build
+
+          echo "🎉 Build Completed"
+          ls -lah build/
+
+      # 5️⃣ Upload build files using SSH
+      - name: Upload build files to server via SSH Key
+        env:
+          SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rsync
+
+          echo "$SSH_KEY" > private_key.pem
+          chmod 600 private_key.pem
+
+          echo "📤 Uploading build files..."
+
+          rsync -avzr --delete \
+            -e "ssh -o StrictHostKeyChecking=no -i private_key.pem" \
+            ./build/ \
+            root@${{ secrets.PROD_SERVER_IP }}:/root/goec-new/
+
+          rm -f private_key.pem
+
+      # 6️⃣ Deploy & Restart Nginx
+      - name: Deploy & Restart Nginx
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_SERVER_IP }}
+          username: root
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            set -e
+
+            echo "🚀 Running deployment on AlmaLinux..."
+
+            # Ensure Nginx is installed
+            if ! command -v nginx &>/dev/null; then
+              echo "📦 Installing Nginx..."
+              dnf install -y nginx
+              systemctl enable --now nginx
+            fi
+
+            # Backup existing build
+            if [ -d "/usr/share/nginx/html/goec-dashboard" ]; then
+              echo "📦 Creating backup..."
+
+              cp -R \
+                /usr/share/nginx/html/goec-dashboard \
+                /usr/share/nginx/html/goec-dashboard.backup.$(date +%Y%m%d_%H%M%S)
+            fi
+
+            # Clean old files
+            echo "🗑 Cleaning old files..."
+
+            rm -rf /usr/share/nginx/html/goec-dashboard
+            mkdir -p /usr/share/nginx/html/goec-dashboard
+
+            # Deploy new build
+            echo "📥 Deploying new build..."
+
+            cp -R /root/goec-new/. \
+              /usr/share/nginx/html/goec-dashboard/
+
+            # Set permissions
+            echo "🔐 Setting permissions..."
+
+            chown -R nginx:nginx \
+              /usr/share/nginx/html/goec-dashboard
+
+            chmod -R 755 \
+              /usr/share/nginx/html/goec-dashboard
+
+            # Cleanup
+            echo "🧹 Cleaning temporary files..."
+
+            rm -rf /root/goec-new
+
+            # Validate Nginx configuration
+            echo "🔍 Validating Nginx configuration..."
+
+            nginx -t
+
+            # Restart Nginx
+            echo "♻ Restarting Nginx..."
+
+            systemctl restart nginx
+
+            echo "🎉 Production deployment completed successfully!"
