@@ -81,7 +81,7 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
     clearErrors,
   } = useForm({
     defaultValues: {
-      chargePointDisplayName: editStatus ? chargepointData["name"] : '',
+      chargePointDisplayName: editStatus ? (chargepointData["name"] || chargepointData["CPID"] || '') : '',
       locationName: editStatus ? chargepointData["Station"] : '',
       chargePointOEM: editStatus ? chargepointData["OEM"] : '',
       authorisationkey: editStatus ? chargepointData["authorization_key"] : '',
@@ -89,7 +89,6 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
       chargepointRefId: editStatus ? chargepointData["chargepoint_ref_id"] : '',
       commissionedDate: editStatus ? chargepointData["commissioned_date"] : '',
       model: editStatus ? chargepointData["Model"] : '',
-      chargePointDisplayName: editStatus ? chargepointData["CPID"] : '',
       CPID: editStatus ? chargepointData["CPID"] : '',
     },
   });
@@ -367,6 +366,27 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
             color: "primary.contrastText",
           }}
         >
+          Chargepoint Ref ID
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={12}>
+            <Controller
+              name="chargepointRefId"
+              control={control}
+              render={({ field }) => (
+                <StyledInput {...field} placeholder="Enter Chargepoint Ref ID" />
+              )}
+            />
+          </Grid>
+        </Grid>
+
+        <Typography
+          sx={{
+            marginBottom: 3,
+            marginTop: 3,
+            color: "primary.contrastText",
+          }}
+        >
           Authorisation key
         </Typography>
         <Grid container spacing={2}>
@@ -414,27 +434,6 @@ const AddChargePoint = ({ chargepointData, headers, data, onClose, formsubmitted
                 </>
               )}
               // rules={{ required: "Serial Number is required" }}
-            />
-          </Grid>
-        </Grid>
-
-        <Typography
-          sx={{
-            marginBottom: 3,
-            marginTop: 3,
-            color: "primary.contrastText",
-          }}
-        >
-          Chargepoint Ref ID
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={12}>
-            <Controller
-              name="chargepointRefId"
-              control={control}
-              render={({ field }) => (
-                <StyledInput {...field} placeholder="Enter Chargepoint Ref ID" />
-              )}
             />
           </Grid>
         </Grid>
