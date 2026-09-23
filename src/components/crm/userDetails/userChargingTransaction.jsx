@@ -5,6 +5,7 @@ import StyledTable from "../../../ui/styledTable";
 import { chargingTransactionData } from "../../../assets/json/crm";
 import { useParams } from "react-router-dom";
 import { tableHeaderReplace } from "../../../utils/tableHeaderReplace";
+import { withConnectorLabels } from "../../../utils/connectorLabel";
 import { useChargingHistory } from "../../../hooks/queries/useOcpp";
 
 const tableHeader = [
@@ -33,7 +34,7 @@ export default function UserChargingTransaction() {
   const totalCount = chargingHistoryData?.totalCount || 0;
 
   const transData = tableHeaderReplace(
-    chargingTransaction,
+    withConnectorLabels(chargingTransaction),
     [
       "transactionId",
       "unitConsumed",
