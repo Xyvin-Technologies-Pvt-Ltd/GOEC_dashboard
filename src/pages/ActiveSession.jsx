@@ -4,6 +4,7 @@ import NoActiveSession from "../components/cpoSupport/activeSession/NoActiveSess
 import { DummyData } from "../assets/json/ActiveSessionsData";
 import { useActiveSession } from "../hooks/queries/useOcpp";
 import { tableHeaderReplace } from "../utils/tableHeaderReplace";
+import { withConnectorLabels } from "../utils/connectorLabel";
 
 function restructureData(dataArray) {
 
@@ -54,7 +55,7 @@ export default function ActiveSessionPage() {
   // const restructuredData = restructureData(activeSession);
 
   const activeSessionTableData = tableHeaderReplace(
-    activeSession,
+    withConnectorLabels(activeSession),
     [
       "transactionId",
       "username",

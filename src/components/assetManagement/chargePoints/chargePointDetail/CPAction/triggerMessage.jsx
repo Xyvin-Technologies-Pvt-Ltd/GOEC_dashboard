@@ -107,8 +107,8 @@ export default function TriggerMessage() {
   });
 
   let connectiorId = [
-    { label: "1", value: 1 },
-    { label: "2", value: 2 },
+    { label: "A", value: 1 },
+    { label: "B", value: 2 },
   ];
 
   let message = [

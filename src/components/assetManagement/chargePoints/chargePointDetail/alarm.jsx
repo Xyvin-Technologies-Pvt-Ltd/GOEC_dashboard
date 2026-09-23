@@ -9,6 +9,7 @@ import { useState } from 'react'
 import { useAlarmsById } from '../../../../hooks/queries/useOcpp'
 import LastSynced from '../../../../layout/LastSynced'
 import { tableHeaderReplace } from '../../../../utils/tableHeaderReplace'
+import { withConnectorLabels } from '../../../../utils/connectorLabel'
 import { searchAndFilter } from '../../../../utils/search'
 import RightDrawer from '../../../../ui/RightDrawer'
 import Filter from './alarm/filter'
@@ -58,7 +59,11 @@ export default function Alarm({ CPID }) {
 
     // sync derived values into local state for compatibility with table props
     useEffect(() => {
-        setAlarmList(tableHeaderReplace(derivedAlarmList, ['cpid', 'date', 'summary', 'connectorId', 'status', 'errorCode'], tableHeader));
+        setAlarmList(tableHeaderReplace(
+          withConnectorLabels(derivedAlarmList),
+          ['cpid', 'date', 'summary', 'connectorId', 'status', 'errorCode'],
+          tableHeader,
+        ));
         setTotalCount(derivedTotalCount);
     }, [derivedAlarmList, derivedTotalCount]);
 

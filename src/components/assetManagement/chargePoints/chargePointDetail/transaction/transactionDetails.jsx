@@ -4,6 +4,7 @@ import { Transition } from '../../../../../utils/DialogAnimation';
 import { ReactComponent as Close } from "../../../../../assets/icons/close-icon-large.svg";
 import { Star } from '@mui/icons-material';
 import { formatNepalTime } from '../../../../../utils/formatNepalTime';
+import { connectorLabel } from '../../../../../utils/connectorLabel';
 
 
 
@@ -62,7 +63,7 @@ export default function TransactionDetails({ open, onClose, data }) {
                 </Stack>
                 <Stack direction={'row'} sx={{justifyContent:'space-between',backgroundColor:'#2B2930',px:2,py:1}}>
                     <Typography variant='body1' color='primary.contrastText' sx={{fontWeight:300}}>Connector ID</Typography>
-                    <Typography variant='body1' color='secondary.contrastText' sx={{fontWeight:100}}>{data && data['connectorId']}</Typography>
+                    <Typography variant='body1' color='secondary.contrastText' sx={{fontWeight:100}}>{data && connectorLabel(data['connectorId'])}</Typography>
                 </Stack>
                 <Stack direction={'row'} sx={{justifyContent:'space-between',backgroundColor:'#211F26',px:2,py:1}}>
                     <Typography variant='body1' color='primary.contrastText' sx={{fontWeight:300}}>Charging start</Typography>

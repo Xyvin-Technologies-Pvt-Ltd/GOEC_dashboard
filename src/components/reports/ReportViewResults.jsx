@@ -10,6 +10,7 @@ import StyledPagination from "../../ui/styledPagination";
 import TableSkeleton from "../../ui/tableSkeleton";
 import DashboardDataCard from "../../ui/dashboardDataCard";
 import { Table, TableHeader, TableBody, TableCell, HeaderCell } from "../../ui/styledTable";
+import { connectorLabel } from "../../utils/connectorLabel";
 
 export const COLUMNS = [
   { header: "Transaction Id", field: "transactionId", sortKey: "transactionId" },
@@ -41,7 +42,11 @@ const PAGE_SIZE_OPTIONS = [
   { label: "100 / page", value: 100 },
 ];
 
-const cellValue = (value) => (value === undefined || value === null || value === "" ? "-" : value);
+const cellValue = (value, field) => {
+  if (value === undefined || value === null || value === "") return "-";
+  if (field === "connectorId") return connectorLabel(value);
+  return value;
+};
 
 export default function ReportViewResults({
   data,
@@ -168,7 +173,7 @@ export default function ReportViewResults({
               rows.map((row, rowIndex) => (
                 <tr key={row.transactionId ?? rowIndex}>
                   {COLUMNS.map((col) => (
-                    <TableCell key={col.field}>{cellValue(row[col.field])}</TableCell>
+                    <TableCell key={col.field}>{cellValue(row[col.field], col.field)}</TableCell>
                   ))}
                 </tr>
               ))
