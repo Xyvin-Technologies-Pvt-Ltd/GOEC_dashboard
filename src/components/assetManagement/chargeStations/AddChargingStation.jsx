@@ -7,7 +7,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import StyledSelectField from "../../../ui/styledSelectField";
 import StyledCheckButton from "../../../ui/styledCheckButton";
@@ -22,9 +22,16 @@ import { useForm, Controller } from "react-hook-form";
 import StyledInput from "../../../ui/styledInput";
 import CalendarInput from "../../../ui/CalendarInput";
 import { categoryDropdownData, vendorDropdownData } from "../../../assets/json/chargestations";
-import { Country, State, City } from "country-state-city";
+import {
+  getCountries,
+  getStatesOfCountry,
+  getCitiesOfState,
+} from "@countrystatecity/countries-browser";
 import { useCreateChargingStation, useEditChargingStation } from "../../../hooks/mutations/useChargingStationMutation";
 import { useImageUpload } from "../../../hooks/mutations/useImageUpload";
+
+const toOptions = (items = []) =>
+  items.map((item) => ({ label: item.name, value: item }));
 
 const AddChargingStation = ({ data = {}, formSubmited, editStatus = false, ...props }) => {
   const [amenities, setAmenities] = useState(editStatus ? data['amenities'] : []);
@@ -35,12 +42,60 @@ const AddChargingStation = ({ data = {}, formSubmited, editStatus = false, ...pr
   const editChargingStationMutation = useEditChargingStation();
   const imageUploadMutation = useImageUpload();
 
-  //address data country state city
-  const [states, setStates] = useState(editStatus ? State.getStatesOfCountry(data.country).map((e) => ({ label: e.name, value: e })) : [])
-  const [cities, setCities] = useState(editStatus ? City.getCitiesOfState(data.country, data.state).map((e) => ({ label: e.name, value: e })) : [])
+  // address data country state city (lazy-loaded from CDN)
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [loadingCountries, setLoadingCountries] = useState(true);
+  const [loadingStates, setLoadingStates] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
 
   const [countryCode, setCountryCode] = useState(editStatus ? data["country"] : '')
   const [stateCode, setStateCode] = useState(editStatus ? data["state"] : '')
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadLocationData = async () => {
+      try {
+        setLoadingCountries(true);
+        const countryList = await getCountries();
+        if (cancelled) return;
+        setCountries(toOptions(countryList));
+
+        if (editStatus && data.country) {
+          try {
+            setLoadingStates(true);
+            const stateList = await getStatesOfCountry(data.country);
+            if (cancelled) return;
+            setStates(toOptions(stateList));
+
+            if (data.state) {
+              setLoadingCities(true);
+              const cityList = await getCitiesOfState(data.country, data.state);
+              if (cancelled) return;
+              setCities(toOptions(cityList));
+            }
+          } finally {
+            if (!cancelled) {
+              setLoadingStates(false);
+              setLoadingCities(false);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load country/state/city data:", error);
+        toast.error("Failed to load location options");
+      } finally {
+        if (!cancelled) setLoadingCountries(false);
+      }
+    };
+
+    loadLocationData();
+    return () => {
+      cancelled = true;
+    };
+  }, [editStatus, data.country, data.state]);
   const getCheckButtonData = (checkBtndata) => {
     if (checkBtndata.active == true) {
       setAmenities([...amenities, checkBtndata.value]);
@@ -365,16 +420,34 @@ const AddChargingStation = ({ data = {}, formSubmited, editStatus = false, ...pr
               control={control}
               render={({ field }) => (
                 <>
-                  <StyledSelectField {...field} placeholder="Country"
-                    options={Country.getAllCountries().map((e) => ({ label: e.name, value: e }))}
-                    onChange={(e) => {
-                      setValue("country", e)
-                      setCities([])
-                      setCountryCode(e.value.isoCode)
-                      setStates(State.getStatesOfCountry(e.value.isoCode).map((e) => ({ label: e.name, value: e })))
-                    }} 
+                  <StyledSelectField
+                    {...field}
+                    placeholder="Country"
+                    options={countries}
+                    isLoading={loadingCountries}
+                    onChange={async (e) => {
+                      setValue("country", e);
+                      setValue("state", "");
+                      setValue("city", "");
+                      setCities([]);
+                      setStates([]);
+                      setStateCode("");
+                      const code = e.value.iso2;
+                      setCountryCode(code);
+                      try {
+                        setLoadingStates(true);
+                        const stateList = await getStatesOfCountry(code);
+                        setStates(toOptions(stateList));
+                      } catch (error) {
+                        console.error("Failed to load states:", error);
+                        toast.error("Failed to load states");
+                        setStates([]);
+                      } finally {
+                        setLoadingStates(false);
+                      }
+                    }}
                     isSearchable={true}
-                    />
+                  />
                   {errors.country && (
                     <span style={errorMessageStyle}>
                       {errors.country.message}
@@ -392,11 +465,28 @@ const AddChargingStation = ({ data = {}, formSubmited, editStatus = false, ...pr
               control={control}
               render={({ field }) => (
                 <>
-                  <StyledSelectField {...field} placeholder="State" options={states}
-                    onChange={(e) => {
-                      setValue("state", e)
-                      setStateCode(e.value.isoCode)
-                      setCities(City.getCitiesOfState(e.value.countryCode, e.value.isoCode).map((e) => ({ label: e.name, value: e })))
+                  <StyledSelectField
+                    {...field}
+                    placeholder="State"
+                    options={states}
+                    isLoading={loadingStates}
+                    onChange={async (e) => {
+                      setValue("state", e);
+                      setValue("city", "");
+                      setCities([]);
+                      const code = e.value.iso2;
+                      setStateCode(code);
+                      try {
+                        setLoadingCities(true);
+                        const cityList = await getCitiesOfState(countryCode, code);
+                        setCities(toOptions(cityList));
+                      } catch (error) {
+                        console.error("Failed to load cities:", error);
+                        toast.error("Failed to load cities");
+                        setCities([]);
+                      } finally {
+                        setLoadingCities(false);
+                      }
                     }}
                     isSearchable={true}
                   />
@@ -417,7 +507,13 @@ const AddChargingStation = ({ data = {}, formSubmited, editStatus = false, ...pr
               control={control}
               render={({ field }) => (
                 <>
-                  <StyledSelectField {...field} placeholder="City" options={cities} isSearchable />
+                  <StyledSelectField
+                    {...field}
+                    placeholder="City"
+                    options={cities}
+                    isLoading={loadingCities}
+                    isSearchable
+                  />
                   {errors.city && (
                     <span style={errorMessageStyle}>{errors.city.message}</span>
                   )}
