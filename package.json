@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@countrystatecity/countries-browser": "^1.0.4",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.15.1",
@@ -16,7 +17,6 @@
     "apexcharts": "^3.45.1",
     "axios": "^1.6.5",
     "chart.js": "^4.4.1",
-    "country-state-city": "^3.2.1",
     "dayjs": "^1.11.10",
     "file-saver": "^2.0.5",
     "javascript-time-ago": "^2.5.9",
