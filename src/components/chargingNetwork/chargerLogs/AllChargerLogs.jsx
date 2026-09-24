@@ -19,13 +19,10 @@ const tableHeader = [
 ];
 
 export default function AllChargerLogs({ data, updateData, setPageNo, totalCount, setSearchQuery }) {
-  const [searchValue, setSearchValue] = useState("");
   
   const AllLogsData = tableHeaderReplace(data, ['CPID', 'createdAt', 'messageType', 'payload', '_id'], tableHeader)
   
   const handleSearch = (value)=>{
-    setSearchValue(value)
-    setPageNo(1)
     setSearchQuery(value)
 }
 
@@ -47,7 +44,6 @@ export default function AllChargerLogs({ data, updateData, setPageNo, totalCount
           data={AllLogsData}
           setPageNo={setPageNo}
           totalCount={totalCount}
-          pageResetKey={searchValue}
         />
         <Indicator />
       </Box>

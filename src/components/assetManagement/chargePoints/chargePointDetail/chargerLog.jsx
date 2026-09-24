@@ -138,7 +138,6 @@ export default function ChargerLog({ CPID }) {
     return (
         <><LastSynced heading={'Charger logs'} reloadHandle={() => refetch()}>
             <StyledSearchField placeholder={'Search'} onChange={(e) => {
-                setPageNo(1)
                 setSearchQuery(e.target.value)
             }} />
             <RightDrawer>
@@ -242,7 +241,7 @@ export default function ChargerLog({ CPID }) {
       </Modal>
         </LastSynced>
             <Box sx={{ p: 3, overflow: 'scroll' }}>
-                <StyledTable headers={tableHeader} setPageNo={setPageNo} totalCount={totalCount} data={logList} showActionCell={false} pageResetKey={searchQuery} />
+                <StyledTable headers={tableHeader} setPageNo={setPageNo} totalCount={totalCount} data={logList} showActionCell={false} />
                 <Indicator/>
             </Box>
         </>
