@@ -41,6 +41,7 @@ const StyledTable = ({
   actions = ["Edit", "View", "Delete"],
   setPageNo,
   totalCount,
+  pageResetKey,
 }) => {
   const [page, setPage] = useState(0);
   const [firstopen, setFirstOpen] = useState(true);
@@ -63,6 +64,11 @@ const StyledTable = ({
       setFirstOpen(false);
     }
   }, [data, isChange]);
+
+  useEffect(() => {
+    if (pageResetKey === undefined) return;
+    setPage(0);
+  }, [pageResetKey]);
 
   setTimeout(() => {
     setFirstOpen(false);
