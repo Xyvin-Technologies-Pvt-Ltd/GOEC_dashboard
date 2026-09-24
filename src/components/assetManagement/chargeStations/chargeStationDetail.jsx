@@ -2,6 +2,7 @@ import { Alert, Box, Grid, Snackbar, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import StationDetail from './chargeStationDetail/stationDetail'
 import OwnerDetail from './chargeStationDetail/ownerDetail'
+import PortalAccess from './chargeStationDetail/portalAccess'
 import Analytics from './chargeStationDetail/analytics'
 import { Stack } from '@mui/system'
 import { ArrowBackIosNew } from '@mui/icons-material'
@@ -68,6 +69,9 @@ export default function ChargeStationDetail() {
                             <Grid container spacing={2}>
                                 <Grid item xs={12} md={12} lg={12}>
                                     <OwnerDetail data={stationDetails} />
+                                </Grid>
+                                <Grid item xs={12} md={12} lg={12}>
+                                    <PortalAccess station={stationDetails} />
                                 </Grid>
                                 <Grid item xs={12} md={12} lg={12}>
                                     <Analytics data={stationDetails} />

@@ -13,6 +13,7 @@ import StyledInput from "../../../ui/styledInput";
 import { useUserByEmailMobile } from "../../../hooks/queries/useUser";
 import { useListOfChargingStation, useChargingPointsOfStation } from "../../../hooks/queries/useChargingStation";
 import { useRemoteStart } from "../../../hooks/mutations/useOcppMutation";
+import { connectorLabel } from "../../../utils/connectorLabel";
 
 export default function RemoteSession() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -80,7 +81,7 @@ export default function RemoteSession() {
     setPhoneNumber(e.target.value);
   };
   const cpid = [{ value: "GOEC117", label: "GOEC117" }];
-  const connectorId = [{ value: "1", label: "1" }];
+  const connectorId = [{ value: "1", label: connectorLabel(1) }];
   const session = [{ value: "session", label: "session" }];
   const location = [{ value: "location", label: "location" }];
   return (
@@ -175,7 +176,10 @@ export default function RemoteSession() {
                           onChange={(e) => {
                             setConnectorList([]);
                             setValue("cpid", e);
-                            setConnectorList(e.value.connectors.map((dt) => ({ label: dt.connectorId, value: dt.connectorId })));
+                            setConnectorList(e.value.connectors.map((dt) => ({
+                              label: connectorLabel(dt.connectorId),
+                              value: dt.connectorId,
+                            })));
                           }}
                         />
                         {errors.cpid && (

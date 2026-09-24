@@ -6,6 +6,7 @@ import { Close } from "@mui/icons-material";
 import StyledDivider from "../../../ui/styledDivider";
 import ChargingSummary from "./ChargingSummary";
 import { tableHeaderReplace } from "../../../utils/tableHeaderReplace";
+import { withConnectorLabels } from "../../../utils/connectorLabel";
 import StyledSearchField from "../../../ui/styledSearchField";
 import Filter from "../filter";
 import RightDrawer from "../../../ui/RightDrawer";
@@ -55,7 +56,7 @@ export default function AllChargingTransactions({
   });
 
   const AllOcppTransactionData = tableHeaderReplace(
-    data,
+    withConnectorLabels(data),
     [
       "transactionId",
       "date",

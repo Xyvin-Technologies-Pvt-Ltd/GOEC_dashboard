@@ -8,6 +8,7 @@ import { ReactComponent as Close } from "../../../../assets/icons/close-icon-lar
 import StyledButton from '../../../../ui/styledButton'
 import { Controller, useForm } from 'react-hook-form'
 import { Transition } from '../../../../utils/DialogAnimation'
+import { connectorLabel } from '../../../../utils/connectorLabel'
 
 let compactable_ports = [
     { label: "CCS", value: "CCS" },
@@ -65,7 +66,7 @@ export default function ConnectorDetails({ open, onClose, connectorNumber = 1, d
                             <Grid container spacing={2}>
                                 <Grid item xs={12}>
                                     <Typography sx={{ color: 'primary.contrastText' }} p={2}>
-                                        Connector {index + 1}
+                                        Connector {connectorLabel(index + 1)}
                                     </Typography>
                                     <Grid container direction={{ xs: "column", md: "row" }} spacing={2} p={2}>
                                         <Grid item xs={12} md={6}>

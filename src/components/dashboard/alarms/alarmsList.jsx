@@ -6,6 +6,7 @@ import { Tune } from '@mui/icons-material'
 import StyledTable from '../../../ui/styledTable'
 import { searchAndFilter } from '../../../utils/search'
 import { tableHeaderReplace } from '../../../utils/tableHeaderReplace'
+import { withConnectorLabels } from '../../../utils/connectorLabel'
 import RightDrawer from '../../../ui/RightDrawer'
 import Filter from './filter'
 
@@ -24,7 +25,11 @@ export default function AlarmsList({data, dataReload, setPageNo, totalCount, set
   const handleSearch = (value)=>{
     setSearchQuery(value)
 }
-  const tabledata = tableHeaderReplace(data,['cpid','date','summary','connectorId','status','errorCode'],tableHeader)
+  const tabledata = tableHeaderReplace(
+    withConnectorLabels(data),
+    ['cpid','date','summary','connectorId','status','errorCode'],
+    tableHeader,
+  )
 
   return (
     <>

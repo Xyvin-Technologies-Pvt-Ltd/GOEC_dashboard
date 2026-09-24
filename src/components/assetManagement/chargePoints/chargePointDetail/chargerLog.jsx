@@ -9,6 +9,7 @@ import LastSynced from '../../../../layout/LastSynced'
 import StyledIconButton from '../../../../ui/stylediconButton'
 import { useMachineLog } from '../../../../hooks/queries/useOcpp'
 import { tableHeaderReplace } from '../../../../utils/tableHeaderReplace'
+import { withConnectorLabels } from '../../../../utils/connectorLabel'
 import { searchAndFilter } from '../../../../utils/search'
 import RightDrawer from '../../../../ui/RightDrawer'
 import Filter from './chargerLog/filter'
@@ -97,7 +98,11 @@ export default function ChargerLog({ CPID }) {
     const derivedTotalCount = machineData.totalCount || 0;
 
     useEffect(() => {
-      setLogList(tableHeaderReplace(derivedLogList, ['connectorId', 'date', 'command', 'payload', 'uniqueId', 'source'], tableHeader));
+      setLogList(tableHeaderReplace(
+        withConnectorLabels(derivedLogList),
+        ['connectorId', 'date', 'command', 'payload', 'uniqueId', 'source'],
+        tableHeader,
+      ));
       setTotalCount(derivedTotalCount);
     }, [derivedLogList, derivedTotalCount]);
 
@@ -107,7 +112,11 @@ export default function ChargerLog({ CPID }) {
     // watch downloadData and trigger export when available
     useEffect(() => {
       if (downloadFilter && downloadData && downloadData.status) {
-        const updatedLog = tableHeaderReplace(downloadData.result, ['connectorId', 'date', 'command', 'payload', 'uniqueId', 'source'], tableHeader);
+        const updatedLog = tableHeaderReplace(
+          withConnectorLabels(downloadData.result),
+          ['connectorId', 'date', 'command', 'payload', 'uniqueId', 'source'],
+          tableHeader,
+        );
         exportExcelData(updatedLog, 'ChargerLog');
         handleClose();
         reset();
