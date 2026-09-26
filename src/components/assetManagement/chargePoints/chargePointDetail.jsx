@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { Stack } from '@mui/system'
 import { ArrowBackIosNew } from '@mui/icons-material'
 import StyledTab from '../../../ui/styledTab'
-import CPAction from './chargePointDetail/CPAction'
-import CPConfig from './chargePointDetail/CPConfig'
+// import CPAction from './chargePointDetail/CPAction'
+// import CPConfig from './chargePointDetail/CPConfig'
 import Transactions from './chargePointDetail/transactions'
 
 import ChargePointDetailsAnalytics from './chargePointDetail/chargePointDetailsAnalytics'
@@ -134,13 +134,19 @@ export default function ChargePointDetail() {
                     </Grid>
                 </Grid>
             </Grid>
-            <StyledTab buttons={['CP Action', 'CP config', 'Transaction', 'Charger logs', 'Alarm', 'Tariff']} onChanged={onChangeToggleOption} />
-            {toggleOption === 0 ? <CPAction /> :
+            {/* Hidden: CP Action, CP config — restore with imports above */}
+            {/* <StyledTab buttons={['CP Action', 'CP config', 'Transaction', 'Charger logs', 'Alarm', 'Tariff']} onChanged={onChangeToggleOption} /> */}
+            <StyledTab buttons={['Transaction', 'Charger logs', 'Alarm', 'Tariff']} onChanged={onChangeToggleOption} />
+            {/* {toggleOption === 0 ? <CPAction /> :
                 toggleOption === 1 ? <CPConfig /> :
                     toggleOption === 2 ? <Transactions CPID={chargepointData && chargepointData.CPID} /> :
                         toggleOption === 3 ? <ChargerLog CPID={chargepointData && chargepointData.CPID} /> :
                             toggleOption === 4 ? <Alarm CPID={chargepointData && chargepointData.CPID} /> :
-                                <Tariff CPID={chargepointData && chargepointData.CPID} id={chargepointData && chargepointData._id} />}
+                                <Tariff CPID={chargepointData && chargepointData.CPID} id={chargepointData && chargepointData._id} />} */}
+            {toggleOption === 0 ? <Transactions CPID={chargepointData && chargepointData.CPID} /> :
+                toggleOption === 1 ? <ChargerLog CPID={chargepointData && chargepointData.CPID} /> :
+                    toggleOption === 2 ? <Alarm CPID={chargepointData && chargepointData.CPID} /> :
+                        <Tariff CPID={chargepointData && chargepointData.CPID} id={chargepointData && chargepointData._id} />}
         </>
     )
 }
