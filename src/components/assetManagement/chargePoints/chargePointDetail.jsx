@@ -94,17 +94,17 @@ export default function ChargePointDetail() {
 
     const connectorUnlock = (connectorId) => {
         unlockMutation.mutate(
-            { cpid: chargepointData.CPID, data: { connectorId: connectorId } },
+            { cpid: chargepointData.CPID, data: { connectorId: Number(connectorId) } },
             {
                 onSuccess: (res) => {
-                    if (res.status) {
+                    if (res.status || res.success) {
                         toast.success(res.message)
                     } else {
                         toast.error(res.message)
                     }
                 },
                 onError: (error) => {
-                    toast.error(error?.message || "Failed to unlock connector")
+                    toast.error(error?.response?.data?.message || error?.message || "Failed to unlock connector")
                 },
             }
         )
